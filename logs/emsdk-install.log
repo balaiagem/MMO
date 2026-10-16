@@ -1,0 +1,18 @@
+Resolving SDK version '4.0.23' to 'sdk-releases-aaa43392544d695232b70eda706d751f18980c2a-64bit'
+Installing SDK 'sdk-releases-aaa43392544d695232b70eda706d751f18980c2a-64bit'..
+Installing tool 'node-24.19.0-64bit'..
+Downloading: C:/Users/lucas/Desktop/tibia/tools/emsdk/downloads/node-v24.19.0-win-x64.zip from https://storage.googleapis.com/webassembly/emscripten-releases-builds/deps/node-v24.19.0-win-x64.zip, 37304352 Bytes
+ [----------------------------------------------------------------------------]
+Unpacking 'C:/Users/lucas/Desktop/tibia/tools/emsdk/downloads/node-v24.19.0-win-x64.zip' to 'C:/Users/lucas/Desktop/tibia/tools/emsdk/node/24.19.0_64bit'
+Done installing tool 'node-24.19.0-64bit'.
+Installing tool 'python-3.13.3-64bit'..
+Downloading: C:/Users/lucas/Desktop/tibia/tools/emsdk/downloads/python-3.13.3-0-win-amd64.zip from https://storage.googleapis.com/webassembly/emscripten-releases-builds/deps/python-3.13.3-0-win-amd64.zip, 29736374 Bytes
+ [----------------------------------------------------------------------------]
+Unpacking 'C:/Users/lucas/Desktop/tibia/tools/emsdk/downloads/python-3.13.3-0-win-amd64.zip' to 'C:/Users/lucas/Desktop/tibia/tools/emsdk/python/3.13.3_64bit'
+Done installing tool 'python-3.13.3-64bit'.
+Installing tool 'releases-aaa43392544d695232b70eda706d751f18980c2a-64bit'..
+Downloading: C:/Users/lucas/Desktop/tibia/tools/emsdk/downloads/aaa43392544d695232b70eda706d751f18980c2a-wasm-binaries.zip from https://storage.googleapis.com/webassembly/emscripten-releases-builds/win/aaa43392544d695232b70eda706d751f18980c2a/wasm-binaries.zip, 641817859 Bytes
+ [----------------------------------------------------------------------------]
+Unpacking 'C:/Users/lucas/Desktop/tibia/tools/emsdk/downloads/aaa43392544d695232b70eda706d751f18980c2a-wasm-binaries.zip' to 'C:/Users/lucas/Desktop/tibia/tools/emsdk/upstream'
+Done installing tool 'releases-aaa43392544d695232b70eda706d751f18980c2a-64bit'.
+Done installing SDK 'sdk-releases-aaa43392544d695232b70eda706d751f18980c2a-64bit'.

@@ -1,0 +1,1 @@
+-- NPC behavior is registered with the TFS 1.8 native NpcType API in rookgaard.lua.

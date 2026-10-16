@@ -1,0 +1,15 @@
+MSBuild version 17.14.51+25f168cee for .NET Framework
+
+  unity_12_cxx.cxx
+C:\Users\lucas\Desktop\tibia\server\src\definitions.h(40,9): warning C4005: 'WIN32_LEAN_AND_MEAN': macro redefinition [C:\Users\lucas\Desktop\tibia\build\server-vs\src\tfslib.vcxproj]
+  (compiling source file 'CMakeFiles/tfslib.dir/Unity/unity_12_cxx.cxx')
+      C:\Users\lucas\Desktop\tibia\server\src\definitions.h(40,9):
+      'WIN32_LEAN_AND_MEAN' previously declared on the command line
+  
+  tfslib.vcxproj -> C:\Users\lucas\Desktop\tibia\build\server-vs\src\Release\tfslib.lib
+  Generating code
+  24 of 58902 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    162 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  tfs.vcxproj -> C:\Users\lucas\Desktop\tibia\build\server-vs\Release\tfs.exe

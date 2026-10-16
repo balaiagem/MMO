@@ -1,0 +1,1487 @@
+-- Running vcpkg install
+A suitable version of cmake was not found (required v4.4.0).
+Downloading https://github.com/Kitware/CMake/releases/download/v4.4.0/cmake-4.4.0-windows-x86_64.zip -> cmake-4.4.0-windows-x86_64.zip
+Successfully downloaded cmake-4.4.0-windows-x86_64.zip
+Extracting cmake...
+A suitable version of 7zip was not found (required v26.02).
+Downloading https://github.com/ip7z/7zip/releases/download/26.02/7z2602-x64.exe -> 7z2602-x64.7z.exe
+Successfully downloaded 7z2602-x64.7z.exe
+Extracting 7zip...
+A suitable version of 7zr was not found (required v26.02).
+Downloading https://github.com/ip7z/7zip/releases/download/26.02/7zr.exe -> dfdcf16e-7zr.exe
+Successfully downloaded dfdcf16e-7zr.exe
+Detecting compiler hash for triplet x64-windows...
+Compiler found: C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe
+The following packages will be built and installed:
+    abseil:x64-windows@20260107.1#3
+    asio:x64-windows@1.32.0
+    fmt:x64-windows@12.2.0#1
+    libmariadb[core,iconv]:x64-windows@3.4.8
+    lua:x64-windows@5.5.0#2 -- C:\Users\lucas\Desktop\tibia\server\vcpkg-overlays\lua
+    mio:x64-windows@2023-03-03
+    openssl:x64-windows@3.6.3
+    pugixml:x64-windows@1.16
+    simdutf:x64-windows@8.2.0
+    spdlog[core,fmt,tz-offset]:x64-windows@1.17.0#1
+  * vcpkg-cmake:x64-windows@2024-04-23
+  * vcpkg-cmake-config:x64-windows@2026-07-21
+  * vcpkg-cmake-get-vars:x64-windows@2025-05-29
+    zlib:x64-windows@1.3.2#1
+Additional packages (*) will be modified to complete this operation.
+Restored 0 package(s) from C:\Users\lucas\AppData\Local\vcpkg\archives in 2.71 ms. Use --debug to see more details.
+Installing 1/14 vcpkg-cmake-config:x64-windows@2026-07-21...
+vcpkg-cmake-config:x64-windows@2026-07-21 package ABI: e81013ed50d3346b2f45dc0f7ceeeae8a3f312e2f3d5640c8fed4cfe121deaab
+Building vcpkg-cmake-config:x64-windows@2026-07-21...
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/vcpkg-cmake-config_x64-windows/share/vcpkg-cmake-config/vcpkg_cmake_config_fixup.cmake
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/vcpkg-cmake-config_x64-windows/share/vcpkg-cmake-config/vcpkg-port-config.cmake
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/vcpkg-cmake-config_x64-windows/share/vcpkg-cmake-config/copyright
+-- Skipping post-build validation due to VCPKG_POLICY_EMPTY_PACKAGE
+Starting submission of vcpkg-cmake-config:x64-windows@2026-07-21 to 1 binary cache(s) in the background
+Elapsed time to handle vcpkg-cmake-config:x64-windows: 233 ms
+Installing 2/14 vcpkg-cmake:x64-windows@2024-04-23...
+vcpkg-cmake:x64-windows@2024-04-23 package ABI: 6c066b07895c9c4fde3ad9182afce86a708b237ae2b5a73be700820584373a07
+Building vcpkg-cmake:x64-windows@2024-04-23...
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/vcpkg-cmake_x64-windows/share/vcpkg-cmake/vcpkg_cmake_configure.cmake
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/vcpkg-cmake_x64-windows/share/vcpkg-cmake/vcpkg_cmake_build.cmake
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/vcpkg-cmake_x64-windows/share/vcpkg-cmake/vcpkg_cmake_install.cmake
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/vcpkg-cmake_x64-windows/share/vcpkg-cmake/vcpkg-port-config.cmake
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/vcpkg-cmake_x64-windows/share/vcpkg-cmake/copyright
+-- Performing post-build validation
+Starting submission of vcpkg-cmake:x64-windows@2024-04-23 to 1 binary cache(s) in the background
+Elapsed time to handle vcpkg-cmake:x64-windows: 309 ms
+Completed submission of vcpkg-cmake-config:x64-windows@2026-07-21 to 1 binary cache(s) in 159 ms
+Installing 3/14 abseil:x64-windows@20260107.1#3...
+abseil:x64-windows@20260107.1#3 package ABI: 7d7b23fe3e21033a7127babeae6819499938945dae4764aea9ba63be48f91c7a
+Building abseil:x64-windows@20260107.1#3...
+Downloading https://github.com/abseil/abseil-cpp/archive/20260107.1.tar.gz -> abseil-abseil-cpp-20260107.1.tar.gz
+Successfully downloaded abseil-abseil-cpp-20260107.1.tar.gz
+-- Extracting source C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/abseil-abseil-cpp-20260107.1.tar.gz
+-- Applying patch 003-force-cxx-17.patch
+-- Applying patch fix-heterogeneous_lookup_testing-target.patch
+-- Applying patch fix-mingw-dll.patch
+-- Applying patch fix-gcc13-constexpr-function-pointer.patch
+-- Using source at C:/Users/lucas/Desktop/tibia/tools/vcpkg/buildtrees/abseil/src/20260107.1-b1a4a53e9a.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/abseil_dll.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_absl_check.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_absl_log.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_absl_vlog_is_on.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_algorithm.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_algorithm_container.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_any.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_any_invocable.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_atomic_hook.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_bad_any_cast.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_bad_optional_access.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_bad_variant_access.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_base.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_base_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_bind_front.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_bits.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_borrowed_fixup_buffer.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_bounded_utf8_length_sequence.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_btree.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_charset.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_check.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_chunked_queue.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_city.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_civil_time.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_cleanup.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_cleanup_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_common_policy_traits.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_compare.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_compressed_tuple.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_config.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_constexpr_testing_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_container_common.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_container_memory.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_cord.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_cord_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_cordz_functions.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_cordz_handle.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_cordz_info.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_cordz_sample_token.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_cordz_statistics.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_cordz_update_scope.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_cordz_update_tracker.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_core_headers.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_crc32c.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_crc_cord_state.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_crc_cpu_detect.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_crc_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_debugging.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_debugging_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_decode_rust_punycode.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_demangle_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_demangle_rust.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_die_if_null.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_dynamic_annotations.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_endian.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_errno_saver.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_examine_stack.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_exponential_biased.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_failure_signal_handler.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_fast_type_id.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_fixed_array.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flags.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flags_commandlineflag.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flags_commandlineflag_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flags_config.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flags_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flags_marshalling.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flags_parse.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flags_path_util.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flags_private_handle_accessor.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flags_program_name.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flags_reflection.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flags_usage.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flags_usage_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flat_hash_map.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_flat_hash_set.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_function_ref.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_generic_printer_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_graphcycles_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_has_ostream_operator.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_hash.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_hash_container_defaults.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_hash_function_defaults.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_hash_policy_traits.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_hashtable_control_bytes.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_hashtable_debug.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_hashtable_debug_hooks.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_hashtable_profiler.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_hashtablez_sampler.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_inlined_vector.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_inlined_vector_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_int128.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_iterator_traits_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_iterator_traits_test_helper_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_kernel_timeout_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_layout.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_leak_check.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_linked_hash_map.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_linked_hash_set.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_entry.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_flags.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_globals.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_initialize.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_append_truncated.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_check_impl.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_check_op.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_conditions.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_config.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_container.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_flags.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_fnmatch.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_format.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_globals.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_log_impl.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_log_sink_set.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_message.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_nullguard.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_nullstream.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_proto.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_strip.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_structured.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_structured_proto.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_internal_voidify.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_severity.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_sink.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_sink_registry.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_streamer.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_log_structured.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_malloc_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_memory.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_meta.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_no_destructor.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_node_hash_map.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_node_hash_set.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_node_slot_policy.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_non_temporal_arm_intrinsics.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_non_temporal_memcpy.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_nullability.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_nullability_traits_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_numeric.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_numeric_representation.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_optional.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_overload.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_periodic_sampler.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_poison.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_prefetch.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_pretty_function.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_profile_builder.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_bit_gen_ref.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_distributions.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_distribution_caller.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_distribution_test_util.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_entropy_pool.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_fast_uniform_bits.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_fastmath.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_generate_real.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_iostream_state_saver.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_mock_helpers.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_nonsecure_base.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_pcg_engine.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_platform.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_randen.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_randen_engine.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_randen_hwaes.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_randen_hwaes_impl.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_randen_slow.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_salted_seed_seq.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_seed_material.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_traits.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_uniform_helper.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_internal_wide_multiply.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_random.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_seed_gen_exception.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_random_seed_sequences.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_raw_hash_map.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_raw_hash_set.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_raw_hash_set_resize_impl.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_raw_logging_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_requires_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_sample_recorder.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_scoped_set_env.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_span.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_spinlock_wait.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_stacktrace.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_status.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_statusor.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_str_format.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_str_format_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_strerror.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_string_view.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_strings.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_strings_append_and_overwrite.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_strings_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_strings_resize_and_overwrite.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_symbolize.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_synchronization.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_throw_delegate.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_time.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_time_zone.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_tracing_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_type_traits.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_utf8_for_code_point.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_utility.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_variant.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_vlog_config_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_vlog_is_on.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/lib/pkgconfig/absl_weakly_mixed_integer.pc
+Downloading msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst, trying https://mirror.msys2.org/mingw/mingw64/mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+Successfully downloaded msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+Downloading msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst, trying https://mirror.msys2.org/msys/x86_64/msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+Successfully downloaded msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/abseil_dll.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_absl_check.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_absl_log.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_absl_vlog_is_on.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_algorithm.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_algorithm_container.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_any.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_any_invocable.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_atomic_hook.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_bad_any_cast.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_bad_optional_access.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_bad_variant_access.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_base.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_base_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_bind_front.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_bits.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_borrowed_fixup_buffer.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_bounded_utf8_length_sequence.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_btree.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_charset.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_check.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_chunked_queue.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_city.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_civil_time.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_cleanup.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_cleanup_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_common_policy_traits.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_compare.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_compressed_tuple.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_config.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_constexpr_testing_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_container_common.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_container_memory.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_cord.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_cord_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_cordz_functions.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_cordz_handle.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_cordz_info.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_cordz_sample_token.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_cordz_statistics.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_cordz_update_scope.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_cordz_update_tracker.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_core_headers.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_crc32c.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_crc_cord_state.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_crc_cpu_detect.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_crc_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_debugging.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_debugging_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_decode_rust_punycode.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_demangle_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_demangle_rust.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_die_if_null.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_dynamic_annotations.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_endian.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_errno_saver.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_examine_stack.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_exponential_biased.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_failure_signal_handler.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_fast_type_id.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_fixed_array.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flags.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flags_commandlineflag.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flags_commandlineflag_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flags_config.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flags_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flags_marshalling.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flags_parse.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flags_path_util.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flags_private_handle_accessor.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flags_program_name.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flags_reflection.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flags_usage.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flags_usage_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flat_hash_map.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_flat_hash_set.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_function_ref.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_generic_printer_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_graphcycles_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_has_ostream_operator.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_hash.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_hash_container_defaults.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_hash_function_defaults.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_hash_policy_traits.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_hashtable_control_bytes.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_hashtable_debug.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_hashtable_debug_hooks.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_hashtable_profiler.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_hashtablez_sampler.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_inlined_vector.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_inlined_vector_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_int128.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_iterator_traits_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_iterator_traits_test_helper_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_kernel_timeout_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_layout.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_leak_check.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_linked_hash_map.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_linked_hash_set.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_entry.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_flags.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_globals.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_initialize.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_append_truncated.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_check_impl.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_check_op.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_conditions.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_config.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_container.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_flags.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_fnmatch.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_format.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_globals.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_log_impl.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_log_sink_set.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_message.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_nullguard.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_nullstream.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_proto.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_strip.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_structured.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_structured_proto.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_internal_voidify.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_severity.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_sink.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_sink_registry.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_streamer.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_log_structured.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_malloc_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_memory.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_meta.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_no_destructor.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_node_hash_map.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_node_hash_set.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_node_slot_policy.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_non_temporal_arm_intrinsics.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_non_temporal_memcpy.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_nullability.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_nullability_traits_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_numeric.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_numeric_representation.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_optional.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_overload.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_periodic_sampler.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_poison.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_prefetch.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_pretty_function.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_profile_builder.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_bit_gen_ref.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_distributions.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_distribution_caller.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_distribution_test_util.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_entropy_pool.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_fast_uniform_bits.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_fastmath.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_generate_real.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_iostream_state_saver.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_mock_helpers.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_nonsecure_base.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_pcg_engine.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_platform.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_randen.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_randen_engine.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_randen_hwaes.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_randen_hwaes_impl.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_randen_slow.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_salted_seed_seq.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_seed_material.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_traits.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_uniform_helper.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_internal_wide_multiply.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_random.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_seed_gen_exception.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_random_seed_sequences.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_raw_hash_map.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_raw_hash_set.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_raw_hash_set_resize_impl.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_raw_logging_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_requires_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_sample_recorder.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_scoped_set_env.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_span.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_spinlock_wait.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_stacktrace.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_status.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_statusor.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_str_format.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_str_format_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_strerror.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_string_view.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_strings.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_strings_append_and_overwrite.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_strings_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_strings_resize_and_overwrite.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_symbolize.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_synchronization.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_throw_delegate.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_time.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_time_zone.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_tracing_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_type_traits.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_utf8_for_code_point.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_utility.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_variant.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_vlog_config_internal.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_vlog_is_on.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/debug/lib/pkgconfig/absl_weakly_mixed_integer.pc
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/abseil_x64-windows/share/abseil/copyright
+-- Performing post-build validation
+Starting submission of abseil:x64-windows@20260107.1#3 to 1 binary cache(s) in the background
+Elapsed time to handle abseil:x64-windows: 7 min
+Completed submission of vcpkg-cmake:x64-windows@2024-04-23 to 1 binary cache(s) in 124 ms
+Installing 4/14 asio:x64-windows@1.32.0...
+asio:x64-windows@1.32.0 package ABI: 10c082a91df454ccb16f2833a8c2d152e0e8f2a65cb6aee92ff99174e2d10845
+Building asio:x64-windows@1.32.0...
+Downloading https://github.com/chriskohlhoff/asio/archive/asio-1-32-0.tar.gz -> chriskohlhoff-asio-asio-1-32-0.tar.gz
+Successfully downloaded chriskohlhoff-asio-asio-1-32-0.tar.gz
+-- Extracting source C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/chriskohlhoff-asio-asio-1-32-0.tar.gz
+-- Using source at C:/Users/lucas/Desktop/tibia/tools/vcpkg/buildtrees/asio/src/sio-1-32-0-e4cfb7a1b9.clean
+-- Configuring x64-windows
+-- Building x64-windows-rel
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/asio_x64-windows/share/pkgconfig/asio.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/asio_x64-windows/share/asio/asio-config.cmake
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/asio_x64-windows/share/asio/copyright
+-- Performing post-build validation
+Starting submission of asio:x64-windows@1.32.0 to 1 binary cache(s) in the background
+Elapsed time to handle asio:x64-windows: 3.7 h
+Completed submission of abseil:x64-windows@20260107.1#3 to 1 binary cache(s) in 31 s
+Installing 5/14 fmt:x64-windows@12.2.0#1...
+fmt:x64-windows@12.2.0#1 package ABI: f44cb47ac6ab8b707e189ac5bb0c5bf02b396e8fb34d9c95cf1da0c4aaca9f8e
+Building fmt:x64-windows@12.2.0#1...
+Downloading https://github.com/fmtlib/fmt/commit/588b3a0f8f6a8bcf2a959cae882d5b2703e86737.patch?full_index=1 -> fmt-backport-4813.patch
+Successfully downloaded fmt-backport-4813.patch
+Downloading https://github.com/fmtlib/fmt/archive/12.2.0.tar.gz -> fmtlib-fmt-12.2.0.tar.gz
+Successfully downloaded fmtlib-fmt-12.2.0.tar.gz
+-- Extracting source C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/fmtlib-fmt-12.2.0.tar.gz
+-- Applying patch C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/fmt-backport-4813.patch
+-- Using source at C:/Users/lucas/Desktop/tibia/tools/vcpkg/buildtrees/fmt/src/12.2.0-d352ede310.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/fmt_x64-windows/lib/pkgconfig/fmt.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/fmt_x64-windows/debug/lib/pkgconfig/fmt.pc
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/fmt_x64-windows/share/fmt/usage
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/fmt_x64-windows/share/fmt/copyright
+-- Performing post-build validation
+Starting submission of fmt:x64-windows@12.2.0#1 to 1 binary cache(s) in the background
+Elapsed time to handle fmt:x64-windows: 31 s
+Completed submission of asio:x64-windows@1.32.0 to 1 binary cache(s) in 762 ms
+Installing 6/14 mio:x64-windows@2023-03-03...
+mio:x64-windows@2023-03-03 package ABI: a67cba9d58b916d0ab879ca0dbee55376fb85276a3fea4f4aff086fc53ed1bae
+Building mio:x64-windows@2023-03-03...
+Downloading https://github.com/mandreyel/mio/archive/8b6b7d878c89e81614d05edca7936de41ccdd2da.tar.gz -> mandreyel-mio-8b6b7d878c89e81614d05edca7936de41ccdd2da.tar.gz
+Successfully downloaded mandreyel-mio-8b6b7d878c89e81614d05edca7936de41ccdd2da.tar.gz
+-- Extracting source C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/mandreyel-mio-8b6b7d878c89e81614d05edca7936de41ccdd2da.tar.gz
+-- Using source at C:/Users/lucas/Desktop/tibia/tools/vcpkg/buildtrees/mio/src/e41ccdd2da-976ceb8069.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/mio_x64-windows/share/mio/copyright
+-- Performing post-build validation
+Starting submission of mio:x64-windows@2023-03-03 to 1 binary cache(s) in the background
+Elapsed time to handle mio:x64-windows: 8.2 s
+Completed submission of fmt:x64-windows@12.2.0#1 to 1 binary cache(s) in 404 ms
+Installing 7/14 vcpkg-cmake-get-vars:x64-windows@2025-05-29...
+vcpkg-cmake-get-vars:x64-windows@2025-05-29 package ABI: 3b6a0d0f5122f57fe0fd9356f1e7af2a338cdd4a092b4e848947242b45270040
+Building vcpkg-cmake-get-vars:x64-windows@2025-05-29...
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/vcpkg-cmake-get-vars_x64-windows/share/vcpkg-cmake-get-vars/vcpkg_cmake_get_vars.cmake
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/vcpkg-cmake-get-vars_x64-windows/share/vcpkg-cmake-get-vars/cmake_get_vars
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/vcpkg-cmake-get-vars_x64-windows/share/vcpkg-cmake-get-vars/cmake_get_vars/CMakeLists.txt
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/vcpkg-cmake-get-vars_x64-windows/share/vcpkg-cmake-get-vars/cmake-get-vars.cmake.in
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/vcpkg-cmake-get-vars_x64-windows/share/vcpkg-cmake-get-vars/vcpkg-port-config.cmake
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/vcpkg-cmake-get-vars_x64-windows/share/vcpkg-cmake-get-vars/copyright
+-- Performing post-build validation
+Starting submission of vcpkg-cmake-get-vars:x64-windows@2025-05-29 to 1 binary cache(s) in the background
+Elapsed time to handle vcpkg-cmake-get-vars:x64-windows: 346 ms
+Completed submission of mio:x64-windows@2023-03-03 to 1 binary cache(s) in 90.7 ms
+Installing 8/14 openssl:x64-windows@3.6.3...
+openssl:x64-windows@3.6.3 package ABI: f53b1757544a08cf5c712cd382f3f573fb54b42bf26ef8f31c8d6a4c6c98973f
+Building openssl:x64-windows@3.6.3...
+Downloading https://github.com/openssl/openssl/archive/openssl-3.6.3.tar.gz -> openssl-openssl-openssl-3.6.3.tar.gz
+Successfully downloaded openssl-openssl-openssl-3.6.3.tar.gz
+-- Extracting source C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/openssl-openssl-openssl-3.6.3.tar.gz
+-- Applying patch cmake-config.patch
+-- Applying patch command-line-length.patch
+-- Applying patch script-prefix.patch
+-- Applying patch windows/install-layout.patch
+-- Applying patch windows/install-pdbs.patch
+-- Applying patch windows/install-programs.diff
+-- Applying patch unix/android-cc.patch
+-- Applying patch unix/move-openssldir.patch
+-- Applying patch unix/no-empty-dirs.patch
+-- Applying patch unix/no-static-libs-for-shared.patch
+-- Using source at C:/Users/lucas/Desktop/tibia/tools/vcpkg/buildtrees/openssl/src/nssl-3.6.3-28a9d34a24.clean
+-- Getting CMake variables for x64-windows
+-- Loading CMake variables from C:/Users/lucas/Desktop/tibia/tools/vcpkg/buildtrees/openssl/cmake-get-vars_C_CXX-x64-windows.cmake.log
+Downloading https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/SP_54221_64bit/strawberry-perl-5.42.2.1-64bit-portable.zip -> strawberry-perl-5.42.2.1-64bit-portable.zip
+Successfully downloaded strawberry-perl-5.42.2.1-64bit-portable.zip
+Downloading nasm-3.01-win64.zip, trying https://www.nasm.us/pub/nasm/releasebuilds/3.01/win64/nasm-3.01-win64.zip
+Successfully downloaded nasm-3.01-win64.zip
+-- Getting CMake variables for x64-windows
+Downloading jom_1_1_7.zip, trying https://download.qt.io/official_releases/jom/jom_1_1_7.zip
+Successfully downloaded jom_1_1_7.zip
+-- Prerunning x64-windows-dbg
+-- Building x64-windows-dbg
+-- Prerunning x64-windows-rel
+-- Building x64-windows-rel
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/openssl_x64-windows/lib/pkgconfig/libcrypto.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/openssl_x64-windows/lib/pkgconfig/libssl.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/openssl_x64-windows/lib/pkgconfig/openssl.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/openssl_x64-windows/debug/lib/pkgconfig/libcrypto.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/openssl_x64-windows/debug/lib/pkgconfig/libssl.pc
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/openssl_x64-windows/debug/lib/pkgconfig/openssl.pc
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/openssl_x64-windows/share/openssl/usage
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/openssl_x64-windows/share/openssl/copyright
+-- Performing post-build validation
+Starting submission of openssl:x64-windows@3.6.3 to 1 binary cache(s) in the background
+Elapsed time to handle openssl:x64-windows: 5.6 h
+Completed submission of vcpkg-cmake-get-vars:x64-windows@2025-05-29 to 1 binary cache(s) in 83.1 ms
+Installing 9/14 pugixml:x64-windows@1.16...
+pugixml:x64-windows@1.16 package ABI: 38c41e7ea5253d5ee4acb58537cb7e9697dd7f1beb488394ccb039dea26a56d6
+Building pugixml:x64-windows@1.16...
+Downloading https://github.com/zeux/pugixml/archive/v1.16.tar.gz -> zeux-pugixml-v1.16.tar.gz
+Successfully downloaded zeux-pugixml-v1.16.tar.gz
+-- Extracting source C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/zeux-pugixml-v1.16.tar.gz
+-- Using source at C:/Users/lucas/Desktop/tibia/tools/vcpkg/buildtrees/pugixml/src/v1.16-22f15b704a.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/pugixml_x64-windows/lib/pkgconfig/pugixml.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/pugixml_x64-windows/debug/lib/pkgconfig/pugixml.pc
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/pugixml_x64-windows/share/pugixml/copyright
+-- Performing post-build validation
+Starting submission of pugixml:x64-windows@1.16 to 1 binary cache(s) in the background
+Elapsed time to handle pugixml:x64-windows: 2.2 min
+Completed submission of openssl:x64-windows@3.6.3 to 1 binary cache(s) in 1.4 min
+Installing 10/14 simdutf:x64-windows@8.2.0...
+simdutf:x64-windows@8.2.0 package ABI: 868108955acc2c7de39ce690f441ac8ec531750d4d349059bddd0f32511eb359
+Building simdutf:x64-windows@8.2.0...
+Downloading https://github.com/simdutf/simdutf/archive/v8.2.0.tar.gz -> simdutf-simdutf-v8.2.0.tar.gz
+Successfully downloaded simdutf-simdutf-v8.2.0.tar.gz
+-- Extracting source C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/simdutf-simdutf-v8.2.0.tar.gz
+-- Using source at C:/Users/lucas/Desktop/tibia/tools/vcpkg/buildtrees/simdutf/src/v8.2.0-62ac379f07.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/simdutf_x64-windows/lib/pkgconfig/simdutf.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/simdutf_x64-windows/debug/lib/pkgconfig/simdutf.pc
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/simdutf_x64-windows/share/simdutf/copyright
+-- Performing post-build validation
+Starting submission of simdutf:x64-windows@8.2.0 to 1 binary cache(s) in the background
+Elapsed time to handle simdutf:x64-windows: 10 min
+Completed submission of pugixml:x64-windows@1.16 to 1 binary cache(s) in 2.8 s
+Installing 11/14 spdlog[core,fmt,tz-offset]:x64-windows@1.17.0#1...
+spdlog[core,fmt,tz-offset]:x64-windows@1.17.0#1 package ABI: 55c2b7dabd883ff44b1e3d0587b462591a4377b4226119b046578f7c9afc07c3
+Building spdlog[core,fmt,tz-offset]:x64-windows@1.17.0#1...
+Downloading https://github.com/gabime/spdlog/commit/1685e694c5cd8328280c48f8b94b1281c17c6fee.patch?full_index=1 -> spdlog-backport-3541.patch
+Successfully downloaded spdlog-backport-3541.patch
+Downloading https://github.com/gabime/spdlog/commit/d5af52d903ed69f96c7350155e94aeff248b31eb.patch?full_index=1 -> spdlog-backport-3543.patch
+Successfully downloaded spdlog-backport-3543.patch
+Downloading https://github.com/gabime/spdlog/archive/v1.17.0.tar.gz -> gabime-spdlog-v1.17.0.tar.gz
+Successfully downloaded gabime-spdlog-v1.17.0.tar.gz
+-- Extracting source C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/gabime-spdlog-v1.17.0.tar.gz
+-- Applying patch C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/spdlog-backport-3541.patch
+-- Applying patch C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/spdlog-backport-3543.patch
+-- Using source at C:/Users/lucas/Desktop/tibia/tools/vcpkg/buildtrees/spdlog/src/v1.17.0-8a1a388e84.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/spdlog_x64-windows/lib/pkgconfig/spdlog.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/spdlog_x64-windows/debug/lib/pkgconfig/spdlog.pc
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/spdlog_x64-windows/share/spdlog/usage
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/spdlog_x64-windows/share/spdlog/copyright
+-- Performing post-build validation
+Starting submission of spdlog[core,fmt,tz-offset]:x64-windows@1.17.0#1 to 1 binary cache(s) in the background
+Elapsed time to handle spdlog:x64-windows: 53 s
+Completed submission of simdutf:x64-windows@8.2.0 to 1 binary cache(s) in 3.9 s
+Installing 12/14 zlib:x64-windows@1.3.2#1...
+zlib:x64-windows@1.3.2#1 package ABI: 4a905955f9b59c7601799b17c2d5acf06502f5e6f1692ca32afc8b2f6a8e158c
+Building zlib:x64-windows@1.3.2#1...
+-- Using cached madler-zlib-v1.3.2.tar.gz
+-- Extracting source C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/madler-zlib-v1.3.2.tar.gz
+-- Applying patch 0001-no-version-script-on-ohos.patch
+-- Using source at C:/Users/lucas/Desktop/tibia/tools/vcpkg/buildtrees/zlib/src/v1.3.2-c19a0bfd23.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/zlib_x64-windows/lib/pkgconfig/zlib.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/zlib_x64-windows/debug/lib/pkgconfig/zlib.pc
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/zlib_x64-windows/share/zlib/vcpkg-cmake-wrapper.cmake
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/zlib_x64-windows/share/zlib/copyright
+-- Performing post-build validation
+Starting submission of zlib:x64-windows@1.3.2#1 to 1 binary cache(s) in the background
+Elapsed time to handle zlib:x64-windows: 17 s
+Completed submission of spdlog[core,fmt,tz-offset]:x64-windows@1.17.0#1 to 1 binary cache(s) in 2.2 s
+Installing 13/14 libmariadb[core,iconv]:x64-windows@3.4.8...
+libmariadb[core,iconv]:x64-windows@3.4.8 package ABI: e5a9c9de8244ed3264d45713a562abad46f43d1324b1fb62c9f40e1ab13be71a
+Building libmariadb[core,iconv]:x64-windows@3.4.8...
+Downloading https://github.com/mariadb-corporation/mariadb-connector-c/archive/v3.4.8.tar.gz -> mariadb-corporation-mariadb-connector-c-v3.4.8.tar.gz
+Successfully downloaded mariadb-corporation-mariadb-connector-c-v3.4.8.tar.gz
+-- Extracting source C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/mariadb-corporation-mariadb-connector-c-v3.4.8.tar.gz
+-- Applying patch compiler-flags.diff
+-- Applying patch dependencies.diff
+-- Applying patch disable-mariadb_config.diff
+-- Applying patch library-linkage.diff
+-- Applying patch cmake-export.diff
+-- Applying patch no-abs-path.diff
+-- Using source at C:/Users/lucas/Desktop/tibia/tools/vcpkg/buildtrees/libmariadb/src/v3.4.8-091ce58945.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/libmariadb_x64-windows/lib/pkgconfig/libmariadb.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/libmariadb_x64-windows/debug/lib/pkgconfig/libmariadb.pc
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/libmariadb_x64-windows/share/libmariadb/copyright
+-- Performing post-build validation
+Starting submission of libmariadb[core,iconv]:x64-windows@3.4.8 to 1 binary cache(s) in the background
+Elapsed time to handle libmariadb:x64-windows: 1.9 min
+Completed submission of zlib:x64-windows@1.3.2#1 to 1 binary cache(s) in 229 ms
+Installing 14/14 lua:x64-windows@5.5.0#2...
+lua:x64-windows@5.5.0#2 package ABI: 7354f64579965ba399a7dae71c69e362f4a906d2b0a250c7731a0cfec7d6f234
+Building lua:x64-windows@5.5.0#2...
+C:\Users\lucas\Desktop\tibia\server\vcpkg-overlays\lua: info: installing overlay port from here
+Downloading https://www.lua.org/ftp/lua-5.5.0.tar.gz -> lua-5.5.0.tar.gz
+Successfully downloaded lua-5.5.0.tar.gz
+-- Extracting source C:/Users/lucas/Desktop/tibia/tools/vcpkg/downloads/lua-5.5.0.tar.gz
+-- Applying patch vs2015-impl-c99.patch
+-- Applying patch fix-ios-system.patch
+-- Applying patch uwp-no-popen.diff
+-- Applying patch lua-5.5.0-write-barrier.patch
+-- Using source at C:/Users/lucas/Desktop/tibia/tools/vcpkg/buildtrees/lua/src/lua-5-55fe1f8ee3.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/lua_x64-windows/share/lua/vcpkg-cmake-wrapper.cmake
+-- Installing: C:/Users/lucas/Desktop/tibia/tools/vcpkg/packages/lua_x64-windows/share/lua/usage
+-- Performing post-build validation
+Starting submission of lua:x64-windows@5.5.0#2 to 1 binary cache(s) in the background
+Elapsed time to handle lua:x64-windows: 47 s
+Installed contents are licensed to you by owners. Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
+Packages installed in this vcpkg installation declare the following licenses:
+(Apache-2.0 OR MIT)
+Apache-2.0
+BSL-1.0
+LGPL-2.1-or-later
+MIT
+Zlib
+abseil provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(absl CONFIG REQUIRED)
+  # note: 204 additional targets are not displayed.
+  target_link_libraries(main PRIVATE absl::any absl::log absl::base absl::bits)
+
+abseil provides pkg-config modules:
+
+  # Abseil DLL library
+  abseil_dll
+
+  # Abseil absl_check library
+  absl_absl_check
+
+  # Abseil absl_log library
+  absl_absl_log
+
+  # Abseil absl_vlog_is_on library
+  absl_absl_vlog_is_on
+
+  # Abseil algorithm library
+  absl_algorithm
+
+  # Abseil algorithm_container library
+  absl_algorithm_container
+
+  # Abseil any library
+  absl_any
+
+  # Abseil any_invocable library
+  absl_any_invocable
+
+  # Abseil atomic_hook library
+  absl_atomic_hook
+
+  # Abseil bad_any_cast library
+  absl_bad_any_cast
+
+  # Abseil bad_optional_access library
+  absl_bad_optional_access
+
+  # Abseil bad_variant_access library
+  absl_bad_variant_access
+
+  # Abseil base library
+  absl_base
+
+  # Abseil base_internal library
+  absl_base_internal
+
+  # Abseil bind_front library
+  absl_bind_front
+
+  # Abseil bits library
+  absl_bits
+
+  # Abseil borrowed_fixup_buffer library
+  absl_borrowed_fixup_buffer
+
+  # Abseil bounded_utf8_length_sequence library
+  absl_bounded_utf8_length_sequence
+
+  # Abseil btree library
+  absl_btree
+
+  # Abseil charset library
+  absl_charset
+
+  # Abseil check library
+  absl_check
+
+  # Abseil chunked_queue library
+  absl_chunked_queue
+
+  # Abseil city library
+  absl_city
+
+  # Abseil civil_time library
+  absl_civil_time
+
+  # Abseil cleanup library
+  absl_cleanup
+
+  # Abseil cleanup_internal library
+  absl_cleanup_internal
+
+  # Abseil common_policy_traits library
+  absl_common_policy_traits
+
+  # Abseil compare library
+  absl_compare
+
+  # Abseil compressed_tuple library
+  absl_compressed_tuple
+
+  # Abseil config library
+  absl_config
+
+  # Abseil constexpr_testing_internal library
+  absl_constexpr_testing_internal
+
+  # Abseil container_common library
+  absl_container_common
+
+  # Abseil container_memory library
+  absl_container_memory
+
+  # Abseil cord library
+  absl_cord
+
+  # Abseil cord_internal library
+  absl_cord_internal
+
+  # Abseil cordz_functions library
+  absl_cordz_functions
+
+  # Abseil cordz_handle library
+  absl_cordz_handle
+
+  # Abseil cordz_info library
+  absl_cordz_info
+
+  # Abseil cordz_sample_token library
+  absl_cordz_sample_token
+
+  # Abseil cordz_statistics library
+  absl_cordz_statistics
+
+  # Abseil cordz_update_scope library
+  absl_cordz_update_scope
+
+  # Abseil cordz_update_tracker library
+  absl_cordz_update_tracker
+
+  # Abseil core_headers library
+  absl_core_headers
+
+  # Abseil crc32c library
+  absl_crc32c
+
+  # Abseil crc_cord_state library
+  absl_crc_cord_state
+
+  # Abseil crc_cpu_detect library
+  absl_crc_cpu_detect
+
+  # Abseil crc_internal library
+  absl_crc_internal
+
+  # Abseil debugging library
+  absl_debugging
+
+  # Abseil debugging_internal library
+  absl_debugging_internal
+
+  # Abseil decode_rust_punycode library
+  absl_decode_rust_punycode
+
+  # Abseil demangle_internal library
+  absl_demangle_internal
+
+  # Abseil demangle_rust library
+  absl_demangle_rust
+
+  # Abseil die_if_null library
+  absl_die_if_null
+
+  # Abseil dynamic_annotations library
+  absl_dynamic_annotations
+
+  # Abseil endian library
+  absl_endian
+
+  # Abseil errno_saver library
+  absl_errno_saver
+
+  # Abseil examine_stack library
+  absl_examine_stack
+
+  # Abseil exponential_biased library
+  absl_exponential_biased
+
+  # Abseil failure_signal_handler library
+  absl_failure_signal_handler
+
+  # Abseil fast_type_id library
+  absl_fast_type_id
+
+  # Abseil fixed_array library
+  absl_fixed_array
+
+  # Abseil flags library
+  absl_flags
+
+  # Abseil flags_commandlineflag library
+  absl_flags_commandlineflag
+
+  # Abseil flags_commandlineflag_internal library
+  absl_flags_commandlineflag_internal
+
+  # Abseil flags_config library
+  absl_flags_config
+
+  # Abseil flags_internal library
+  absl_flags_internal
+
+  # Abseil flags_marshalling library
+  absl_flags_marshalling
+
+  # Abseil flags_parse library
+  absl_flags_parse
+
+  # Abseil flags_path_util library
+  absl_flags_path_util
+
+  # Abseil flags_private_handle_accessor library
+  absl_flags_private_handle_accessor
+
+  # Abseil flags_program_name library
+  absl_flags_program_name
+
+  # Abseil flags_reflection library
+  absl_flags_reflection
+
+  # Abseil flags_usage library
+  absl_flags_usage
+
+  # Abseil flags_usage_internal library
+  absl_flags_usage_internal
+
+  # Abseil flat_hash_map library
+  absl_flat_hash_map
+
+  # Abseil flat_hash_set library
+  absl_flat_hash_set
+
+  # Abseil function_ref library
+  absl_function_ref
+
+  # Abseil generic_printer_internal library
+  absl_generic_printer_internal
+
+  # Abseil graphcycles_internal library
+  absl_graphcycles_internal
+
+  # Abseil has_ostream_operator library
+  absl_has_ostream_operator
+
+  # Abseil hash library
+  absl_hash
+
+  # Abseil hash_container_defaults library
+  absl_hash_container_defaults
+
+  # Abseil hash_function_defaults library
+  absl_hash_function_defaults
+
+  # Abseil hash_policy_traits library
+  absl_hash_policy_traits
+
+  # Abseil hashtable_control_bytes library
+  absl_hashtable_control_bytes
+
+  # Abseil hashtable_debug library
+  absl_hashtable_debug
+
+  # Abseil hashtable_debug_hooks library
+  absl_hashtable_debug_hooks
+
+  # Abseil hashtable_profiler library
+  absl_hashtable_profiler
+
+  # Abseil hashtablez_sampler library
+  absl_hashtablez_sampler
+
+  # Abseil inlined_vector library
+  absl_inlined_vector
+
+  # Abseil inlined_vector_internal library
+  absl_inlined_vector_internal
+
+  # Abseil int128 library
+  absl_int128
+
+  # Abseil iterator_traits_internal library
+  absl_iterator_traits_internal
+
+  # Abseil iterator_traits_test_helper_internal library
+  absl_iterator_traits_test_helper_internal
+
+  # Abseil kernel_timeout_internal library
+  absl_kernel_timeout_internal
+
+  # Abseil layout library
+  absl_layout
+
+  # Abseil leak_check library
+  absl_leak_check
+
+  # Abseil linked_hash_map library
+  absl_linked_hash_map
+
+  # Abseil linked_hash_set library
+  absl_linked_hash_set
+
+  # Abseil log library
+  absl_log
+
+  # Abseil log_entry library
+  absl_log_entry
+
+  # Abseil log_flags library
+  absl_log_flags
+
+  # Abseil log_globals library
+  absl_log_globals
+
+  # Abseil log_initialize library
+  absl_log_initialize
+
+  # Abseil log_internal_append_truncated library
+  absl_log_internal_append_truncated
+
+  # Abseil log_internal_check_impl library
+  absl_log_internal_check_impl
+
+  # Abseil log_internal_check_op library
+  absl_log_internal_check_op
+
+  # Abseil log_internal_conditions library
+  absl_log_internal_conditions
+
+  # Abseil log_internal_config library
+  absl_log_internal_config
+
+  # Abseil log_internal_container library
+  absl_log_internal_container
+
+  # Abseil log_internal_flags library
+  absl_log_internal_flags
+
+  # Abseil log_internal_fnmatch library
+  absl_log_internal_fnmatch
+
+  # Abseil log_internal_format library
+  absl_log_internal_format
+
+  # Abseil log_internal_globals library
+  absl_log_internal_globals
+
+  # Abseil log_internal_log_impl library
+  absl_log_internal_log_impl
+
+  # Abseil log_internal_log_sink_set library
+  absl_log_internal_log_sink_set
+
+  # Abseil log_internal_message library
+  absl_log_internal_message
+
+  # Abseil log_internal_nullguard library
+  absl_log_internal_nullguard
+
+  # Abseil log_internal_nullstream library
+  absl_log_internal_nullstream
+
+  # Abseil log_internal_proto library
+  absl_log_internal_proto
+
+  # Abseil log_internal_strip library
+  absl_log_internal_strip
+
+  # Abseil log_internal_structured library
+  absl_log_internal_structured
+
+  # Abseil log_internal_structured_proto library
+  absl_log_internal_structured_proto
+
+  # Abseil log_internal_voidify library
+  absl_log_internal_voidify
+
+  # Abseil log_severity library
+  absl_log_severity
+
+  # Abseil log_sink library
+  absl_log_sink
+
+  # Abseil log_sink_registry library
+  absl_log_sink_registry
+
+  # Abseil log_streamer library
+  absl_log_streamer
+
+  # Abseil log_structured library
+  absl_log_structured
+
+  # Abseil malloc_internal library
+  absl_malloc_internal
+
+  # Abseil memory library
+  absl_memory
+
+  # Abseil meta library
+  absl_meta
+
+  # Abseil no_destructor library
+  absl_no_destructor
+
+  # Abseil node_hash_map library
+  absl_node_hash_map
+
+  # Abseil node_hash_set library
+  absl_node_hash_set
+
+  # Abseil node_slot_policy library
+  absl_node_slot_policy
+
+  # Abseil non_temporal_arm_intrinsics library
+  absl_non_temporal_arm_intrinsics
+
+  # Abseil non_temporal_memcpy library
+  absl_non_temporal_memcpy
+
+  # Abseil nullability library
+  absl_nullability
+
+  # Abseil nullability_traits_internal library
+  absl_nullability_traits_internal
+
+  # Abseil numeric library
+  absl_numeric
+
+  # Abseil numeric_representation library
+  absl_numeric_representation
+
+  # Abseil optional library
+  absl_optional
+
+  # Abseil overload library
+  absl_overload
+
+  # Abseil periodic_sampler library
+  absl_periodic_sampler
+
+  # Abseil poison library
+  absl_poison
+
+  # Abseil prefetch library
+  absl_prefetch
+
+  # Abseil pretty_function library
+  absl_pretty_function
+
+  # Abseil profile_builder library
+  absl_profile_builder
+
+  # Abseil random_bit_gen_ref library
+  absl_random_bit_gen_ref
+
+  # Abseil random_distributions library
+  absl_random_distributions
+
+  # Abseil random_internal_distribution_caller library
+  absl_random_internal_distribution_caller
+
+  # Abseil random_internal_distribution_test_util library
+  absl_random_internal_distribution_test_util
+
+  # Abseil random_internal_entropy_pool library
+  absl_random_internal_entropy_pool
+
+  # Abseil random_internal_fast_uniform_bits library
+  absl_random_internal_fast_uniform_bits
+
+  # Abseil random_internal_fastmath library
+  absl_random_internal_fastmath
+
+  # Abseil random_internal_generate_real library
+  absl_random_internal_generate_real
+
+  # Abseil random_internal_iostream_state_saver library
+  absl_random_internal_iostream_state_saver
+
+  # Abseil random_internal_mock_helpers library
+  absl_random_internal_mock_helpers
+
+  # Abseil random_internal_nonsecure_base library
+  absl_random_internal_nonsecure_base
+
+  # Abseil random_internal_pcg_engine library
+  absl_random_internal_pcg_engine
+
+  # Abseil random_internal_platform library
+  absl_random_internal_platform
+
+  # Abseil random_internal_randen library
+  absl_random_internal_randen
+
+  # Abseil random_internal_randen_engine library
+  absl_random_internal_randen_engine
+
+  # Abseil random_internal_randen_hwaes library
+  absl_random_internal_randen_hwaes
+
+  # Abseil random_internal_randen_hwaes_impl library
+  absl_random_internal_randen_hwaes_impl
+
+  # Abseil random_internal_randen_slow library
+  absl_random_internal_randen_slow
+
+  # Abseil random_internal_salted_seed_seq library
+  absl_random_internal_salted_seed_seq
+
+  # Abseil random_internal_seed_material library
+  absl_random_internal_seed_material
+
+  # Abseil random_internal_traits library
+  absl_random_internal_traits
+
+  # Abseil random_internal_uniform_helper library
+  absl_random_internal_uniform_helper
+
+  # Abseil random_internal_wide_multiply library
+  absl_random_internal_wide_multiply
+
+  # Abseil random_random library
+  absl_random_random
+
+  # Abseil random_seed_gen_exception library
+  absl_random_seed_gen_exception
+
+  # Abseil random_seed_sequences library
+  absl_random_seed_sequences
+
+  # Abseil raw_hash_map library
+  absl_raw_hash_map
+
+  # Abseil raw_hash_set library
+  absl_raw_hash_set
+
+  # Abseil raw_hash_set_resize_impl library
+  absl_raw_hash_set_resize_impl
+
+  # Abseil raw_logging_internal library
+  absl_raw_logging_internal
+
+  # Abseil requires_internal library
+  absl_requires_internal
+
+  # Abseil sample_recorder library
+  absl_sample_recorder
+
+  # Abseil scoped_set_env library
+  absl_scoped_set_env
+
+  # Abseil span library
+  absl_span
+
+  # Abseil spinlock_wait library
+  absl_spinlock_wait
+
+  # Abseil stacktrace library
+  absl_stacktrace
+
+  # Abseil status library
+  absl_status
+
+  # Abseil statusor library
+  absl_statusor
+
+  # Abseil str_format library
+  absl_str_format
+
+  # Abseil str_format_internal library
+  absl_str_format_internal
+
+  # Abseil strerror library
+  absl_strerror
+
+  # Abseil string_view library
+  absl_string_view
+
+  # Abseil strings library
+  absl_strings
+
+  # Abseil strings_append_and_overwrite library
+  absl_strings_append_and_overwrite
+
+  # Abseil strings_internal library
+  absl_strings_internal
+
+  # Abseil strings_resize_and_overwrite library
+  absl_strings_resize_and_overwrite
+
+  # Abseil symbolize library
+  absl_symbolize
+
+  # Abseil synchronization library
+  absl_synchronization
+
+  # Abseil throw_delegate library
+  absl_throw_delegate
+
+  # Abseil time library
+  absl_time
+
+  # Abseil time_zone library
+  absl_time_zone
+
+  # Abseil tracing_internal library
+  absl_tracing_internal
+
+  # Abseil type_traits library
+  absl_type_traits
+
+  # Abseil utf8_for_code_point library
+  absl_utf8_for_code_point
+
+  # Abseil utility library
+  absl_utility
+
+  # Abseil variant library
+  absl_variant
+
+  # Abseil vlog_config_internal library
+  absl_vlog_config_internal
+
+  # Abseil vlog_is_on library
+  absl_vlog_is_on
+
+  # Abseil weakly_mixed_integer library
+  absl_weakly_mixed_integer
+
+asio provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(asio CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE asio::asio)
+
+asio provides pkg-config modules:
+
+  # A cross-platform C++ library for network and low-level I/O programming that provides developers with a consistent asynchronous model using a modern C++ approach.
+  asio
+
+The package fmt provides CMake targets:
+
+    find_package(fmt CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE fmt::fmt)
+
+    # Or use the header-only version
+    find_package(fmt CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE fmt::fmt-header-only)
+
+mio provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(mio CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE mio::mio mio::mio-headers mio::mio_min_winapi mio::mio_full_winapi)
+
+openssl is compatible with built-in CMake targets:
+
+  find_package(OpenSSL REQUIRED)
+  target_link_libraries(main PRIVATE OpenSSL::SSL)
+  target_link_libraries(main PRIVATE OpenSSL::Crypto)
+
+pugixml provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(pugixml CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE pugixml::shared pugixml::pugixml)
+
+pugixml provides pkg-config modules:
+
+  # Light-weight, simple and fast XML parser for C++ with XPath support.
+  pugixml
+
+simdutf provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(simdutf CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE simdutf::simdutf)
+
+simdutf provides pkg-config modules:
+
+  # Fast Unicode validation, transcoding and processing
+  simdutf
+
+The package spdlog provides CMake targets:
+
+    find_package(spdlog CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE spdlog::spdlog)
+
+    # Or use the header-only version
+    find_package(spdlog CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE spdlog::spdlog_header_only)
+
+zlib is compatible with built-in CMake targets:
+
+  find_package(ZLIB REQUIRED)
+  target_link_libraries(main PRIVATE ZLIB::ZLIB)
+
+libmariadb provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(unofficial-libmariadb CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE unofficial::libmariadb)
+
+libmariadb provides pkg-config modules:
+
+  # MariaDB Connector/C dynamic library
+  libmariadb
+
+lua provides CMake integration for the C library:
+
+  find_package(Lua REQUIRED)
+  target_include_directories(main PRIVATE ${LUA_INCLUDE_DIR})
+  target_link_libraries(main PRIVATE ${LUA_LIBRARIES})
+
+lua[cpp] provides a C++ library with exception handling:
+
+  find_package(unofficial-lua)
+  target_link_libraries(main PRIVATE unofficial::lua::lua-cpp)
+
+Completed submission of libmariadb[core,iconv]:x64-windows@3.4.8 to 1 binary cache(s) in 457 ms
+Completed submission of lua:x64-windows@5.5.0#2 to 1 binary cache(s) in 2.6 s
+All requested installations completed successfully in: 9.6 h
+-- Running vcpkg install - done
+-- The CXX compiler identification is unknown
+CMake Error at CMakeLists.txt:41 (project):
+  No CMAKE_CXX_COMPILER could be found.
+
+  Tell CMake where to find the compiler by setting either the environment
+  variable "CXX" or the CMake cache entry CMAKE_CXX_COMPILER to the full path
+  to the compiler, or to the compiler name if it is in the PATH.
+
+
+-- Configuring incomplete, errors occurred!

@@ -1,0 +1,6 @@
+[submodule "client"]
+	path = client
+	url = https://github.com/opentibiabr/otclient.git
+[submodule "server"]
+	path = server
+	url = https://github.com/Mateuzkl/forgottenserver-downgrade-1.8-8.60.git

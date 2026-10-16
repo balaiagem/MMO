@@ -1,0 +1,86 @@
+local R = dofile('rules/core.lua')
+local count = 0
+local function test(name, fn)
+    fn(); count = count + 1; print('PASS ' .. name)
+end
+local function eq(a,b) assert(a == b, tostring(a) .. ' ~= ' .. tostring(b)) end
+local function rng(values)
+    local index = 0
+    return function(sides) index = index + 1; local n = values[index]; assert(n and n <= sides, 'fixture exhausted'); return n end
+end
+test('ability modifiers floor negative odd scores', function() eq(R.modifier(7), -2); eq(R.modifier(9), -1); eq(R.modifier(20), 5) end)
+test('proficiency boundaries 1 through 20', function()
+    for level = 1,20 do eq(R.proficiency(level), ({2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6})[level]) end
+end)
+test('invalid level and dice rejected', function() eq(pcall(R.proficiency, 0), false); eq(pcall(R.roll,20,rng({0})), false) end)
+test('advantage uses higher die', function() eq(R.d20(rng({2,19}),true,false),19) end)
+test('disadvantage uses lower die', function() eq(R.d20(rng({2,19}),false,true),2) end)
+test('advantage and disadvantage cancel', function() eq(R.d20(rng({7}),true,true),7) end)
+test('natural one misses despite bonus', function() eq(R.attack(10,100,rng({1})).hit,false) end)
+test('natural twenty hits despite AC', function() local a=R.attack(100,0,rng({20})); eq(a.hit,true); eq(a.critical,true) end)
+test('attack meets AC', function() eq(R.attack(15,5,rng({10})).hit,true); eq(R.attack(16,5,rng({10})).hit,false) end)
+test('critical doubles dice not modifier', function() eq(R.damage(1,8,3,true,rng({8,4})),15) end)
+test('negative damage floors to zero', function() eq(R.damage(1,4,-5,false,rng({1})),0) end)
+test('resistance rounds down before vulnerability', function() eq(R.mitigate(7,false,true,true),6); eq(R.mitigate(7,true,true,true),0) end)
+test('ordinary saves do not auto fail or succeed', function() eq(R.save(10,9,rng({1})).success,true); eq(R.save(25,0,rng({20})).success,false) end)
+test('concentration DC floor and damage scaling', function() eq(R.concentration(21,0,rng({10})).dc,10); eq(R.concentration(31,0,rng({15})).dc,15) end)
+test('concentration supports advantage', function() eq(R.concentration(30,2,rng({1,13}),true,false).success,true) end)
+test('standard array permutation accepted', function() eq(R.abilityScores({15,14,13,12,10,8},'standard-array'),true) end)
+test('invalid standard array rejected', function() eq(R.abilityScores({15,15,13,12,10,8},'standard-array'),false) end)
+test('point buy caps spend and scores', function() eq(R.abilityScores({15,15,15,8,8,8},'point-buy'),true); eq(R.abilityScores({15,15,15,9,8,8},'point-buy'),false); eq(R.abilityScores({16,8,8,8,8,8},'point-buy'),false) end)
+test('spell DC and attack', function() eq(R.spellDC(1,16),13); eq(R.spellAttack(1,16),5) end)
+test('slot copies isolated between characters', function() local a=R.fullCasterSlots(1); a[1]=0; eq(R.fullCasterSlots(1)[1],2) end)
+test('slot level resolves to the higher spell or selected circle', function()
+    local s={1,1,1}
+    eq(R.effectiveSlotLevel(2,1),2)
+    eq(R.effectiveSlotLevel(3,2),3)
+    eq(R.effectiveSlotLevel(1,3),3)
+    local used, level=R.consumeSlot(s,2,1); eq(used,true); eq(level,2); eq(s[1],1); eq(s[2],0)
+    used,level=R.consumeSlot(s,2,3); eq(used,true); eq(level,3); eq(s[3],0)
+    local fallback={1,1,0}
+    used,level=R.consumeSlot(fallback,2,3); eq(used,true); eq(level,2); eq(fallback[2],0)
+    eq(R.consumeSlot(fallback,2,3),false); eq(fallback[1],1)
+    local lowerFallback={1,0,0}
+    used,level=R.consumeSlot(lowerFallback,1,3); eq(used,true); eq(level,1); eq(lowerFallback[1],0)
+    local cannotUnderlevel={1,0,0}
+    eq(R.consumeSlot(cannotUnderlevel,2,3),false); eq(cannotUnderlevel[1],1)
+end)
+test('level twenty slot table', function() local s=R.fullCasterSlots(20); eq(s[6],2); eq(s[7],2); eq(s[8],1); eq(s[9],1) end)
+test('pact magic separate progression', function() eq(R.pactSlots(1).count,1); eq(R.pactSlots(3).level,2); eq(R.pactSlots(17).count,4); eq(R.pactSlots(20).level,5) end)
+test('fighter extra attacks and cantrip progression', function() eq(R.fighterAttacks(5),2); eq(R.fighterAttacks(20),4); eq(R.cantripDice(17),4) end)
+test('death natural one counts twice', function() local s={hp=0,successes=0,failures=1}; R.deathSave(s,rng({1})); eq(s.dead,true) end)
+test('death natural twenty revives and clears counters', function() local s={hp=0,successes=1,failures=2}; R.deathSave(s,rng({20})); eq(s.hp,1); eq(s.failures,0) end)
+test('three death successes stabilize', function() local s={hp=0,successes=2,failures=1}; R.deathSave(s,rng({10})); eq(s.stable,true); eq(s.failures,0); eq(R.deathSave(s,rng({})),false) end)
+test('action bonus and reaction have distinct budgets', function() local e=R.newEconomy(100); eq(R.spend(e,'action',100),true); eq(R.spend(e,'action',101),false); eq(R.spend(e,'bonus',101),true); eq(R.spend(e,'reaction',101),true) end)
+test('turn budgets reset only when initiative advances and turn ids increment', function() local e=R.newTurnEconomy(100); R.startTurn(e); eq(e.turn,1); eq(R.spend(e,'action',100),true); eq(R.spend(e,'action',100000),false); eq(R.spend(e,'bonus',100000),true); R.startTurn(e); eq(e.turn,2); eq(R.spend(e,'action',100000),true); eq(R.spend(e,'bonus',100000),true) end)
+test('six second boundary resets no earlier', function() local e=R.newEconomy(100); R.spend(e,'action',100); eq(R.spend(e,'action',6099),false); eq(R.spend(e,'action',6100),true) end)
+test('idle cycles cannot bank actions', function() local e=R.newEconomy(0); eq(R.spend(e,'action',60000),true); eq(R.spend(e,'action',60001),false) end)
+test('extra attacks spend one action and expire on boundary', function() local e=R.newEconomy(0); eq(R.beginAttack(e,2,0),true); eq(R.spendAttack(e,10),true); eq(R.beginAttack(e,2,20),false); eq(R.spendAttack(e,6000),false) end)
+test('movement budget and monotonic timestamp', function() local e=R.newEconomy(0); for i=1,6 do eq(R.move(e,5,30,i),true) end; eq(R.move(e,5,30,7),false); eq(R.move(e,5,30,6000),true); eq(pcall(R.refresh,e,5999),false) end)
+print(string.format('%d tests passed',count))
+
+-- Additional actions must survive activation before the normal action and
+-- must not reset pending attacks or create bonus actions/reactions.
+do
+ local e=R.newTurnEconomy(0)
+ R.startTurn(e)
+ R.grantAction(e)
+ assert(R.beginAttack(e,2,0))
+ assert(R.spendAttack(e,0))
+ assert(R.spendAttack(e,0))
+ assert(R.beginAttack(e,2,0))
+ assert(R.spendAttack(e,0) and R.spendAttack(e,0))
+ assert(not R.beginAttack(e,2,0))
+ R.startTurn(e)
+ assert(R.beginAttack(e,2,0)); assert(R.spendAttack(e,0))
+ R.grantAction(e); assert(e.attacks==1)
+ assert(R.spendAttack(e,0));assert(R.beginAttack(e,2,0))
+ R.startTurn(e)
+ R.recordSpell(e,true,1)
+ assert(R.canCastSpell(e,false,0) and not R.canCastSpell(e,false,1))
+ R.startTurn(e)
+ R.recordSpell(e,false,1)
+ assert(not R.canCastSpell(e,true,0))
+ assert(R.canCastSpell(e,false,1))
+ print('Additional actions, pending Extra Attack and bonus-action spell rules passed')
+end

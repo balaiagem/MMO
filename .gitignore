@@ -1,0 +1,13 @@
+node_modules/
+tools/emsdk/
+tools/vcpkg/
+tools/python/
+build/
+dist/
+*.zip
+.env
+*.pem
+__pycache__/
+runtime/
+tools/downloads/
+tools/mariadb-*/

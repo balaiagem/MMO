@@ -1,0 +1,68 @@
+Lua 5.1
+Lua 5.5
+PASS ability modifiers floor negative odd scores
+PASS proficiency boundaries 1 through 20
+PASS invalid level and dice rejected
+PASS advantage uses higher die
+PASS disadvantage uses lower die
+PASS advantage and disadvantage cancel
+PASS natural one misses despite bonus
+PASS natural twenty hits despite AC
+PASS attack meets AC
+PASS critical doubles dice not modifier
+PASS negative damage floors to zero
+PASS resistance rounds down before vulnerability
+PASS ordinary saves do not auto fail or succeed
+PASS concentration DC floor and damage scaling
+PASS concentration supports advantage
+PASS standard array permutation accepted
+PASS invalid standard array rejected
+PASS point buy caps spend and scores
+PASS spell DC and attack
+PASS slot copies isolated between characters
+PASS slot consumption refuses invalid upcasts atomically
+PASS level twenty slot table
+PASS pact magic separate progression
+PASS fighter extra attacks and cantrip progression
+PASS death natural one counts twice
+PASS death natural twenty revives and clears counters
+PASS three death successes stabilize
+PASS action bonus and reaction have distinct budgets
+PASS six second boundary resets no earlier
+PASS idle cycles cannot bank actions
+PASS extra attacks spend one action and expire on boundary
+PASS movement budget and monotonic timestamp
+32 tests passed
+PASS ability modifiers floor negative odd scores
+PASS proficiency boundaries 1 through 20
+PASS invalid level and dice rejected
+PASS advantage uses higher die
+PASS disadvantage uses lower die
+PASS advantage and disadvantage cancel
+PASS natural one misses despite bonus
+PASS natural twenty hits despite AC
+PASS attack meets AC
+PASS critical doubles dice not modifier
+PASS negative damage floors to zero
+PASS resistance rounds down before vulnerability
+PASS ordinary saves do not auto fail or succeed
+PASS concentration DC floor and damage scaling
+PASS concentration supports advantage
+PASS standard array permutation accepted
+PASS invalid standard array rejected
+PASS point buy caps spend and scores
+PASS spell DC and attack
+PASS slot copies isolated between characters
+PASS slot consumption refuses invalid upcasts atomically
+PASS level twenty slot table
+PASS pact magic separate progression
+PASS fighter extra attacks and cantrip progression
+PASS death natural one counts twice
+PASS death natural twenty revives and clears counters
+PASS three death successes stabilize
+PASS action bonus and reaction have distinct budgets
+PASS six second boundary resets no earlier
+PASS idle cycles cannot bank actions
+PASS extra attacks spend one action and expire on boundary
+PASS movement budget and monotonic timestamp
+32 tests passed

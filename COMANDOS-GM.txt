@@ -1,0 +1,52 @@
+TIBIA 5E — COMANDOS DO GM (servidor local)
+
+O personagem Mestre GM fica na conta admin (senha admin) e usa somente comandos com prefixo /gm.
+No chat do jogo, digite:
+
+Comandos de jogo disponíveis para qualquer personagem:
+/ficha                  Exibe nível, XP, CA, PV, proficiência, espaços e recursos.
+/attack                 Faz uma ação de ataque contra o alvo selecionado (no seu turno).
+/turn end               Encerra seu turno e passa a vez pela iniciativa.
+/combat dash            Gasta a acao e acrescenta seu deslocamento ao saldo.
+/combat bonusdash       Ladino nivel 2+: usa acao bonus para Disparada.
+/slot up                Seleciona o próximo círculo de magia.
+/slot down              Seleciona o círculo de magia anterior.
+/cast firebolt          Truque do Mago ou Alto Elfo.
+/cast sacredflame       Truque do Clérigo.
+/cast magicmissile      Míssil Mágico (espaço de nível 1).
+/cast curewounds        Curar Ferimentos em si mesmo.
+/cast scorchingray      Raio Ardente (Mago nível 3, espaço 2).
+/cast spiritualweapon   Arma Espiritual (Clérigo nível 3, espaço 2).
+/cast fireball          Bola de Fogo (Mago nível 5, espaço 3).
+/cast masshealingword   Palavra Curativa em Massa (Clérigo nível 5, espaço 3).
+/levelup                Mostra a progressão e a escolha pendente do nível 4.
+/levelup str+2          Exemplo: aumenta Força em 2 no nível 4.
+/levelup str+1,dex+1    Exemplo: divide +1 entre dois atributos no nível 4.
+/levelup tough          Talento Tough (+2 PV por nível).
+/levelup resilient con  Talento Resilient: +1 no atributo e proficiência na salvaguarda.
+/dndprogress            Dados para a janela de progressão do personagem.
+/rest short 1           Descanso curto: gasta um Dado de Vida para tentar recuperar PV.
+/rest long              Descanso longo na cidade: restaura PV, espaços e parte dos Dados de Vida.
+
+/gm help        Mostra esta lista de comandos.
+/gm heal        Restaura PV e espaços de magia.
+/gm level 1     Define o nível D&D de 1 a 5 e o XP mínimo daquele nível.
+/gm xp 2700     Define o total de XP D&D; o nível correspondente é aplicado.
+/gm spawn rat|snake|spider|wolf|bug|orc|troll   Cria uma criatura ao lado do GM para testar combate.
+/gm slots       Recupera todos os espaços de magia do nível atual.
+/gm reset       Reinicia nível, XP e escolha de talento/atributos do progresso D&D.
+/gm tp X Y Z    Teleporta para coordenadas do mapa (exemplo: /gm tp 111 111 7).
+
+Progressão normal do personagem:
+- Ratos concedem 10 XP D&D. Outras criaturas da ilha ja estao no combate, mas o XP delas sera conectado a progressao depois.
+- Níveis: 1 (0 XP), 2 (300), 3 (900), 4 (2.700), 5 (6.500).
+- Ao chegar ao nível 4, escolha /levelup str+2 ou /levelup str+1,dex+1.
+- Também pode escolher /levelup tough ou /levelup resilient str (atributos: str, dex, con, int, wis, cha).
+- /levelup sem opção mostra nível, XP, recursos e se há uma escolha pendente.
+- O botão de personagem abre a progressão e apresenta as escolhas do nível 4 em diálogos.
+- O botão Descanso Curto permite escolher quantos Dados de Vida gastar. Descanso Longo aparece no andar urbano de Rookgaard; o servidor confirma local e segurança.
+- /ficha mostra a ficha; magias disponíveis continuam no Assign Spell da barra de hotkeys.
+- Selecionar um rato ou ser atacado inicia combate e rola iniciativa. Ataque e magias só funcionam no seu turno; use a hotkey Encerrar Turno quando terminar.
+- A área da barra de mana mostra três trilhas segmentadas de espaços, uma para cada círculo; espaços brilhantes estão disponíveis e escuros foram gastos.
+
+Os comandos novos do servidor entram em vigor após reiniciar o servidor. Recarregue a página para obter os botões e diálogos atualizados.

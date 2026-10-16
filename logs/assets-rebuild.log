@@ -1,0 +1,851 @@
+-- Shared vcpkg installed tree disabled: explicitly disabled
+-- Running vcpkg install
+Detecting compiler hash for triplet x64-windows...
+Compiler found: C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe
+Detecting compiler hash for triplet wasm32-emscripten-pthread...
+Compiler found: C:/Users/lucas/Desktop/tibia/tools/emsdk/upstream/emscripten/em++.bat
+The following packages are already installed:
+    abseil:wasm32-emscripten-pthread@20240722.0
+  * abseil:x64-windows@20240722.0
+    asio:wasm32-emscripten-pthread@1.32.0
+  * brotli:wasm32-emscripten-pthread@1.2.0
+    bshoshany-thread-pool:wasm32-emscripten-pthread@5.1.0
+  * bzip2[core,tool]:wasm32-emscripten-pthread@1.0.8#6
+    cpp-httplib[core,brotli]:wasm32-emscripten-pthread@0.51.0
+    cppcodec:wasm32-emscripten-pthread@0.2#4
+    discord-rpc:wasm32-emscripten-pthread@3.4.0#4
+    fmt:wasm32-emscripten-pthread@12.2.0#1
+    freetype[core,zlib,png,bzip2,brotli]:wasm32-emscripten-pthread@2.14.3
+    inih[core,cpp]:wasm32-emscripten-pthread@58
+    libarchive[core,zstd,xar,lzma,lz4,crypto,bzip2]:wasm32-emscripten-pthread@3.8.7
+  * libiconv:wasm32-emscripten-pthread@1.19
+    liblzma:wasm32-emscripten-pthread@5.8.3
+    libobfuscate:wasm32-emscripten-pthread@2024-07-10
+    libogg:wasm32-emscripten-pthread@1.3.6#1
+    libpng[core,apng]:wasm32-emscripten-pthread@1.6.58
+    libvorbis:wasm32-emscripten-pthread@1.3.7#4
+  * libxml2[core,zlib,iconv]:wasm32-emscripten-pthread@2.15.3
+  * lz4:wasm32-emscripten-pthread@1.10.0
+    nlohmann-json:wasm32-emscripten-pthread@3.12.0#2
+    openal-soft:wasm32-emscripten-pthread@1.25.1#2
+    openssl:wasm32-emscripten-pthread@3.6.3
+    parallel-hashmap:wasm32-emscripten-pthread@2.0.0
+    physfs:wasm32-emscripten-pthread@3.2.0#1
+  * protobuf:x64-windows@4.25.1#1
+    protobuf:wasm32-emscripten-pthread@4.25.1#1
+    pugixml:wasm32-emscripten-pthread@1.16
+  * rapidjson:wasm32-emscripten-pthread@2025-02-26
+    spdlog[core,tz-offset,fmt]:wasm32-emscripten-pthread@1.17.0#1
+    stduuid:wasm32-emscripten-pthread@1.2.3
+  * utf8-range:wasm32-emscripten-pthread@6.33.4
+  * utf8-range:x64-windows@6.33.4
+    utfcpp:wasm32-emscripten-pthread@4.1.1
+  * vcpkg-cmake:x64-windows@2024-04-23
+  * vcpkg-cmake-config:x64-windows@2026-07-21
+  * vcpkg-cmake-get-vars:x64-windows@2025-05-29
+  * vcpkg-make:x64-windows@2026-07-09
+    zlib:wasm32-emscripten-pthread@1.3.2#1
+  * zstd:wasm32-emscripten-pthread@1.5.7
+abseil provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(absl CONFIG REQUIRED)
+  # note: 186 additional targets are not displayed.
+  target_link_libraries(main PRIVATE absl::any absl::log absl::base absl::bits)
+
+abseil provides pkg-config modules:
+
+  # Abseil absl_check library
+  absl_absl_check
+
+  # Abseil absl_log library
+  absl_absl_log
+
+  # Abseil absl_vlog_is_on library
+  absl_absl_vlog_is_on
+
+  # Abseil algorithm library
+  absl_algorithm
+
+  # Abseil algorithm_container library
+  absl_algorithm_container
+
+  # Abseil any library
+  absl_any
+
+  # Abseil any_invocable library
+  absl_any_invocable
+
+  # Abseil atomic_hook library
+  absl_atomic_hook
+
+  # Abseil bad_any_cast library
+  absl_bad_any_cast
+
+  # Abseil bad_any_cast_impl library
+  absl_bad_any_cast_impl
+
+  # Abseil bad_optional_access library
+  absl_bad_optional_access
+
+  # Abseil bad_variant_access library
+  absl_bad_variant_access
+
+  # Abseil base library
+  absl_base
+
+  # Abseil base_internal library
+  absl_base_internal
+
+  # Abseil bind_front library
+  absl_bind_front
+
+  # Abseil bits library
+  absl_bits
+
+  # Abseil bounded_utf8_length_sequence library
+  absl_bounded_utf8_length_sequence
+
+  # Abseil btree library
+  absl_btree
+
+  # Abseil charset library
+  absl_charset
+
+  # Abseil check library
+  absl_check
+
+  # Abseil city library
+  absl_city
+
+  # Abseil civil_time library
+  absl_civil_time
+
+  # Abseil cleanup library
+  absl_cleanup
+
+  # Abseil cleanup_internal library
+  absl_cleanup_internal
+
+  # Abseil common_policy_traits library
+  absl_common_policy_traits
+
+  # Abseil compare library
+  absl_compare
+
+  # Abseil compressed_tuple library
+  absl_compressed_tuple
+
+  # Abseil config library
+  absl_config
+
+  # Abseil container_common library
+  absl_container_common
+
+  # Abseil container_memory library
+  absl_container_memory
+
+  # Abseil cord library
+  absl_cord
+
+  # Abseil cord_internal library
+  absl_cord_internal
+
+  # Abseil cordz_functions library
+  absl_cordz_functions
+
+  # Abseil cordz_handle library
+  absl_cordz_handle
+
+  # Abseil cordz_info library
+  absl_cordz_info
+
+  # Abseil cordz_sample_token library
+  absl_cordz_sample_token
+
+  # Abseil cordz_statistics library
+  absl_cordz_statistics
+
+  # Abseil cordz_update_scope library
+  absl_cordz_update_scope
+
+  # Abseil cordz_update_tracker library
+  absl_cordz_update_tracker
+
+  # Abseil core_headers library
+  absl_core_headers
+
+  # Abseil crc32c library
+  absl_crc32c
+
+  # Abseil crc_cord_state library
+  absl_crc_cord_state
+
+  # Abseil crc_cpu_detect library
+  absl_crc_cpu_detect
+
+  # Abseil crc_internal library
+  absl_crc_internal
+
+  # Abseil debugging library
+  absl_debugging
+
+  # Abseil debugging_internal library
+  absl_debugging_internal
+
+  # Abseil decode_rust_punycode library
+  absl_decode_rust_punycode
+
+  # Abseil demangle_internal library
+  absl_demangle_internal
+
+  # Abseil demangle_rust library
+  absl_demangle_rust
+
+  # Abseil die_if_null library
+  absl_die_if_null
+
+  # Abseil dynamic_annotations library
+  absl_dynamic_annotations
+
+  # Abseil endian library
+  absl_endian
+
+  # Abseil errno_saver library
+  absl_errno_saver
+
+  # Abseil examine_stack library
+  absl_examine_stack
+
+  # Abseil exponential_biased library
+  absl_exponential_biased
+
+  # Abseil failure_signal_handler library
+  absl_failure_signal_handler
+
+  # Abseil fast_type_id library
+  absl_fast_type_id
+
+  # Abseil fixed_array library
+  absl_fixed_array
+
+  # Abseil flags library
+  absl_flags
+
+  # Abseil flags_commandlineflag library
+  absl_flags_commandlineflag
+
+  # Abseil flags_commandlineflag_internal library
+  absl_flags_commandlineflag_internal
+
+  # Abseil flags_config library
+  absl_flags_config
+
+  # Abseil flags_internal library
+  absl_flags_internal
+
+  # Abseil flags_marshalling library
+  absl_flags_marshalling
+
+  # Abseil flags_parse library
+  absl_flags_parse
+
+  # Abseil flags_path_util library
+  absl_flags_path_util
+
+  # Abseil flags_private_handle_accessor library
+  absl_flags_private_handle_accessor
+
+  # Abseil flags_program_name library
+  absl_flags_program_name
+
+  # Abseil flags_reflection library
+  absl_flags_reflection
+
+  # Abseil flags_usage library
+  absl_flags_usage
+
+  # Abseil flags_usage_internal library
+  absl_flags_usage_internal
+
+  # Abseil flat_hash_map library
+  absl_flat_hash_map
+
+  # Abseil flat_hash_set library
+  absl_flat_hash_set
+
+  # Abseil function_ref library
+  absl_function_ref
+
+  # Abseil graphcycles_internal library
+  absl_graphcycles_internal
+
+  # Abseil has_ostream_operator library
+  absl_has_ostream_operator
+
+  # Abseil hash library
+  absl_hash
+
+  # Abseil hash_container_defaults library
+  absl_hash_container_defaults
+
+  # Abseil hash_function_defaults library
+  absl_hash_function_defaults
+
+  # Abseil hash_policy_traits library
+  absl_hash_policy_traits
+
+  # Abseil hashtable_debug library
+  absl_hashtable_debug
+
+  # Abseil hashtable_debug_hooks library
+  absl_hashtable_debug_hooks
+
+  # Abseil hashtablez_sampler library
+  absl_hashtablez_sampler
+
+  # Abseil if_constexpr library
+  absl_if_constexpr
+
+  # Abseil inlined_vector library
+  absl_inlined_vector
+
+  # Abseil inlined_vector_internal library
+  absl_inlined_vector_internal
+
+  # Abseil int128 library
+  absl_int128
+
+  # Abseil kernel_timeout_internal library
+  absl_kernel_timeout_internal
+
+  # Abseil layout library
+  absl_layout
+
+  # Abseil leak_check library
+  absl_leak_check
+
+  # Abseil log library
+  absl_log
+
+  # Abseil log_entry library
+  absl_log_entry
+
+  # Abseil log_flags library
+  absl_log_flags
+
+  # Abseil log_globals library
+  absl_log_globals
+
+  # Abseil log_initialize library
+  absl_log_initialize
+
+  # Abseil log_internal_append_truncated library
+  absl_log_internal_append_truncated
+
+  # Abseil log_internal_check_impl library
+  absl_log_internal_check_impl
+
+  # Abseil log_internal_check_op library
+  absl_log_internal_check_op
+
+  # Abseil log_internal_conditions library
+  absl_log_internal_conditions
+
+  # Abseil log_internal_config library
+  absl_log_internal_config
+
+  # Abseil log_internal_flags library
+  absl_log_internal_flags
+
+  # Abseil log_internal_fnmatch library
+  absl_log_internal_fnmatch
+
+  # Abseil log_internal_format library
+  absl_log_internal_format
+
+  # Abseil log_internal_globals library
+  absl_log_internal_globals
+
+  # Abseil log_internal_log_impl library
+  absl_log_internal_log_impl
+
+  # Abseil log_internal_log_sink_set library
+  absl_log_internal_log_sink_set
+
+  # Abseil log_internal_message library
+  absl_log_internal_message
+
+  # Abseil log_internal_nullguard library
+  absl_log_internal_nullguard
+
+  # Abseil log_internal_nullstream library
+  absl_log_internal_nullstream
+
+  # Abseil log_internal_proto library
+  absl_log_internal_proto
+
+  # Abseil log_internal_strip library
+  absl_log_internal_strip
+
+  # Abseil log_internal_structured library
+  absl_log_internal_structured
+
+  # Abseil log_internal_voidify library
+  absl_log_internal_voidify
+
+  # Abseil log_severity library
+  absl_log_severity
+
+  # Abseil log_sink library
+  absl_log_sink
+
+  # Abseil log_sink_registry library
+  absl_log_sink_registry
+
+  # Abseil log_streamer library
+  absl_log_streamer
+
+  # Abseil log_structured library
+  absl_log_structured
+
+  # Abseil low_level_hash library
+  absl_low_level_hash
+
+  # Abseil malloc_internal library
+  absl_malloc_internal
+
+  # Abseil memory library
+  absl_memory
+
+  # Abseil meta library
+  absl_meta
+
+  # Abseil no_destructor library
+  absl_no_destructor
+
+  # Abseil node_hash_map library
+  absl_node_hash_map
+
+  # Abseil node_hash_set library
+  absl_node_hash_set
+
+  # Abseil node_slot_policy library
+  absl_node_slot_policy
+
+  # Abseil non_temporal_arm_intrinsics library
+  absl_non_temporal_arm_intrinsics
+
+  # Abseil non_temporal_memcpy library
+  absl_non_temporal_memcpy
+
+  # Abseil nullability library
+  absl_nullability
+
+  # Abseil numeric library
+  absl_numeric
+
+  # Abseil numeric_representation library
+  absl_numeric_representation
+
+  # Abseil optional library
+  absl_optional
+
+  # Abseil overload library
+  absl_overload
+
+  # Abseil periodic_sampler library
+  absl_periodic_sampler
+
+  # Abseil poison library
+  absl_poison
+
+  # Abseil prefetch library
+  absl_prefetch
+
+  # Abseil pretty_function library
+  absl_pretty_function
+
+  # Abseil random_bit_gen_ref library
+  absl_random_bit_gen_ref
+
+  # Abseil random_distributions library
+  absl_random_distributions
+
+  # Abseil random_internal_distribution_caller library
+  absl_random_internal_distribution_caller
+
+  # Abseil random_internal_distribution_test_util library
+  absl_random_internal_distribution_test_util
+
+  # Abseil random_internal_fast_uniform_bits library
+  absl_random_internal_fast_uniform_bits
+
+  # Abseil random_internal_fastmath library
+  absl_random_internal_fastmath
+
+  # Abseil random_internal_generate_real library
+  absl_random_internal_generate_real
+
+  # Abseil random_internal_iostream_state_saver library
+  absl_random_internal_iostream_state_saver
+
+  # Abseil random_internal_mock_helpers library
+  absl_random_internal_mock_helpers
+
+  # Abseil random_internal_nonsecure_base library
+  absl_random_internal_nonsecure_base
+
+  # Abseil random_internal_pcg_engine library
+  absl_random_internal_pcg_engine
+
+  # Abseil random_internal_platform library
+  absl_random_internal_platform
+
+  # Abseil random_internal_pool_urbg library
+  absl_random_internal_pool_urbg
+
+  # Abseil random_internal_randen library
+  absl_random_internal_randen
+
+  # Abseil random_internal_randen_engine library
+  absl_random_internal_randen_engine
+
+  # Abseil random_internal_randen_hwaes library
+  absl_random_internal_randen_hwaes
+
+  # Abseil random_internal_randen_hwaes_impl library
+  absl_random_internal_randen_hwaes_impl
+
+  # Abseil random_internal_randen_slow library
+  absl_random_internal_randen_slow
+
+  # Abseil random_internal_salted_seed_seq library
+  absl_random_internal_salted_seed_seq
+
+  # Abseil random_internal_seed_material library
+  absl_random_internal_seed_material
+
+  # Abseil random_internal_traits library
+  absl_random_internal_traits
+
+  # Abseil random_internal_uniform_helper library
+  absl_random_internal_uniform_helper
+
+  # Abseil random_internal_wide_multiply library
+  absl_random_internal_wide_multiply
+
+  # Abseil random_random library
+  absl_random_random
+
+  # Abseil random_seed_gen_exception library
+  absl_random_seed_gen_exception
+
+  # Abseil random_seed_sequences library
+  absl_random_seed_sequences
+
+  # Abseil raw_hash_map library
+  absl_raw_hash_map
+
+  # Abseil raw_hash_set library
+  absl_raw_hash_set
+
+  # Abseil raw_logging_internal library
+  absl_raw_logging_internal
+
+  # Abseil sample_recorder library
+  absl_sample_recorder
+
+  # Abseil scoped_set_env library
+  absl_scoped_set_env
+
+  # Abseil span library
+  absl_span
+
+  # Abseil spinlock_wait library
+  absl_spinlock_wait
+
+  # Abseil stacktrace library
+  absl_stacktrace
+
+  # Abseil status library
+  absl_status
+
+  # Abseil statusor library
+  absl_statusor
+
+  # Abseil str_format library
+  absl_str_format
+
+  # Abseil str_format_internal library
+  absl_str_format_internal
+
+  # Abseil strerror library
+  absl_strerror
+
+  # Abseil string_view library
+  absl_string_view
+
+  # Abseil strings library
+  absl_strings
+
+  # Abseil strings_internal library
+  absl_strings_internal
+
+  # Abseil symbolize library
+  absl_symbolize
+
+  # Abseil synchronization library
+  absl_synchronization
+
+  # Abseil throw_delegate library
+  absl_throw_delegate
+
+  # Abseil time library
+  absl_time
+
+  # Abseil time_zone library
+  absl_time_zone
+
+  # Abseil type_traits library
+  absl_type_traits
+
+  # Abseil utf8_for_code_point library
+  absl_utf8_for_code_point
+
+  # Abseil utility library
+  absl_utility
+
+  # Abseil variant library
+  absl_variant
+
+  # Abseil vlog_config_internal library
+  absl_vlog_config_internal
+
+  # Abseil vlog_is_on library
+  absl_vlog_is_on
+
+asio provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(asio CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE asio::asio)
+
+asio provides pkg-config modules:
+
+  # A cross-platform C++ library for network and low-level I/O programming that provides developers with a consistent asynchronous model using a modern C++ approach.
+  asio
+
+bshoshany-thread-pool is header-only and can be used from CMake via:
+
+  find_path(BSHOSHANY_THREAD_POOL_INCLUDE_DIRS "BS_thread_pool.hpp")
+  target_include_directories(main PRIVATE ${BSHOSHANY_THREAD_POOL_INCLUDE_DIRS})
+
+cpp-httplib provides CMake targets:
+
+    find_package(httplib CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE httplib::httplib)
+
+cppcodec is header-only and can be used from CMake via:
+
+  find_path(CPPCODEC_INCLUDE_DIRS "cppcodec/base32_crockford.hpp")
+  target_include_directories(main PRIVATE ${CPPCODEC_INCLUDE_DIRS})
+
+cppcodec provides pkg-config modules:
+
+  # C++ header-only library to encode/decode base64, base64url, base32, base32hex and hex
+  cppcodec-1
+
+The package fmt provides CMake targets:
+
+    find_package(fmt CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE fmt::fmt)
+
+    # Or use the header-only version
+    find_package(fmt CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE fmt::fmt-header-only)
+
+zlib is compatible with built-in CMake targets:
+
+  find_package(ZLIB REQUIRED)
+  target_link_libraries(main PRIVATE ZLIB::ZLIB)
+
+libpng provides CMake targets:
+
+  find_package(PNG REQUIRED)
+  target_link_libraries(main PRIVATE PNG::PNG)
+
+freetype is compatible with built-in CMake targets:
+
+    find_package(Freetype REQUIRED)
+    target_link_libraries(main PRIVATE Freetype::Freetype) # since CMake 3.10
+
+The package inih provides unofficial CMake targets:
+    find_package(unofficial-inih CONFIG REQUIRED)
+    # C API
+    target_link_libraries(main PRIVATE unofficial::inih::libinih)
+    # C++ API (Requires "cpp" feature)
+    target_link_libraries(main PRIVATE unofficial::inih::inireader)
+Alternatively, if you are using pkg-config use the name "inih" for the C API and "inireader" for the C++ API
+
+liblzma is compatible with built-in CMake targets:
+
+    find_package(LibLZMA REQUIRED)
+    target_link_libraries(main PRIVATE LibLZMA::LibLZMA)
+
+liblzma provides CMake targets:
+
+    find_package(liblzma CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE liblzma::liblzma)
+
+openssl is compatible with built-in CMake targets:
+
+  find_package(OpenSSL REQUIRED)
+  target_link_libraries(main PRIVATE OpenSSL::SSL)
+  target_link_libraries(main PRIVATE OpenSSL::Crypto)
+
+libarchive is compatible with the CMake Find Module:
+
+  find_package(LibArchive REQUIRED)
+  target_link_libraries(main PRIVATE LibArchive::LibArchive) # since CMake 3.17
+
+libarchive provides pkg-config modules:
+
+  # library that can create and read several streaming archive formats
+  libarchive
+
+libobfuscate is header-only and can be used from CMake via:
+
+  find_path(LIBOBFUSCATE_INCLUDE_DIRS "obfuscate.h")
+  target_include_directories(main PRIVATE ${LIBOBFUSCATE_INCLUDE_DIRS})
+
+libogg provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(Ogg CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE Ogg::ogg)
+
+libogg provides pkg-config modules:
+
+  # ogg is a library for manipulating ogg bitstreams
+  ogg
+
+The package libvorbis provides CMake targets:
+
+    # Vorbis reference encoder and decoder, low-level API
+    find_package(Vorbis CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE Vorbis::vorbis)
+
+    # Audio stream decoding and basic manipulation, high-level API
+    find_package(Vorbis CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE Vorbis::vorbisfile)
+
+    # Convenience API for setting up an encoding environment
+    find_package(Vorbis CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE Vorbis::vorbisenc)
+
+The package nlohmann-json provides CMake targets:
+
+    find_package(nlohmann_json CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE nlohmann_json::nlohmann_json)
+
+The package nlohmann-json can be configured to not provide implicit conversions via a custom triplet file:
+
+    set(nlohmann-json_IMPLICIT_CONVERSIONS OFF)
+
+For more information, see the docs here:
+    
+    https://json.nlohmann.me/api/macros/json_use_implicit_conversions/
+
+openal-soft provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(OpenAL CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE OpenAL::OpenAL)
+
+openal-soft provides pkg-config modules:
+
+  # OpenAL is a cross-platform 3D audio API
+  openal
+
+parallel-hashmap is header-only and can be used from CMake via:
+
+  find_path(PARALLEL_HASHMAP_INCLUDE_DIRS "parallel_hashmap/btree.h")
+  target_include_directories(main PRIVATE ${PARALLEL_HASHMAP_INCLUDE_DIRS})
+
+physfs provides CMake targets:
+
+    find_package(PhysFS CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE $<IF:$<TARGET_EXISTS:PhysFS::PhysFS>,PhysFS::PhysFS,PhysFS::PhysFS-static>)
+
+physfs is compatible with built-in CMake targets:
+
+    find_package(PhysFS REQUIRED)
+    target_include_directories(main PRIVATE ${PHYSFS_INCLUDE_DIR})
+    target_link_libraries(main PRIVATE ${PHYSFS_LIBRARY})
+
+protobuf provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(protobuf CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE protobuf::libprotoc protobuf::libprotobuf protobuf::libprotobuf-lite)
+
+protobuf provides pkg-config modules:
+
+  # Google's Data Interchange Format
+  protobuf-lite
+
+  # Google's Data Interchange Format
+  protobuf
+
+pugixml provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(pugixml CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE pugixml::static pugixml::pugixml)
+
+pugixml provides pkg-config modules:
+
+  # Light-weight, simple and fast XML parser for C++ with XPath support.
+  pugixml
+
+The package spdlog provides CMake targets:
+
+    find_package(spdlog CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE spdlog::spdlog)
+
+    # Or use the header-only version
+    find_package(spdlog CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE spdlog::spdlog_header_only)
+
+stduuid provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(stduuid CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE stduuid)
+
+utfcpp provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(utf8cpp CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE utf8::cpp utf8cpp::utf8cpp)
+
+All requested installations completed successfully in: 1.72 ms
+-- Running vcpkg install - done
+-- WASM: ON
+-- Disabled:[m [33m[1mipo[m
+-- Found Protobuf Compiler: C:/Users/lucas/Desktop/tibia/build/client-web/vcpkg_installed/x64-windows/tools/protobuf/protoc.exe
+-- Build type: Release
+-- Build commit: 
+-- Build revision: 
+-- Disabled:[m [33m[1mDiscord Rich Presence[m
+-- Use precompiled header: ON
+-- Enabled:[m [32m[1mBuild unity for speed up compilation[m
+-- Disabled:[m [33m[1masan[m
+-- Disabled:[m [33m[1mDEBUG LOG[m
+-- WASM link options: -sINVOKE_RUN=0 -sEXIT_RUNTIME=1 -sTEXTDECODER=2 -sCASE_INSENSITIVE_FS=1 -lopenal -lidbfs.js -lwebsocket.js -sEXPORTED_RUNTIME_METHODS=ccall -sEXPORTED_FUNCTIONS=_main,_paste_return -sINCOMING_MODULE_JS_API=[locateFile,preRun,postRun,print,printErr,canvas,setStatus,monitorRunDependencies] -sFORCE_FILESYSTEM -sMALLOC=dlmalloc -sSUPPORT_LONGJMP=emscripten -sWEBSOCKET_SUBPROTOCOL=binary -sOFFSCREENCANVAS_SUPPORT=1 -sOFFSCREEN_FRAMEBUFFER -sENVIRONMENT=web,worker -sPROXY_TO_PTHREAD -sFULL_ES2=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sUSE_PTHREADS=1 -sFETCH=1 -sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency -sALLOW_MEMORY_GROWTH=0 -sINITIAL_MEMORY=1073741824 --preload-file=C:/Users/lucas/Desktop/tibia/client/otclientrc.lua@otclientrc.lua --preload-file=C:/Users/lucas/Desktop/tibia/client/init.lua@init.lua --preload-file=C:/Users/lucas/Desktop/tibia/client/data@data --preload-file=C:/Users/lucas/Desktop/tibia/client/mods@mods --preload-file=C:/Users/lucas/Desktop/tibia/client/modules@modules --shell-file=C:/Users/lucas/Desktop/tibia/client/browser/shell.html --use-preload-cache
+-- Disabled:[m [33m[1mBuild tests[m
+-- Configuring done (101.8s)
+-- Generating done (1.2s)
+-- Build files have been written to: C:/Users/lucas/Desktop/tibia/build/client-web
+[1/1] Linking CXX executable bin\otclient.html

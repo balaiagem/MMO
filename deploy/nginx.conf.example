@@ -1,0 +1,24 @@
+# Merge into an existing HTTPS server block; certificate provisioning is external.
+# No deployment has been performed or validated on amazoniabowls.com.
+location /tibia/ {
+    alias /srv/tibia/client/;
+    index otclient.html;
+    add_header Cross-Origin-Opener-Policy same-origin always;
+    add_header Cross-Origin-Embedder-Policy require-corp always;
+    add_header Cross-Origin-Resource-Policy same-origin always;
+    # Include nginx mime.types at http{} level, including application/wasm.
+}
+# OTClient's transport currently constructs host:port with no URL path.
+# Expose separate TLS listeners for login and game (e.g. 8443 and 8444)
+# or separate hostnames on 443. Each server block uses this location,
+# replacing the upstream port with 8081 for login or 8082 for game.
+# location / {
+#     proxy_pass http://127.0.0.1:8081;
+#     proxy_http_version 1.1;
+#     proxy_set_header Upgrade $http_upgrade;
+#     proxy_set_header Connection "upgrade";
+#     proxy_set_header Host $host;
+#     proxy_set_header Origin $http_origin;
+#     proxy_read_timeout 75s;
+#     proxy_send_timeout 75s;
+# }

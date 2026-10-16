@@ -1,0 +1,14 @@
+✔ two simultaneous WebSockets preserve distinct binary TCP streams (81.0801ms)
+✔ rejects untrusted origin, missing origin, wrong protocol and arbitrary paths (23.0678ms)
+✔ text frames are rejected and backend is closed (13.4867ms)
+✔ backend disconnect closes websocket (14.9902ms)
+✔ limits connections and queued bytes (16.0175ms)
+✔ configuration cannot create an arbitrary open proxy (0.641ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 987.1744

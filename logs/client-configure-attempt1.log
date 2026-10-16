@@ -1,0 +1,34 @@
+-- Shared vcpkg installed tree disabled: explicitly disabled
+-- Running vcpkg install
+Detecting compiler hash for triplet x64-windows...
+Compiler found: C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe
+Detecting compiler hash for triplet wasm32-emscripten-pthread...
+error: while detecting compiler information:
+The log file content at "C:\Users\lucas\Desktop\tibia\build\client-web\vcpkg-buildtrees\detect_compiler\stdout-wasm32-emscripten-pthread.log" is:
+-- Configuring wasm32-emscripten-pthread
+CMake Error at scripts/cmake/vcpkg_execute_required_process.cmake:127 (message):
+    Command failed: C:\\Users\\lucas\\Desktop\\tibia\\tools\\vcpkg\\downloads\\tools\\ninja-1.13.2-windows\\ninja.exe -v
+    Working Directory: C:/Users/lucas/Desktop/tibia/build/client-web/vcpkg-buildtrees/detect_compiler/wasm32-emscripten-pthread-rel/vcpkg-parallel-configure
+    Error code: 1
+    See logs for more information:
+      C:\Users\lucas\Desktop\tibia\build\client-web\vcpkg-buildtrees\detect_compiler\config-wasm32-emscripten-pthread-rel-CMakeCache.txt.log
+      C:\Users\lucas\Desktop\tibia\build\client-web\vcpkg-buildtrees\detect_compiler\config-wasm32-emscripten-pthread-out.log
+
+Call Stack (most recent call first):
+  scripts/cmake/vcpkg_configure_cmake.cmake:295 (vcpkg_execute_required_process)
+  scripts/detect_compiler/portfile.cmake:18 (vcpkg_configure_cmake)
+  scripts/ports.cmake:209 (include)
+
+
+error: vcpkg was unable to detect the active compiler's information. See above for the CMake failure output.
+-- Running vcpkg install - failed
+CMake Error at C:/Users/lucas/Desktop/tibia/tools/vcpkg/scripts/buildsystems/vcpkg.cmake:984 (message):
+  vcpkg install failed.  See logs for more information:
+  C:\Users\lucas\Desktop\tibia\build\client-web\vcpkg-manifest-install.log
+Call Stack (most recent call first):
+  C:/Users/lucas/Desktop/tibia/tools/python/cmake/data/share/cmake-4.4/Modules/CMakeDetermineSystem.cmake:152 (include)
+  CMakeLists.txt:48 (project)
+
+
+CMake Error: CMake was unable to find a build program corresponding to "Ninja".  CMAKE_MAKE_PROGRAM is not set.  You probably need to select a different build tool.
+-- Configuring incomplete, errors occurred!

@@ -1,0 +1,19 @@
+Adding directories to PATH:
+PATH += C:\Users\lucas\Desktop\tibia\tools\emsdk
+PATH += C:\Users\lucas\Desktop\tibia\tools\emsdk\upstream\emscripten
+
+Setting environment variables:
+PATH = C:\Users\lucas\Desktop\tibia\tools\emsdk;C:\Users\lucas\Desktop\tibia\tools\emsdk\upstream\emscripten;C:\Users\lucas\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\powershell;C:\Users\lucas\.codex\tmp\arg0\codex-arg0F5Skx1;C:\Users\lucas\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\libheif\libheif\bin;C:\Users\lucas\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\jxrlib\jxrlib\bin;C:\Users\lucas\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\poppler\Library\bin;C:\Users\lucas\.cache\codex-runtimes\codex-primary-runtime\dependencies\bin\override;C:\windows\system32;C:\windows;C:\windows\System32\Wbem;C:\windows\System32\WindowsPowerShell\v1.0\;C:\windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Users\Administrator\AppData\Local\Microsoft\WindowsApps;;C:\Program Files\HP\OMEN-Broadcast\Common;C:\Users\lucas\AppData\Local\Microsoft\WindowsApps;C:\Users\lucas\AppData\Local\GitHubDesktop\bin;C:\Users\lucas\.cache\codex-runtimes\codex-primary-runtime\dependencies\bin\fallback;C:\Users\lucas\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin;C:\Users\lucas\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\git\cmd;C:\Users\lucas\AppData\Local\OpenAI\Codex\bin\9a7ba4b9ea0c44a3;C:\Users\lucas\AppData\Local\OpenAI\Codex\bin\2e5e00daee91c61d
+EMSDK = C:/Users/lucas/Desktop/tibia/tools/emsdk
+EMSDK_NODE = C:\Users\lucas\Desktop\tibia\tools\emsdk\node\24.19.0_64bit\node.exe
+EMSDK_PYTHON = C:\Users\lucas\Desktop\tibia\tools\emsdk\python\3.13.3_64bit\python.exe
+The changes made to environment variables only apply to the currently running shell instance. Use the 'emsdk_env.bat' to re-enter this environment later, or if you'd like to register this environment permanently, rerun this command with the option --permanent.
+Resolving SDK version '4.0.23' to 'sdk-releases-aaa43392544d695232b70eda706d751f18980c2a-64bit'
+Setting the following tools as active:
+   node-24.19.0-64bit
+   python-3.13.3-64bit
+   releases-aaa43392544d695232b70eda706d751f18980c2a-64bit
+
+Next steps:
+- Consider running `emsdk activate` with --permanent or --system
+  to have emsdk settings available on startup.

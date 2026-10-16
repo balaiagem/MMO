@@ -1,0 +1,151 @@
+diff --git a/browser/triplets/wasm32-emscripten-pthread.cmake b/browser/triplets/wasm32-emscripten-pthread.cmake
+index f12608c..d9c665d 100644
+--- a/browser/triplets/wasm32-emscripten-pthread.cmake
++++ b/browser/triplets/wasm32-emscripten-pthread.cmake
+@@ -3,6 +3,7 @@ set(VCPKG_CRT_LINKAGE dynamic)
+ set(VCPKG_LIBRARY_LINKAGE static)
+ 
+ set(VCPKG_CMAKE_SYSTEM_NAME Emscripten)
++set(VCPKG_ENV_PASSTHROUGH EMSDK EMSDK_NODE EMSDK_PYTHON EM_CONFIG)
+ set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE "$ENV{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake")
+ 
+ # Force pthread support with atomics and bulk-memory for all packages
+diff --git a/init.lua b/init.lua
+index f859a3b..a2db322 100644
+--- a/init.lua
++++ b/init.lua
+@@ -9,7 +9,7 @@ Services = {
+     --createAccount = "http://localhost/clientcreateaccount.php", --./client_entergame -- createAccount.lua
+     --getCoinsUrl = "http://localhost/?subtopic=shop&step=terms", --./game_market
+     clientAssets = {
+-        enabled = true,
++        enabled = false, -- Project Tibia 5E: use only explicitly licensed assets.
+         repository = "dudantas/tibia-client",
+         installSounds = true,
+         strictManifestSha256 = true,
+@@ -53,6 +53,8 @@ local ENABLE_SERVERS = true
+ --
+ 
+ Servers_init = {}
++-- Only applied by the browser; native clients use the login server's TCP address.
++Tibia5EWebGateway = { host = "localhost", port = 8082 }
+ 
+ if ENABLE_SERVERS then
+ 
+@@ -73,10 +75,10 @@ if ENABLE_SERVERS then
+         -- @field httpLogin Enables HTTP-based login on the server
+         -- @field useAuthenticator Enables additional authentication layer
+         --
+-        ["http://127.0.0.1/login.php"] = {
+-            port = 80,
+-            protocol = 1511,
+-            httpLogin = true,
++        ["localhost"] = {
++            port = 8081,
++            protocol = 860,
++            httpLogin = false,
+             useAuthenticator = false
+         },
+ 
+@@ -89,11 +91,6 @@ if ENABLE_SERVERS then
+         -- @field protocol Protocol identifier used by the server
+         -- @field httpLogin Indicates if the server allows HTTP login
+         --
+-        ["ip.net"] = {
+-            port = 7171,
+-            protocol = 860,
+-            httpLogin = false
+-        }
+     }
+ end
+ 
+diff --git a/modules/client_entergame/characterlist.lua b/modules/client_entergame/characterlist.lua
+index c6b980b..c4205fa 100644
+--- a/modules/client_entergame/characterlist.lua
++++ b/modules/client_entergame/characterlist.lua
+@@ -390,7 +390,11 @@ local function tryLogin(charInfo, tries)
+ 
+     CharacterList.hide()
+ 
+-    g_game.loginWorld(G.account, G.password, charInfo.worldName, charInfo.worldHost, charInfo.worldPort,
++    local worldHost, worldPort = charInfo.worldHost, charInfo.worldPort
++    if g_app.getOs() == 'browser' and Tibia5EWebGateway then
++        worldHost, worldPort = Tibia5EWebGateway.host, Tibia5EWebGateway.port
++    end
++    g_game.loginWorld(G.account, G.password, charInfo.worldName, worldHost, worldPort,
+                       charInfo.characterName, G.authenticatorToken, G.sessionKey)
+ 
+     loadBox = displayCancelBox(tr('Please wait'), tr('Connecting to game server...'))
+diff --git a/src/framework/net/webconnection.cpp b/src/framework/net/webconnection.cpp
+index 5cf5df7..ea0ab5a 100644
+--- a/src/framework/net/webconnection.cpp
++++ b/src/framework/net/webconnection.cpp
+@@ -33,6 +33,7 @@
+ #include <framework/core/eventdispatcher.h>
+ 
+ #include <emscripten/threading.h>
++#include <emscripten.h>
+ 
+ std::list<std::shared_ptr<asio::streambuf>> WebConnection::m_outputStreams;
+ WebConnection::WebConnection()
+@@ -61,14 +62,16 @@ void WebConnection::close()
+     if (!m_connected && !m_connecting)
+         return;
+ 
+-    emscripten_websocket_deinitialize();
+-    m_websocket = 0;
+-
+-    if (!m_gameWorld)
+-        return;
+-
++    const bool logout = m_gameWorld && m_connected;
+     m_connecting = false;
+     m_connected = false;
++    // Closing login must not destroy an already-open game connection.
++    // Global websocket deinitialization belongs only in terminate().
++    if (m_websocket > 0) {
++        emscripten_websocket_close(m_websocket, 1000, "connection closed");
++        emscripten_websocket_delete(m_websocket);
++        m_websocket = 0;
++    }
+     m_connectCallback = nullptr;
+     m_errorCallback = nullptr;
+     m_recvCallback = nullptr;
+@@ -76,9 +79,11 @@ void WebConnection::close()
+     m_inputStream.consume(m_inputStream.size());
+ 
+     //Workaround for the abrupt termination of the websocket
+-    g_dispatcher.addEvent([] {
+-        g_game.forceLogout();
+-    });
++    if (logout) {
++        g_dispatcher.addEvent([] {
++            g_game.forceLogout();
++        });
++    }
+ }
+ 
+ void WebConnection::connect(const std::string_view host, uint16_t port, const std::function<void()>& connectCallback, bool gameWorld)
+@@ -92,11 +97,10 @@ void WebConnection::connect(const std::string_view host, uint16_t port, const st
+     std::string ip = std::string(host);
+     ip.length() == 0 ? ip = "localhost" : ip;
+ 
+-#ifdef NDEBUG
+-    const std::string prefix = "wss://";
+-#else
+-    const std::string prefix = "ws://";
+-#endif
++    // Read the document on the main thread: pthread workers can have blob URLs.
++    // Release builds on HTTP localhost use WS; HTTPS deployments always use WSS.
++    const bool secure = MAIN_THREAD_EM_ASM_INT({ return location.protocol === 'https:'; });
++    const std::string prefix = secure ? "wss://" : "ws://";
+ 
+     m_pthread = pthread_self();
+ 
+@@ -283,4 +287,4 @@ int WebConnection::getIp()
+     return 0;
+ }
+ 
+-#endif
+\ No newline at end of file
++#endif

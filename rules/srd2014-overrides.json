@@ -1,0 +1,10 @@
+{
+  "warlock-4": {
+    "class_specific.invocations_known": {
+      "source_value": 3,
+      "value": 2,
+      "reference": "https://www.dndbeyond.com/classes/7-warlock",
+      "reason": "The 2014 Warlock table grants two invocations at levels 2-4 and the third at level 5. The pinned transcription incorrectly reports three at level 4."
+    }
+  }
+}

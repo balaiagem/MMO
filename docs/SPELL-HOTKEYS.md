@@ -1,0 +1,11 @@
+# Magias, habilidades e espacos nas hotkeys
+
+Clique com o botao direito em um espaco da barra de acao, escolha **Assign Spell**, selecione uma magia ou habilidade 5e e confirme. Use **Assign Hotkey** para associar uma tecla. Os botoes de aumentar e diminuir circulo tambem aparecem nessa janela e podem ser colocados em qualquer hotkey.
+
+Ao entrar, a ficha 5e sincroniza nivel, classe, raca, experiencia e espacos. A barra azul mostra cada circulo e quantos espacos restam; o circulo selecionado aparece com `>`. A janela Skills tambem mostra nivel 5e e espacos por circulo. `/gm level 4` atualiza essas exibicoes apos a resposta da ficha. O nivel e XP nativos do Tibia continuam separados.
+
+Os comandos **Aumentar circulo de magia** e **Diminuir circulo de magia** selecionam o nivel preferido de espaco a gastar. Ao conjurar, o servidor usa automaticamente o maior entre o nivel base da magia e o circulo selecionado. Se esse espaco acabou, procura os circulos inferiores ate o nivel base da magia: Scorching Ray selecionado no 3º usa um espaço de 2º se nao restar nenhum de 3º; Fireball nunca cai abaixo do 3º. Uma magia de nivel 1 com o circulo 3 selecionado usa o nivel mais alto disponivel entre 3 e 1 e recebe os efeitos de elevacao correspondentes. Se nenhum espaco valido estiver disponivel, a magia nao conjura nem consome a acao. A versao atual aplica escalonamento ao Magic Missile, Cure Wounds, Mass Healing Word e Fireball dentro dos circulos implementados (1 a 3).
+
+As quatro magias iniciais e as magias de nivel 2 e 3 continuam filtradas pela classe/raca e validadas de novo no servidor. O catalogo nativo de Assign Spell tambem lista os recursos de classe e raciais dos quatro arquétipos/racas atuais. Retomar o Folego, Surto de Acao, Recuperacao Arcana, Preservar Vida e Acao Ardilosa possuem comandos ativos; entradas passivas mostram sua regra no log do servidor. Algumas passivas e habilidades de reacao ainda precisam ser ligadas aos respectivos eventos de combate, como anotado no status do projeto.
+
+O descanso curto restaura Retomar o Folego, Surto de Acao e Preservar Vida; o longo restaura Recuperacao Arcana. Para atualizar o cliente depois de alteracoes de Lua/UI, rode `python tools/repack-client.py` e recarregue a pagina.

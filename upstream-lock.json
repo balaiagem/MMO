@@ -1,0 +1,8 @@
+{
+  "client": { "url": "https://github.com/opentibiabr/otclient.git", "commit": "53c3878a1c5119c78e148adb32def53fea3c53f2" },
+  "server": { "url": "https://github.com/Mateuzkl/forgottenserver-downgrade-1.8-8.60.git", "commit": "0ad2669dca7659f91a747c7e1ccda64e8e7ba1ce" },
+  "vcpkg": { "url": "https://github.com/microsoft/vcpkg.git", "commit": "9e593bb18ea69cc5095e012465dcd675a822ed0d" },
+  "emscripten": "4.0.23",
+  "pythonPackages": { "cmake": "4.4.4", "ninja": "1.13.2", "lupa": "2.8" },
+  "rules": "SRD 5.1 (2014 rules), CC-BY-4.0"
+}

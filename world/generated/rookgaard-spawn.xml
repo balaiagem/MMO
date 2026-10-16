@@ -1,0 +1,29 @@
+<spawns>
+  <spawn centerx="105" centery="118" centerz="7" radius="2">
+    <monsters spawntime="30"><monster name="Rat" x="0" y="0" z="0" /></monsters>
+  </spawn>
+  <spawn centerx="124" centery="119" centerz="7" radius="2">
+    <monsters spawntime="30"><monster name="Rat" x="0" y="0" z="0" /></monsters>
+  </spawn>
+  <spawn centerx="116" centery="112" centerz="8" radius="2">
+    <monsters spawntime="25"><monster name="Rat" x="0" y="0" z="0" /></monsters>
+  </spawn>
+  <spawn centerx="122" centery="116" centerz="8" radius="2">
+    <monsters spawntime="25"><monster name="Rat" x="0" y="0" z="0" /></monsters>
+  </spawn>
+  <spawn centerx="104" centery="101" centerz="7" radius="2">
+    <monsters spawntime="35"><monster name="Snake" x="0" y="0" z="0" /></monsters>
+  </spawn>
+  <spawn centerx="132" centery="105" centerz="7" radius="2">
+    <monsters spawntime="35"><monster name="Spider" x="0" y="0" z="0" /></monsters>
+  </spawn>
+  <spawn centerx="112" centery="126" centerz="7" radius="2">
+    <monsters spawntime="45"><monster name="Wolf" x="0" y="0" z="0" /></monsters>
+  </spawn>
+  <spawn centerx="132" centery="125" centerz="7" radius="2">
+    <monsters spawntime="45"><monster name="Bug" x="0" y="0" z="0" /></monsters>
+  </spawn>
+  <spawn centerx="121" centery="110" centerz="8" radius="2">
+    <monsters spawntime="35"><monster name="Spider" x="0" y="0" z="0" /></monsters>
+  </spawn>
+</spawns>

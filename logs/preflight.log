@@ -1,0 +1,12 @@
+FOUND OTClient source: client/CMakeLists.txt
+FOUND TFS source: server/CMakeLists.txt
+FOUND Emscripten compiler: tools/emsdk/upstream/emscripten/emcc.py
+FOUND CMake: tools/python/cmake/data/bin/cmake.exe
+FOUND Ninja: tools/python/bin/ninja.exe
+MISSING 860 data definitions: client/data/things/860/Tibia.dat
+MISSING 860 sprite atlas: client/data/things/860/Tibia.spr
+MISSING browser .html: 
+MISSING browser .js: 
+MISSING browser .wasm: 
+MISSING browser .data: 
+Checks establish file presence only. They do not verify login, rendering, ownership of assets, or gameplay.

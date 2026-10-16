@@ -1,0 +1,86 @@
+{
+  "source": "C:\\Users\\lucas\\Downloads\\tibia-map-data-main.zip",
+  "sha256": "ad66051966fbc921d7f0d9e3be486d62d30978a9426b8342d6b42d3bc26396c8",
+  "files": 176,
+  "server_maps": [],
+  "minimap_images": [
+    "tibia-map-data-main/data/floor-00-map.png",
+    "tibia-map-data-main/data/floor-01-map.png",
+    "tibia-map-data-main/data/floor-02-map.png",
+    "tibia-map-data-main/data/floor-03-map.png",
+    "tibia-map-data-main/data/floor-04-map.png",
+    "tibia-map-data-main/data/floor-05-map.png",
+    "tibia-map-data-main/data/floor-06-map.png",
+    "tibia-map-data-main/data/floor-07-map.png",
+    "tibia-map-data-main/data/floor-08-map.png",
+    "tibia-map-data-main/data/floor-09-map.png",
+    "tibia-map-data-main/data/floor-10-map.png",
+    "tibia-map-data-main/data/floor-11-map.png",
+    "tibia-map-data-main/data/floor-12-map.png",
+    "tibia-map-data-main/data/floor-13-map.png",
+    "tibia-map-data-main/data/floor-14-map.png",
+    "tibia-map-data-main/data/floor-15-map.png"
+  ],
+  "bounds": {
+    "xMin": 31744,
+    "xMax": 34048,
+    "yMin": 30976,
+    "yMax": 32768,
+    "zMin": 0,
+    "zMax": 15,
+    "width": 2560,
+    "height": 2048,
+    "floorIDs": [
+      "00",
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15"
+    ]
+  },
+  "rookgaard_markers": [
+    {
+      "x": 32097,
+      "y": 32219,
+      "z": 7,
+      "icon": "cross",
+      "description": "Temple of Rookgaard"
+    },
+    {
+      "x": 32139,
+      "y": 32176,
+      "z": 7,
+      "icon": "up",
+      "description": "To NPC Hyacinth"
+    }
+  ],
+  "candidate_npc_scripts": [
+    "server\\data\\npc\\crystalserver\\quests\\paulie.lua",
+    "server\\data\\npc\\crystalserver\\shops\\buy\\amber.lua",
+    "server\\data\\npc\\crystalserver\\shops\\buy\\cipfried.lua",
+    "server\\data\\npc\\crystalserver\\shops\\buy\\dallheim.lua",
+    "server\\data\\npc\\crystalserver\\shops\\buy\\seymour.lua",
+    "server\\data\\npc\\crystalserver\\shops\\mixed\\al_dee.lua",
+    "server\\data\\npc\\crystalserver\\shops\\mixed\\billy.lua",
+    "server\\data\\npc\\crystalserver\\shops\\mixed\\dixi.lua",
+    "server\\data\\npc\\crystalserver\\shops\\mixed\\hyacinth.lua",
+    "server\\data\\npc\\crystalserver\\shops\\mixed\\lily.lua",
+    "server\\data\\npc\\crystalserver\\shops\\mixed\\norma.lua",
+    "server\\data\\npc\\crystalserver\\shops\\mixed\\obi.lua",
+    "server\\data\\npc\\crystalserver\\shops\\mixed\\tom.lua",
+    "server\\data\\npc\\crystalserver\\shops\\mixed\\willie.lua",
+    "server\\data\\npc\\lua\\shops\\buy\\Obi.lua"
+  ],
+  "status": "Blocked: minimap contains no tile item stacks or server spawns/dialogue/quest definitions."
+}

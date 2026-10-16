@@ -1,0 +1,10 @@
+<items>
+  <item id="100" name="grass"/>
+  <item id="101" name="cobblestones"/>
+  <item id="102" name="plank floor"/>
+  <item id="103" name="stone wall"/>
+  <item id="104" name="deep water"/>
+  <item id="106" name="stairs up"/>
+  <item id="107" name="stairs down"/>
+  <item id="110" name="earth path"/>
+</items>
