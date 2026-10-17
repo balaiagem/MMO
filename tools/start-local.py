@@ -13,6 +13,8 @@ def sync_combat_rules():
         (ROOT/'rules'/'class_actions.lua',data/'lib'/'dnd_class_actions.lua'),
         (ROOT/'rules'/'characters.lua',data/'lib'/'dnd_characters.lua'),
         (ROOT/'rules'/'character_data.lua',data/'lib'/'dnd_character_data.lua'),
+        (ROOT/'rules'/'equipment.lua',data/'lib'/'dnd_equipment.lua'),
+        (ROOT/'rules'/'equipment_data.lua',data/'lib'/'dnd_equipment_data.lua'),
         (ROOT/'world'/'content'/'dnd_combat.lua',data/'scripts'/'dnd_combat.lua'),
         (ROOT/'world'/'content'/'gm_tools.lua',data/'scripts'/'gm_tools.lua'),
         (ROOT/'world'/'content'/'rookgaard_access.lua',data/'scripts'/'rookgaard_access.lua'),

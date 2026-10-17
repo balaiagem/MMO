@@ -271,7 +271,7 @@ function M.new(c)
    end
    if favored and(context=='tracking'or context=='recall')then advantage=key=='survival'or row.ability==3 end
   end
-  local disadvantage=p:getStorageValue(95101)>=1
+  local disadvantage=p:getStorageValue(95101)>=1 or(key=='stealth'and c.stealthDisadvantage~=nil and c.stealthDisadvantage(p))
   for _,caster in ipairs(Game.getPlayers())do
    local hex=c.buff(caster,'hex')
    if hex and hex.targetId==p:getId()and hex.ability==row.ability then disadvantage=true end

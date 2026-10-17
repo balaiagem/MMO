@@ -4,7 +4,7 @@ For Lua/UI/assets changes; C++ changes still require build-client.ps1.
 Use the SDK packager, update embedded metadata, and add any new package paths
 to the linked loader without rebuilding WebAssembly.
 """
-import json, posixpath, re, shutil, subprocess
+import json, posixpath, re, shutil, subprocess, sys
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -15,7 +15,8 @@ start=js.index('loadPackage({')+len('loadPackage(')
 end=js.index('})})();var arguments_',start)+1
 assert 'remote_package_size' in js[start:end] and 'package_uuid' in js[start:end]
 temp=ROOT/'runtime/client-preload';temp.mkdir(parents=True,exist_ok=True)
-command=[str(ROOT/'tools/emsdk/python/3.13.3_64bit/python.exe'),str(ROOT/'tools/emsdk/upstream/emscripten/tools/file_packager.py'),
+python=ROOT/'tools/emsdk/python/3.13.3_64bit/python.exe'
+command=[str(python) if python.exists() and sys.platform=='win32' else sys.executable,str(ROOT/'tools/emsdk/upstream/emscripten/tools/file_packager.py'),
  str(temp/'otclient.data'),'--preload']
 for name in ['data','modules','mods','config.ini','init.lua','otclientrc.lua']:
  command.append(str(ROOT/'client'/name)+'@/'+name)

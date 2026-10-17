@@ -1,6 +1,7 @@
 -- Server-authoritative first 5e combat slice, using the project's SRD kernel.
 local R = dofile('data/lib/dnd_rules.lua')
 local Characters=dofile('data/lib/dnd_characters.lua').new(dofile('data/lib/dnd_character_data.lua'))
+local Equipment=dofile('data/lib/dnd_equipment.lua').new(dofile('data/lib/dnd_equipment_data.lua'))
 local worldConfig={}
 local worldConfigFile=io.open('data/lib/dnd_world.lua','r')
 if worldConfigFile then worldConfigFile:close();worldConfig=dofile('data/lib/dnd_world.lua') end
@@ -121,6 +122,47 @@ local function mod(p,index)
     return modified~=nil and modified or R.modifier(score(p,index))
 end
 local function proficiency(p) return R.proficiency(level(p)) end
+-- Equipped Tibia items read as D&D equipment (rules/equipment.lua).
+local equipSlots={head=CONST_SLOT_HEAD,body=CONST_SLOT_ARMOR,legs=CONST_SLOT_LEGS,feet=CONST_SLOT_FEET,
+    left=CONST_SLOT_LEFT,right=CONST_SLOT_RIGHT,ammo=CONST_SLOT_AMMO}
+local function worn(p)
+    local out={}
+    for key,slot in pairs(equipSlots) do
+        local item=p:getSlotItem(slot)
+        if item then out[key]=item:getId() end
+    end
+    return out
+end
+local function equipmentAc(p)
+    local value,set,shield=Equipment.ac({class=class(p),dex=mod(p,1),con=mod(p,2),wis=mod(p,4)},worn(p))
+    if p:getStorageValue(95010)~=value then p:setStorageValue(95010,value) end
+    return value,set,shield
+end
+local function equipmentSummary(p)
+    local value,set,shield=equipmentAc(p)
+    local parts={set and (set.name..' completa') or 'sem armadura'}
+    if shield then parts[#parts+1]='Shield' end
+    local penalty=Equipment.penalty(class(p),worn(p))
+    local text=string.format('[5E] CA %d (%s)',value,table.concat(parts,' + '))
+    if penalty then text=text..' | sem proficiencia em '..penalty..': desvantagem nos ataques e sem magias' end
+    if Equipment.tooHeavy(score(p,0),worn(p)) then text=text..' | Forca insuficiente: -10 pes de deslocamento' end
+    return text
+end
+local function grantStartingKit(p)
+    if p:getStorageValue(95600)==1 then return end
+    local kit=Equipment.data.kits[class(p)]
+    if not kit then return end
+    if not p:getSlotItem(CONST_SLOT_BACKPACK) and Equipment.backpack then
+        p:addItem(Equipment.backpack,1,true,1,CONST_SLOT_BACKPACK)
+    end
+    for _,piece in ipairs(kit) do
+        local slot=piece.slot and equipSlots[piece.slot]
+        if slot and p:getSlotItem(slot) then slot=nil end
+        p:addItem(piece.id,piece.count,true,1,slot or CONST_SLOT_WHEREEVER)
+    end
+    p:setStorageValue(95600,1)
+    p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,'[5E] Equipamento inicial da classe entregue.')
+end
 local maxHpAt
 -- Persistent daily uses and exhaustion are kept outside the legacy slot range.
 local function endRage(p)
@@ -280,9 +322,9 @@ local function buff(c,name)
 end
 local function ac(c)
     if isMonster(c) then local rule=monsterRule(c);return rule and rule.ac or 10 end
-    local value=c:getStorageValue(95010)
+    local value,set=equipmentAc(c)
     if X.baseAc then value=X.baseAc(c,value)end
-    value=(value>0 and value or 10)+(buff(c,'shieldoffaith') and 2 or 0)+((class(c)==9 and level(c)>=2) and 1 or 0)
+    value=(value>0 and value or 10)+(buff(c,'shieldoffaith') and 2 or 0)+((class(c)==9 and level(c)>=2 and set) and 1 or 0)
     return X.ac and X.ac(c,value) or value
 end
 local function range(a,b,tiles)
@@ -377,8 +419,10 @@ local function speed(c)
     if isMonster(c) then local rule=monsterRule(c);return rule and rule.speed or 20 end
     local value=c:getStorageValue(95011)
     value=value>0 and value or 30
-    if class(c)==5 and level(c)>=5 then value=value+10 end
-    if class(c)==8 and level(c)>=2 then value=value+10 end
+    local gear=worn(c)
+    if class(c)==5 and level(c)>=5 and not Equipment.heavy(gear) then value=value+10 end
+    if class(c)==8 and level(c)>=2 and not Equipment.armorSet(gear) and not Equipment.shield(gear) then value=value+10 end
+    if Equipment.tooHeavy(score(c,0),gear) then value=math.max(0,value-10) end
     if X.speed then value=X.speed(c,value)end
     if state(c).stunned or state(c).sleeping then return 0 end
     local exhaustion=math.max(0,c:getStorageValue(95101))
@@ -411,6 +455,7 @@ local function attackAdvantage(a,b,ranged)
     return(X.visionBlocked and X.visionBlocked(b,a))or state(b).sleeping~=nil or state(b).stunned~=nil or (state(b).prone and (not ranged or range(a,b,1))) or (not ranged and state(a).reckless) or state(b).reckless
 end
 local function attackDisadvantage(a,b,ranged)
+    if isPlayer(a) and Equipment.penalty(class(a),worn(a)) then return true end
     return(X.visionBlocked and X.visionBlocked(a,b))or state(a).mockery~=nil or state(a).prone or (ranged and state(b).prone and not range(a,b,1)) or (state(b).dodging and not state(b).stunned and speed(b)>0) or (isPlayer(a) and a:getStorageValue(95101)>=3)
 end
 local function attackRoll(a,b,bonus,random,advantage,disadvantage)
@@ -652,14 +697,11 @@ local function unarmedStrike(p,target)
     if roll.hit and alive(target) then stunOnHit(p,target) end
     return roll.hit and alive(target)
 end
-local function weaponStats(p)
+local function weaponStats(p,opts)
     local form=X.weaponProfile and X.weaponProfile(p)
     if form then return form end
-    local cls=class(p)
-    local dex=cls==2 or cls==6 or cls==10 or((cls==8 or cls==11 or cls==12)and mod(p,1)>mod(p,0))
-    local ability=mod(p,dex and 1 or 0)
-    local sides=cls==5 and 12 or(cls==11 or cls==12)and 4 or(cls==3 or cls==4 or cls==7 or cls==8 or cls==10)and 6 or 8
-    return {dice=1,sides=sides,flat=ability+(state(p).rage and not dex and 2 or 0),attack=ability+proficiency(p)}
+    return Equipment.attackProfile({class=class(p),level=level(p),str=mod(p,0),dex=mod(p,1),prof=proficiency(p),
+        rage=state(p).rage~=nil},worn(p),opts)
 end
 local function sneakDamage(p,target,critical)
     if class(p)~=2 then return 0 end
@@ -702,14 +744,21 @@ guard:register()
 
 local function weapon(p,t)
     if not hostileTarget(p,t) then return end
-    local enc=encounterFor(p,t)
-    if not enc or not requireTurn(p) then return end
-    if not range(p,t,1) then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce esta fora de alcance. Mova-se no seu turno ou use seguir para aproximar-se.');return end
-    local e=state(p).economy
     local form=X.weaponProfile and X.weaponProfile(p)
     local stats=weaponStats(p)
+    local ammoItem=stats.ranged and p:getSlotItem(CONST_SLOT_AMMO)
+    if stats.ranged and (not ammoItem or not Equipment.ammoMatches(stats,ammoItem:getId())) then
+        p:sendTextMessage(MESSAGE_STATUS_SMALL,'Sem municao: equipe '..(stats.ammo=='bolt' and 'virotes (crossbow bolts)' or 'flechas (arrows)')..' no slot de municao.');return
+    end
+    local enc=encounterFor(p,t)
+    if not enc or not requireTurn(p) then return end
+    if stats.ranged then
+        if not range(p,t,stats.long) then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Alvo fora do alcance da arma.');return end
+    elseif not range(p,t,stats.reach or 1) then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce esta fora de alcance. Mova-se no seu turno ou use seguir para aproximar-se.');return end
+    local e=state(p).economy
     if e.attacks==0 then
-        if not R.beginAttack(e,form and 1 or((class(p)==1 or class(p)==5 or class(p)==8 or class(p)==9 or class(p)==10) and R.fighterAttacks(level(p)) or 1),now()) then actionCooldown(p,e);return end
+        local attacks=(form or stats.loading) and 1 or((class(p)==1 or class(p)==5 or class(p)==8 or class(p)==9 or class(p)==10) and R.fighterAttacks(level(p)) or 1)
+        if not R.beginAttack(e,attacks,now()) then actionCooldown(p,e);return end
         actionCooldown(p,e)
     end
     if not R.spendAttack(e,now()) then return end
@@ -717,19 +766,29 @@ local function weapon(p,t)
     local bonus=stats.attack+(buff(p,'bless') and R.roll(4,rng) or 0)+(sacred and math.max(1,mod(p,5)) or 0)
     state(p).weaponTurn=e.turn
     if state(p).rage then state(p).rage.activity=true end
-    local roll=attackRoll(p,t,bonus,actorRng(p),attackAdvantage(p,t),attackDisadvantage(p,t))
+    local disadvantage=attackDisadvantage(p,t,stats.ranged)
+    if stats.ranged then
+        -- Long range, or a hostile creature next to the shooter, imposes disadvantage.
+        if not range(p,t,stats.normal) then disadvantage=true end
+        for _,enemy in ipairs(Game.getSpectators(p:getPosition(),false,false,1,1,1,1))do
+            if hostileTarget(p,enemy) and alive(enemy) and not state(enemy).stunned and not state(enemy).sleeping and range(p,enemy,1) then disadvantage=true;break end
+        end
+        ammoItem:remove(1)
+        p:getPosition():sendDistanceEffect(t:getPosition(),stats.ammo=='bolt' and CONST_ANI_BOLT or CONST_ANI_ARROW)
+    end
+    local roll=attackRoll(p,t,bonus,actorRng(p),attackAdvantage(p,t,stats.ranged),disadvantage)
     if class(p)==1 and level(p)>=3 and roll.natural==19 then roll.hit=true;roll.critical=true end
     local amount=0
     if roll.hit then
         amount=stats.dice>0 and R.damage(stats.dice,stats.sides,stats.flat,roll.critical,rng)or stats.flat
         if roll.critical and p:getStorageValue(95002)==8 and stats.sides>=2 then amount=amount+R.roll(stats.sides,rng) end
-        amount=amount+sneakDamage(p,t,roll.critical)
+        if stats.finesse or stats.ranged then amount=amount+sneakDamage(p,t,roll.critical) end
         if X.weaponBonus then amount=amount+X.weaponBonus(p,t,roll.critical)end
     end
-    log(p,t,roll.natural,bonus,ac(t),roll.critical and 'CRITICO' or roll.hit and 'ACERTO' or 'ERRO',amount,'Ataque')
-    local radiant=roll.hit and amount<t:getHealth() and divineSmite(p,t,roll.critical) or 0
+    log(p,t,roll.natural,bonus,ac(t),roll.critical and 'CRITICO' or roll.hit and 'ACERTO' or 'ERRO',amount,stats.name or 'Ataque')
+    local radiant=roll.hit and not stats.ranged and amount<t:getHealth() and divineSmite(p,t,roll.critical) or 0
     damage(p,t,amount,COMBAT_PHYSICALDAMAGE,CONST_ME_DRAWBLOOD,roll.hit,radiant,nil,roll.critical,true)
-    if class(p)==8 and roll.hit and alive(t) then stunOnHit(p,t) end
+    if class(p)==8 and not stats.ranged and roll.hit and alive(t) then stunOnHit(p,t) end
 end
 local function bite(r,t)
     if not range(r,t,1) or not isActorTurn(r) or not R.spend(state(r).economy,'action',now()) then return end
@@ -768,7 +827,7 @@ local function opportunity(mover,oldPosition)
             local wasInReach=position.z==oldPosition.z and math.max(math.abs(position.x-oldPosition.x),math.abs(position.y-oldPosition.y))<=1
             local inReach=position.z==destination.z and math.max(math.abs(position.x-destination.x),math.abs(position.y-destination.y))<=1
             if not state(attacker).stunned and not state(attacker).sleeping and wasInReach and not inReach and position:isSightClear(oldPosition,true) and R.spend(state(attacker).economy,'reaction',now()) then
-                local profile=isPlayer(attacker)and weaponStats(attacker)or monsterRule(attacker)
+                local profile=isPlayer(attacker)and weaponStats(attacker,{melee=true})or monsterRule(attacker)
                 local bonus=profile.attack+(buff(attacker,'bless') and R.roll(4,rng) or 0)+(state(attacker).sacredWeapon and math.max(1,mod(attacker,5)) or 0)
                 local roll=attackRoll(attacker,mover,bonus,isPlayer(attacker) and actorRng(attacker) or rng,attackAdvantage(attacker,mover),attackDisadvantage(attacker,mover))
                 if isPlayer(attacker) and class(attacker)==1 and level(attacker)>=3 and roll.natural==19 then roll.hit=true;roll.critical=true end
@@ -779,7 +838,7 @@ local function opportunity(mover,oldPosition)
                         local rage=state(attacker).rage
                         if rage then rage.activity=true end
                         if roll.critical and attacker:getStorageValue(95002)==8 and profile.sides>=2 then amount=amount+R.roll(profile.sides,rng) end
-                        amount=amount+sneakDamage(attacker,mover,roll.critical)
+                        if profile.finesse then amount=amount+sneakDamage(attacker,mover,roll.critical) end
                         if X.weaponBonus then amount=amount+X.weaponBonus(attacker,mover,roll.critical)end
                     end
                 end
@@ -826,6 +885,8 @@ login:onLogin(function(p)
     local desired=maxHpAt(p,level(p))
     if p:getMaxHealth()~=desired then local diff=desired-p:getMaxHealth();p:setMaxHealth(desired);if diff>0 then p:addHealth(diff) end end
     p:registerEvent('DndKill')
+    grantStartingKit(p)
+    state(p).equipmentKey=nil
     syncSlots(p)
     actionCooldown(p,state(p).economy)
     p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,string.format('[5E] CLASS class=%d race=%d',class(p),p:getStorageValue(95002)))
@@ -944,6 +1005,8 @@ cast:onSay(function(p,words,param)
     if state(p).sleeping or state(p).stunned then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce esta incapacitado.');return false end
     if state(p).form then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce nao pode conjurar em Forma Selvagem.');return false end
     if state(p).rage then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce nao pode conjurar durante a Furia.');return false end
+    local armorPenalty=Equipment.penalty(class(p),worn(p))
+    if armorPenalty then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce nao pode conjurar usando '..armorPenalty..' sem proficiencia.');return false end
     local name,targetArgs=(param or ''):match('^%s*(%S+)%s*(.-)%s*$')
     name=string.lower(name or ''):gsub('%s','')
     local spell=spells[name]
@@ -1578,7 +1641,7 @@ local function skillInfo(p,label)
     end
     return s.skillCache.trained:find('"'..label..'"',1,true)~=nil,s.skillCache.expert:find('"'..label..'"',1,true)~=nil
 end
-X=dofile('data/lib/dnd_class_actions.lua').new({R=R,state=state,class=class,level=level,mod=mod,now=now,rng=rng,isPlayer=isPlayer,isMonster=isMonster,range=range,requireTurn=requireTurn,actionCooldown=actionCooldown,ac=ac,syncSlots=syncSlots,sendSlots=sendSlots,proficiency=proficiency,alive=alive,hostileTarget=hostileTarget,encounterFor=encounterFor,monsterRule=monsterRule,savingBonus=savingBonus,actorRng=actorRng,damage=damage,log=log,dexSave=dexSave,dexSaveRoll=dexSaveRoll,buff=buff,skillInfo=skillInfo})
+X=dofile('data/lib/dnd_class_actions.lua').new({stealthDisadvantage=function(p) return Equipment.stealthDisadvantage(worn(p)) end,R=R,state=state,class=class,level=level,mod=mod,now=now,rng=rng,isPlayer=isPlayer,isMonster=isMonster,range=range,requireTurn=requireTurn,actionCooldown=actionCooldown,ac=ac,syncSlots=syncSlots,sendSlots=sendSlots,proficiency=proficiency,alive=alive,hostileTarget=hostileTarget,encounterFor=encounterFor,monsterRule=monsterRule,savingBonus=savingBonus,actorRng=actorRng,damage=damage,log=log,dexSave=dexSave,dexSaveRoll=dexSaveRoll,buff=buff,skillInfo=skillInfo})
 local checks=TalkAction('/check')
 checks:separator(' ')
 checks:onSay(function(p,words,param)
@@ -1621,6 +1684,13 @@ tick:onThink(function()
         end
         syncSlots(p)
         syncChase(p)
+        local gear=worn(p)
+        local key=table.concat({gear.head or 0,gear.body or 0,gear.legs or 0,gear.feet or 0,gear.left or 0,gear.right or 0},':')
+        if state(p).equipmentKey~=key then
+            state(p).equipmentKey=key
+            p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,equipmentSummary(p))
+            sendProgressSheet(p)
+        end
         for _,c in ipairs(Game.getSpectators(p:getPosition(),false,false,9,9,7,7)) do
             if monsterRule(c) then
                 c:registerEvent('DndDamageGuard');enemies[c:getId()]=c
@@ -1713,3 +1783,28 @@ tick:onThink(function()
     return true
 end)
 tick:register()
+
+-- Potion of Healing (SRD): 2d4+2 hit points; drinking it is an action in combat.
+local potionIds={}
+for id,entry in pairs(Equipment.data.items) do if entry.kind=='potion' then potionIds[#potionIds+1]=id end end
+local potion=Action()
+potion:onUse(function(p,item)
+    local entry=Equipment.item(item:getId())
+    if not entry then return false end
+    if state(p).sleeping or state(p).stunned then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce esta incapacitado.');return true end
+    if state(p).encounter then
+        if not requireTurn(p) then return true end
+        local e=state(p).economy
+        if not R.spend(e,'action',now()) then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce ja usou sua acao neste turno.');return true end
+        actionCooldown(p,e)
+    end
+    local dice,sides,flat=entry.heal:match('^(%d+)d(%d+)%+?(%d*)$')
+    local before=p:getHealth()
+    p:addHealth(R.damage(tonumber(dice),tonumber(sides),tonumber(flat) or 0,false,rng))
+    item:remove(1)
+    p:getPosition():sendMagicEffect(CONST_ME_MAGIC_BLUE)
+    p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,string.format('[5E] %s: recuperou %d PV.',entry.name,p:getHealth()-before))
+    return true
+end)
+potion:id((table.unpack or unpack)(potionIds))
+potion:register()
