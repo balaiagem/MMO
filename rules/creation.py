@@ -13,7 +13,9 @@ RACES = {
     'elf': dict(name='Alto Elfo', bonuses=[0,2,0,1,0,0], speed=30, traits=['Visão no escuro', 'Ancestralidade feérica', 'Transe', 'Truque de mago', 'Percepção']),
     'dwarf': dict(name='Anão da Colina', bonuses=[0,0,2,0,1,0], speed=25, traits=['Visão no escuro', 'Resiliência anã', 'Robustez anã (+1 PV por nível)']),
     'halfling': dict(name='Halfling Pés-Leves', bonuses=[0,2,0,0,0,1], speed=25, traits=['Sortudo', 'Bravura', 'Agilidade halfling', 'Furtividade natural']),
+    'half-orc': dict(name='Meio-Orc', bonuses=[2,0,1,0,0,0], speed=30, traits=['Visão no escuro','Ameaçador: Intimidação','Resistência Implacável','Ataques Selvagens'], skills=['Intimidation']),
 }
+RACE_IDS={key:index for index,key in enumerate(['human','elf','dwarf','halfling','dragonborn','gnome','half-elf','half-orc','tiefling'],1)}
 CLASSES = {
     'fighter': dict(name='Guerreiro', hit_die=10, saves=['STR','CON'], spell=None, array=[15,13,14,8,12,10], armor='chain', equipment=['Cota de malha','Escudo','Espada longa','Besta leve','Pacote de explorador'], features=['Estilo de luta: Defesa', 'Retomar o fôlego'], skills=['Athletics','Perception']),
     'rogue': dict(name='Ladino', hit_die=8, saves=['DEX','INT'], spell=None, array=[12,15,13,14,10,8], armor='leather', equipment=['Armadura de couro','Rapieira','Arco curto','Duas adagas','Ferramentas de ladrão','Pacote de assaltante'], features=['Ataque furtivo 1d6','Especialização: Stealth e Sleight of Hand','Gíria de ladrões'], skills=['Stealth','Sleight of Hand','Acrobatics','Investigation']),
@@ -21,6 +23,7 @@ CLASSES = {
     'wizard': dict(name='Mago', hit_die=6, saves=['INT','WIS'], spell='INT', array=[8,14,13,15,12,10], armor='none', equipment=['Cajado','Foco arcano','Grimório','Pacote de estudioso'], features=['Recuperação arcana','Conjuração por grimório'], skills=['Arcana','Investigation']),
     'barbarian': dict(name='Bárbaro', hit_die=12, saves=['STR','CON'], spell=None, array=[15,13,14,8,12,10], armor='unarmored', equipment=['Machado grande','Duas machadinhas','Quatro azagaias','Pacote de explorador'], features=['Fúria','Defesa sem Armadura'], skills=['Athletics','Survival']),
     'monk': dict(name='Monge', hit_die=8, saves=['STR','DEX'], spell=None, array=[12,15,13,8,14,10], armor='unarmored', equipment=['Espada curta','Dez dardos','Pacote de explorador'], features=['Artes Marciais','Defesa sem Armadura'], skills=['Acrobatics','Stealth']),
+    'paladin': dict(name='Paladino', hit_die=10, saves=['WIS','CHA'], spell='CHA', array=[15,10,13,8,12,14], armor='chain', equipment=['Cota de malha','Escudo','Espada longa','Cinco azagaias','Símbolo sagrado','Pacote de sacerdote'], features=['Sentido Divino','Impor as Mãos: reserva de 5 PV'], skills=['Athletics','Persuasion']),
 }
 CLASS_IDS={key:index for index,key in enumerate(['fighter','rogue','cleric','wizard','barbarian','bard','druid','monk','paladin','ranger','sorcerer','warlock'],1)}
 BACKGROUNDS = {'acolyte': dict(name='Acólito', skills=['Insight','Religion'])}
@@ -35,7 +38,7 @@ def catalog():
         count,options=class_skill_options(key)
         classes[key]=dict(value,id=CLASS_IDS[key],skill_count=count,skill_options=options)
     skills={key:dict(name=value['name'],ability=value['ability_score']['index'].upper()) for key,value in collection('Skills').items()}
-    return dict(abilities=ABILITIES,races=RACES,classes=classes,backgrounds=BACKGROUNDS,skills=skills)
+    return dict(abilities=ABILITIES,races={key:dict(value,id=RACE_IDS[key]) for key,value in RACES.items()},classes=classes,backgrounds=BACKGROUNDS,skills=skills)
 
 def build(data):
     name = data.get('name', '').strip()
@@ -67,7 +70,7 @@ def build(data):
     if explicit_skills:
         selected=validate_class_skills(cls,data['skill_choices'])
         labels=[collection('Skills')[key]['name'] for key in selected]
-        fixed=BACKGROUNDS[bg]['skills']+(['Perception'] if race=='elf' else [])
+        fixed=BACKGROUNDS[bg]['skills']+(['Perception'] if race=='elf' else [])+r.get('skills',[])
         trained=set(labels+fixed)
         duplicates=len(labels+fixed)-len(trained)
         replacements=data.get('proficiency_replacements',[])
@@ -88,7 +91,7 @@ def build(data):
                 expertise.append(label)
         elif choices:raise ValueError('Esta classe ainda nao concede Especializacao.')
     else:
-        skills = sorted(set(c['skills']+BACKGROUNDS[bg]['skills']+(['Perception'] if race=='elf' else [])))
+        skills = sorted(set(c['skills']+BACKGROUNDS[bg]['skills']+(['Perception'] if race=='elf' else [])+r.get('skills',[])))
     skill_bonuses = {}
     for skill, ability in SKILL_ABILITIES.items():
         label = skill.replace('_',' ')
@@ -106,7 +109,7 @@ def build(data):
         hp=hp, ac=ac, initiative=mods['DEX'], speed=r['speed'],
         saves={a:mods[a]+(2 if a in c['saves'] else 0) for a in ABILITIES},
         skills=skill_bonuses,skill_proficiencies=skills,expertise=expertise,equipment=c['equipment'],traits=r['traits'],features=features,
-        spell_ability=spell, spell_dc=8+2+mods[spell] if spell else None,
-        spell_attack=2+mods[spell] if spell else None, slots=[2] if spell else [],
-        prepared_limit=max(1,1+mods[spell]) if spell else 0,
-        colors=colors,looktype=({'fighter':131,'rogue':129,'cleric':130,'wizard':130,'barbarian':143,'monk':129}[cls] if sex else {'fighter':139,'rogue':137,'cleric':138,'wizard':138,'barbarian':147,'monk':137}[cls]))
+        spell_ability=spell, spell_dc=8+2+mods[spell] if spell and cls!='paladin' else None,
+        spell_attack=2+mods[spell] if spell and cls!='paladin' else None, slots=[2] if spell and cls!='paladin' else [],
+        prepared_limit=max(1,1+mods[spell]) if spell and cls!='paladin' else 0,
+        colors=colors,looktype=({'fighter':131,'rogue':129,'cleric':130,'wizard':130,'barbarian':143,'monk':129,'paladin':131}[cls] if sex else {'fighter':139,'rogue':137,'cleric':138,'wizard':138,'barbarian':147,'monk':137,'paladin':139}[cls]))

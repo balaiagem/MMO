@@ -437,3 +437,139 @@ function rat:getName()assert(self.hp>0,'accessed removed creature after lethal s
 fixed=20;tick();cast(p,'/cast','scorchingray')
 assert(rat.hp<=0,'Scorching Ray did not resolve its lethal first ray')
 print('Spell volley: lethal ray stops without accessing a removed target')
+
+events['event:DndLogout'].callback(p)
+db={storeQuery=function()return nil end}
+local function ended(actor)
+ for _,entry in ipairs(actor.messages or {}) do if entry.text=='[5E] ENCOUNTER ended' then return true end end
+ return false
+end
+for _,multiple in ipairs({false,true}) do
+ p=creature(multiple and 1310 or 1300,true,1);rat=creature(p.id+1,false);extra=multiple and creature(p.id+2,false) or nil
+ p.target=rat;p.follow=rat;rat.target=p;if extra then extra.target=p end
+ Game.getPlayers=function()return {p}end
+ Game.getSpectators=function(pos,multi,players)if players then return {p}end;return extra and {p,rat,extra} or {p,rat}end
+ fixed=10;tick();rat.target=p;rat.follow=p
+ events['talk:/turn'].callback(p,'/turn','flee')
+ assert(ended(p) and p.target==nil and p.follow==nil,'Successful flee did not clear the player target/follow and end initiative')
+ assert(p:getTurnMovement()==-1 and rat:getTurnMovement()==-1,'Successful flee kept a native turn movement limit')
+ assert(rat.target==nil and rat.follow==nil,'Enemy retained chase after successful flee')
+ if extra then assert(extra:getTurnMovement()==-1,'Orphan monster encounter remained after last player fled') end
+ local afterFlee=#p.messages
+ for _=1,6 do time=time+250;tick();assert(p:getTurnMovement()==-1,'Next tick re-applied turn movement after escape')end
+ for index=afterFlee+1,#p.messages do
+  local text=p.messages[index].text
+  assert(not text:find('[5E] ORDER ',1,true) and not text:find('[5E] TURNSTATE ',1,true),'Fled player still received initiative/resource restrictions')
+ end
+ p.pos=Position(125,125,7);time=time+11000;tick()
+ assert(p:getTurnMovement()==-1,'Exploration remained turn limited after running away')
+end
+
+-- A tie/failure must keep the encounter and spend the attempt's action.
+p=creature(1320,true,1);rat=creature(1321,false);extra=nil;p.target=rat;rat.name='Orc'
+fixed=10;tick();events['talk:/turn'].callback(p,'/turn','flee')
+assert(not ended(p) and p:getTurnMovement()>=0,'Failed/tied Athletics erroneously escaped')
+local beforeFailure=rat.hp;attack(p,'/attack','');assert(rat.hp==beforeFailure,'Failed flee did not consume the action')
+events['event:DndLogout'].callback(p)
+
+-- The opponent's stale PvP selection cannot immediately put the runner back.
+p=creature(1330,true,1);rat=creature(1331,true,1);p.target=rat;rat.target=p;rat.follow=p;rat.storage[95020]=2
+Game.getPlayers=function()return {p,rat}end
+Game.getSpectators=function()return {p,rat}end
+fixed=10;tick();events['talk:/turn'].callback(p,'/turn','flee')
+assert(ended(p) and ended(rat) and rat.target==nil and rat.follow==nil,'PvP opponent retained an escaped target')
+tick();assert(p:getTurnMovement()==-1 and rat:getTurnMovement()==-1,'Stale PvP selection restarted initiative')
+print('Flee: successful exit restores free exploration, closes orphan encounters, clears chase and preserves failed-attempt action cost in PvE/PvP')
+
+local function scenario(id,cls,lv,enemyClass)
+ p=creature(id,true,cls);rat=creature(id+1,enemyClass~=nil,enemyClass);extra=nil
+ p.storage[95003]=lv;p.storage[95021]=20;p.target=rat;rat.pos=Position(112,111,7)
+ Game.getPlayers=function()return {p}end
+ Game.getSpectators=function()return {p,rat}end
+ fixed=10;tick();return p,rat
+end
+local function hasMessage(actor,part)
+ for _,entry in ipairs(actor.messages or {}) do if entry.text:find(part,1,true) then return true end end
+ return false
+end
+scenario(1400,9,2)
+useAbility(p,'/ability','divinesmite');local slots=p.storage[95030]
+attack(p,'/attack','')
+assert(rat.hp==73 and p.storage[95030]==slots-1,'Smite must add 2d8 radiant and spend one first-level slot on hit')
+local hp=rat.hp;attack(p,'/attack','');assert(rat.hp==hp,'Smite granted an extra action')
+
+scenario(1410,9,5);p.storage[95036]=2;useAbility(p,'/ability','divinesmite');fixed=20
+attack(p,'/attack','')
+assert(rat.hp==33 and p.storage[95031]==1,'Critical second-level Smite must double all 3d8 radiant dice')
+fixed=10;attack(p,'/attack','');assert(rat.hp==-2,'Paladin level 5 must have two attacks per action')
+
+scenario(1420,9,2);useAbility(p,'/ability','divinesmite');fixed=1;local slots=p.storage[95030]
+attack(p,'/attack','');assert(rat.hp==100 and p.storage[95030]==slots,'Miss spent a Smite slot')
+
+scenario(1430,9,2,2);rat.storage[95003]=5;rat.storage[95010]=10
+useAbility(p,'/ability','divinesmite');attack(p,'/attack','')
+assert(rat.hp==87,'Uncanny Dodge must reduce the weapon and radiant parts of the same attack with one reaction')
+
+scenario(1440,9,2);p.hp=50
+useAbility(p,'/ability','layonhands 5');assert(p.hp==55 and p.storage[95131]==5,'Lay on Hands must heal and spend its own pool')
+local hp=rat.hp;attack(p,'/attack','');assert(rat.hp==hp,'Lay on Hands did not consume the action')
+events['talk:/turn'].callback(p,'/turn','end');tick()
+useAbility(p,'/ability','layonhands 6');assert(p.storage[95131]==5,'Lay on Hands exceeded its remaining pool')
+useAbility(p,'/ability','layonhands 5');assert(p.storage[95131]==10,'Lay on Hands rejected its exact remaining pool')
+events['event:DndLogout'].callback(p);p.target=nil;Game.getSpectators=function()return {p}end
+events['talk:/rest'].callback(p,'/rest','short 0');assert(p.storage[95131]==10,'Short rest restored Lay on Hands')
+events['talk:/rest'].callback(p,'/rest','long');assert(p.storage[95131]==0,'Long rest did not restore Lay on Hands')
+
+scenario(1450,9,2);p.hp=50;p.storage[95025]=16
+cast(p,'/cast','curewounds');assert(p.hp==61,'Paladin Cure Wounds must use CHA without Life Domain bonus')
+
+scenario(1460,9,3);p.storage[95025]=16
+useAbility(p,'/ability','sacredweapon');local hp=rat.hp
+attack(p,'/attack','');assert(rat.hp==hp,'Sacred Weapon did not spend an action')
+events['talk:/turn'].callback(p,'/turn','end');tick();attack(p,'/attack','')
+assert(hasMessage(p,'d20=10 +8 = 18'),'Sacred Weapon failed to add CHA to weapon accuracy')
+events['event:DndLogout'].callback(p);p.target=nil;Game.getSpectators=function()return {p}end
+events['talk:/rest'].callback(p,'/rest','short 0');assert(p.storage[95133]==0,'Channel Divinity did not recover on short rest')
+print('Paladin: Smite hit/miss/critical/slots/reaction, Extra Attack, Lay on Hands, CHA healing, Sacred Weapon and recovery passed')
+
+scenario(1470,3,3);p.hp=50
+cast(p,'/cast','healingword');local healed=p.hp;local slots=p.storage[95030]
+cast(p,'/cast','curewounds');assert(p.hp==healed and p.storage[95030]==slots,'Bonus-action spell rule allowed a leveled action spell')
+assert(healed==60,'Healing Word must use d4 + WIS + Disciple of Life')
+
+scenario(1480,3,3,1);rat.storage[95021]=8;rat.storage[95010]=10
+cast(p,'/cast','bless');assert(hasMessage(p,'CONCENTRACAO'),'Bless did not start concentration')
+events['talk:/turn'].callback(p,'/turn','end');tick()
+cast(rat,'/cast','bless');assert(rat.message=='Sua classe/raca nao conhece essa magia.','Fighter gained a class-restricted spell')
+rat.target=p;p.storage[95010]=10;p.storage[95022]=8;fixed=6
+attack(rat,'/attack','');assert(hasMessage(p,'PERDEU'),'Damage did not trigger or break concentration')
+events['talk:/turn'].callback(rat,'/turn','end');tick()
+cast(p,'/cast','bless');events['talk:/turn'].callback(p,'/turn','end');tick()
+events['talk:/turn'].callback(rat,'/turn','end');tick()
+cast(p,'/cast','shieldoffaith');assert(hasMessage(p,'Concentracao encerrada: bless'),'New concentration did not replace the old spell')
+print('Spell integration: Healing Word bonus action, Life Domain, class access, concentration saves and replacement passed')
+
+scenario(1500,2,5,1);rat.storage[95010]=10
+attack(p,'/attack','');assert(rat.hp==87,'A solo PvP target counted as its own ally for Sneak Attack')
+
+scenario(1510,2,5);extra=creature(1512,true,1);extra.pos=Position(112,112,7)
+Game.getSpectators=function()return {p,rat,extra}end
+attack(p,'/attack','');assert(rat.hp==69,'Adjacent non-incapacitated ally must enable 3d6 Sneak Attack at level 5')
+events['talk:/turn'].callback(p,'/turn','end')
+rat.pos=Position(113,111,7);step(rat,nil,Position(112,111,7))
+assert(rat.hp==38,'Sneak Attack must also work once on an enemy turn with an opportunity reaction')
+step(rat,nil,Position(112,111,7));assert(rat.hp==38,'Opportunity attack reused its reaction')
+print('Rogue: solo PvP exclusion, adjacent ally and once-per-turn opportunity Sneak Attack passed')
+
+scenario(1520,1,1);p.storage[95002]=8;fixed=20
+attack(p,'/attack','');assert(rat.hp==73,'Half-Orc critical must add one weapon die, not double the extra racial die')
+
+scenario(1530,1,1);p.storage[95002]=8;p.hp=1
+events['talk:/turn'].callback(p,'/turn','end');fixed=20;tick()
+assert(p.hp==1 and p.storage[95140]==1,'Relentless Endurance must leave one HP and spend its daily use')
+events['talk:/turn'].callback(p,'/turn','end');tick();assert(p.hp==0,'Relentless Endurance reused its daily charge')
+
+scenario(1540,1,1);p.storage[95002]=8;p.hp=1;p.maxhp=1;rat.name='Orc'
+events['talk:/turn'].callback(p,'/turn','end');fixed=20;tick()
+assert(p.hp<0 and not p.storage[95140],'Relentless Endurance must not prevent instant death from massive damage')
+print('Half-Orc: Savage Attacks critical die, daily Relentless Endurance and massive-damage exclusion passed')

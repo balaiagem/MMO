@@ -49,15 +49,17 @@ deploying them.
 
 ## Outstanding integration
 
-Creation now exposes Fighter, Rogue, Cleric, Wizard, Barbarian and Monk.
+Creation now exposes Fighter, Rogue, Cleric, Wizard, Barbarian, Monk and Paladin.
+Creation races are Human, High Elf, Hill Dwarf, Lightfoot Halfling and Half-Orc;
+the remaining four reference races are not yet exposed.
 Barbarian has Rage/Reckless/Frenzy/Extra Attack mechanics through five; Monk has
 Martial Arts, Ki, Flurry, Patient Defense, Step of the Wind and Stunning Strike.
 Open Hand options, Deflect Missiles and Slow Fall still need integration.
-Bard, Druid, Paladin, Ranger, Sorcerer and Warlock are not yet playable.
-None of the six exposed classes is a claim of complete SRD coverage. Subclass selection, level 6–20
+Bard, Druid, Ranger, Sorcerer and Warlock are not yet playable.
+None of the seven exposed classes is a claim of complete SRD coverage. Subclass selection, level 6–20
 progression, equipment-dependent proficiency/weapon handling, complete Sneak Attack
-eligibility (including reaction attacks), optional reaction prompts, Shield,
-Counterspell, concentration, duration/condition processing, complete summons,
+equipment-dependent Sneak Attack eligibility, optional reaction prompts, Shield,
+Counterspell, complete duration/condition processing, complete summons,
 spell preparation/learning and the remaining spell handlers require integration.
 Existing Spiritual Weapon lacks persistent summoned-weapon behavior. Area spells
 need full friendly-fire/party targeting rules. Preserve Life's selectable healing
@@ -94,3 +96,47 @@ Storage: 95100 Rage uses spent, 95101 exhaustion level, 95110 automatic Uncanny
 Dodge preference (0 disabled), 95120 Ki spent, 95121 automatic Stunning Strike
 preference (1 enabled). Legacy class IDs 1–4 and slot storage keys are unchanged;
 Monk keeps stable class ID 8 even while Bard/Druid are not exposed.
+
+## Paladin, concentration and Half-Orc integration
+
+Paladin (stable class ID 9) now has an executable level 1-5 combat slice:
+Lay on Hands with explicit healing amount and a persistent 5*level HP pool,
+Divine Sense with action/use limits and typed monster detection, automatic
+opt-in Divine Smite on successful melee weapon attacks (including opportunity
+attacks), critical dice, Extra Attack, and Devotion's Sacred Weapon action,
+Charisma attack bonus, duration and short-rest Channel Divinity recovery.
+The default starting chain-mail/shield profile gains Defense at level 2.
+This does not complete Paladin: Turn the Unholy, poison/disease removal,
+equipment-aware Defense, full oath/prepared spell choices, disease conditions
+and the complete spell list remain outstanding. Divine Sense can report typed
+monster profiles; consecrated objects/hallow are not yet represented.
+
+Healing Word uses a bonus action and d4 healing. Cure Wounds uses the caster's
+class ability and grants Disciple of Life only to Life Clerics. Follow a player
+to select an adjacent healing recipient; no follow target means self.
+Bless and Shield of Faith apply real attack/save or AC bonuses and exclusive
+concentration. Damage prompts a server-side CON save with proficiency and a
+minimum DC of 10; failed saves, unconsciousness, Rage, logout, replacement and
+expiration end the effect. Combat duration advances with caster turns rather
+than time spent choosing actions. End Concentration is a free hotkey control.
+Buff target selection currently covers self or one followed player, not a full
+multi-recipient Bless picker. Spell learning/preparation remains incomplete.
+
+Half-Orc retains stable race ID 8 despite being the fifth exposed race. Creation
+grants STR+2, CON+1 and Intimidation with duplicate-proficiency replacement.
+Savage Attacks adds exactly one weapon die on melee criticals. Relentless
+Endurance leaves 1 HP once per long rest and does not prevent massive-damage
+instant death. Darkvision exists in the shared sheet calculation; native
+darkvision rendering is not yet integrated for the races that have it.
+
+Sneak Attack now excludes the victim from adjacent allies, excludes incapacitated
+allies and uncancelled disadvantage, and permits advantage-based eligibility.
+Its once-per-turn key uses the current initiative turn, allowing an eligible
+opportunity attack on another creature's turn. The adapter still assumes its
+default finesse weapon for Rogues; equipped weapon classification is pending.
+
+Persistent storage: 95130 automatic Smite preference; 95131 Lay on Hands points
+spent; 95132 Divine Sense uses spent; 95133 Channel Divinity uses spent;
+95140 Relentless Endurance spent. Temporary buffs never refill spell slots.
+Adapter regression tests cover these mechanics on Lua 5.1 and 5.5; native
+Assign Spell filters cover all seven creation classes and five exposed races.

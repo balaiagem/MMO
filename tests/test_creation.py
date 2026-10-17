@@ -22,6 +22,12 @@ class CreationTests(unittest.TestCase):
         self.assertEqual(build(request('barbarian'))['ac'],14)
         self.assertEqual(build(request('monk'))['ac'],15)
         self.assertEqual(catalog()['classes']['monk']['id'],8)
+        self.assertEqual(catalog()['classes']['paladin']['id'],9)
+        self.assertEqual(catalog()['races']['half-orc']['id'],8)
+        p=build(request('paladin','half-orc'))
+        self.assertEqual(p['ac'],18)
+        self.assertEqual(p['slots'],[])
+        self.assertIn('Intimidation',p['skill_proficiencies'])
     def test_invalid_arrays_and_injection(self):
         for change in [dict(scores=[15]*6),dict(scores=[True,14,13,12,10,8]),dict(name="Hero'); DROP TABLE players;--"),dict(race='dragon'),dict(sex=3),dict(method='client-roll')]:
             with self.assertRaises(ValueError):build(dict(request(),**change))

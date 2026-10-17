@@ -84,7 +84,7 @@ def handle(action, data):
         sql((ROOT/'database/migrations/001_character_profiles.sql').read_text())
         hp=profile['hp']
         # One DB transaction creates both engine identity and 5e identity.
-        stores={95000:1,95001:catalog()['classes'][profile['class']]['id'],95002:list(catalog()['races']).index(profile['race'])+1,
+        stores={95000:1,95001:catalog()['classes'][profile['class']]['id'],95002:catalog()['races'][profile['race']]['id'],
                 95003:1,95004:0,95005:0,95008:0,95009:-1,95060:1,95061:1,
                 95010:profile['ac'],95011:profile['speed'],95012:2}
         stores.update({95030+i:(profile['slots'][i] if i<len(profile['slots']) else 0) for i in range(3)})

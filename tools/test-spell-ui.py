@@ -12,15 +12,19 @@ lua.execute((root/'client/modules/game_dnd/dnd.lua').read_text(encoding='utf-8')
 catalog=(root/'client/modules/gamelib/spells.lua').read_text(encoding='utf-8').split('-- Local authoritative 5E spell catalogue')[1]
 lua.execute('SpellInfo = {}\n'+catalog[catalog.index('SpellInfo.Default'):])
 g=lua.globals()
-for cls in range(1,5):
-    for race in range(1,5):
+for cls in (1,2,3,4,5,8,9):
+    for race in (1,2,3,4,8):
         g.classId,g.raceId=cls,race
         available={name for name,spell in g.SpellInfo.Default.items() if g.canLearn(spell) and spell.words.startswith('/cast ')}
-        expected={'Fire Bolt','Magic Missile'} if cls==4 else {'Sacred Flame','Cure Wounds'} if cls==3 else set()
+        expected={'Fire Bolt','Magic Missile'} if cls==4 else {'Sacred Flame','Cure Wounds','Healing Word','Bless','Shield of Faith'} if cls==3 else set()
         if race==2:expected.add('Fire Bolt')
         assert available==expected,(cls,race,available,expected)
 assert g.SpellInfo.Default['Fire Bolt'].mana==0
 assert g.SpellInfo.Default['Magic Missile'].mana==1
+for level in range(1,6):
+    g.classId,g.raceId,g.characterLevel=9,1,level
+    available={name for name,spell in g.SpellInfo.Default.items() if g.canLearn(spell) and spell.words.startswith('/cast ')}
+    assert available==({'Cure Wounds','Bless','Shield of Faith'} if level>=2 else set()),(level,available)
 g.classId,g.raceId,g.characterLevel=1,1,1
 assert g.canLearn(g.SpellInfo.Default['[5e] Retomar o Folego'])
 assert g.canLearn(g.SpellInfo.Default['[5e] Aumentar circulo de magia'])
@@ -85,4 +89,4 @@ assert(beginSpellTargeting('/cast fireball'),'third Fireball did not enter targe
 UIGameMap.onMouseRelease(map,{x=105,y=106},MouseRightButton)
 assert(not isAreaSpellTargeting() and cursorPop==3,'map right-click failed to cancel and restore the cursor')
 ''')
-print('Changed Lua syntax and all 16 class/race spell catalogue filters passed.')
+print('Changed Lua syntax, 35 creation class/race filters and Paladin levels 1-5 passed.')

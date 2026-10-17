@@ -14,6 +14,7 @@ def sync_combat_rules():
         (ROOT/'rules'/'character_data.lua',data/'lib'/'dnd_character_data.lua'),
         (ROOT/'world'/'content'/'dnd_combat.lua',data/'scripts'/'dnd_combat.lua'),
         (ROOT/'world'/'content'/'gm_tools.lua',data/'scripts'/'gm_tools.lua'),
+        (ROOT/'world'/'content'/'rookgaard_access.lua',data/'scripts'/'rookgaard_access.lua'),
     ]:
         target.parent.mkdir(parents=True,exist_ok=True)
         if not target.exists() or source.read_bytes()!=target.read_bytes():
@@ -65,7 +66,7 @@ def main():
     print('\nAbra http://localhost:8080/otclient.html\nClique em Start. Conta: admin | Senha: admin',flush=True)
     print('Os servicos continuam ativos depois de fechar esta janela.')
     print('Criacao de personagem: http://localhost:8080/characters.html', flush=True)
-    if '--no-browser' not in sys.argv: webbrowser.open('http://localhost:8080/characters.html')
+    if '--no-browser' not in sys.argv: webbrowser.open('http://localhost:8080/otclient.html')
 
 if __name__=='__main__':
     try: main()

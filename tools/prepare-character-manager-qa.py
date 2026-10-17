@@ -74,7 +74,8 @@ for file in metadata['files']:
     file['start']=len(out);out.extend(content);file['end']=len(out)
 metadata['remote_package_size']=len(out);metadata['package_uuid']=str(uuid.uuid4())
 (target/'otclient.data').write_bytes(out)
-(target/'otclient.js').write_text(js[:start]+json.dumps(metadata,separators=(',',':'))+js[end:],encoding='utf-8')
+patched=js[:start]+json.dumps(metadata,separators=(',',':'))+js[end:]
+(target/'otclient.js').write_text(patched,encoding='utf-8')
 for name in ['otclient.html','otclient.wasm']:
     shutil.copy2(source/name,target/name)
 print('Private, read-only UI fixture prepared at /character-manager-qa/otclient.html')
