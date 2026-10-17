@@ -51,9 +51,16 @@ local function state(c)
     if not states[id] then states[id]={economy=R.newTurnEconomy(now())} end
     return states[id]
 end
+-- Sono (SRD): 1 minuto de duracao (10 rodadas), em tempo real. A duracao nao depende
+-- do combate: se o conjurador fugir, o alvo continua dormindo ate expirar.
+local sleepers={}
 local function updateConditions(c)
     local sleep=state(c).sleeping
-    if sleep and((sleep.source.encounter and(sleep.source.economy.turn or 0)>=sleep.expires)or(not sleep.source.encounter and now()>=sleep.wall))then state(c).sleeping=nil end
+    if sleep and now()>=sleep.expires then state(c).sleeping=nil end
+end
+local function asleep(c)
+    updateConditions(c)
+    return state(c).sleeping~=nil
 end
 local function class(p) return p:getStorageValue(95001) end
 local xpThresholds = { [1]=0, [2]=300, [3]=900, [4]=2700, [5]=6500 }
@@ -395,7 +402,7 @@ local function damage(a,b,amount,kind,effect,attackHit,radiant,flavor,critical,w
             b:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,'[5E] Resistencia Implacavel: voce fica com 1 PV. Recupere este uso no descanso longo.')
         end
     end
-    if tookDamage>0 then state(b).sleeping=nil end
+    -- Sono (SRD): dano nao acorda a criatura; o efeito dura ate expirar.
     if total()<=0 then if X.afterDamage then X.afterDamage(a,b,tookDamage)end;return end
     local targetId,healthBefore=b:getId(),b:getHealth()
     local remaining=healthBefore
@@ -560,7 +567,8 @@ local function advanceTurn(enc)
         local actor=currentActor(enc)
         -- Keep every living combatant in initiative. A monster can lose its
         -- engine target between turns; DndCombatTick reacquires a participant.
-        if actor and alive(actor) and (not enc.eligible[actorKey(actor)] or enc.round>=enc.eligible[actorKey(actor)]) then
+        -- Criaturas dormindo perdem o turno (pulam sem gastar rodada).
+        if actor and alive(actor) and not asleep(actor) and (not enc.eligible[actorKey(actor)] or enc.round>=enc.eligible[actorKey(actor)]) then
             announceTurn(enc);return
         end
     end
@@ -612,7 +620,7 @@ local function beginEncounter(player,target)
     end
     for _,enemy in ipairs(Game.getSpectators(target:getPosition(),false,false,9,9,7,7)) do
         local enemyTarget=enemy:getTarget()
-        if monsterRule(enemy) and enemyTarget and (enemyTarget:getId()==player:getId() or enemyTarget:getId()==target:getId()) then addInitiative(enc,enemy) end
+        if monsterRule(enemy) and not asleep(enemy) and enemyTarget and (enemyTarget:getId()==player:getId() or enemyTarget:getId()==target:getId()) then addInitiative(enc,enemy) end
     end
     table.sort(enc.order,function(a,b)
         local ra,rb=enc.rolls[actorKey(a)],enc.rolls[actorKey(b)]
@@ -1128,7 +1136,9 @@ cast:onSay(function(p,words,param)
         for _,victim in ipairs(victims)do
             if victim:getHealth()<=pool then
                 pool=pool-victim:getHealth();endConcentration(victim)
-                state(victim).sleeping={source=state(p),expires=(state(p).economy.turn or 0)+10,wall=now()+60000}
+                state(victim).sleeping={expires=now()+60000}
+                sleepers[victim:getId()]=victim
+                if isMonster(victim) then stopEngineCombat(victim) end
                 victim:setTurnMovement(0);victim:getPosition():sendMagicEffect(spell.effect)
                 log(p,victim,0,0,0,'ADORMECEU',0,'Sleep')
             end
@@ -1654,6 +1664,23 @@ local tick=GlobalEvent('DndCombatTick')
 tick:interval(250)
 tick:onThink(function()
     local enemies={}
+    -- Criaturas sob Sono: ficam paradas, sem alvo, e mostram um zZz laranja.
+    for id,c in pairs(sleepers) do
+        if not alive(c) then
+            sleepers[id]=nil
+        elseif not asleep(c) then
+            sleepers[id]=nil
+            if not state(c).encounter then c:setTurnMovement(-1) end
+        else
+            if isMonster(c) then stopEngineCombat(c) end
+            c:setTurnMovement(0)
+            local t=now()
+            if not state(c).zzzAt or t>=state(c).zzzAt then
+                state(c).zzzAt=t+3000
+                c:say('zZz',TALKTYPE_MONSTER_SAY)
+            end
+        end
+    end
     for _,p in ipairs(Game.getPlayers()) do
         updateConditions(p)
         if X.tick then X.tick(p)end
@@ -1692,7 +1719,7 @@ tick:onThink(function()
             sendProgressSheet(p)
         end
         for _,c in ipairs(Game.getSpectators(p:getPosition(),false,false,9,9,7,7)) do
-            if monsterRule(c) then
+            if monsterRule(c) and not asleep(c) then
                 c:registerEvent('DndDamageGuard');enemies[c:getId()]=c
                 local enemyTarget=c:getTarget()
                 local targetingPlayer=enemyTarget and isPlayer(enemyTarget)
