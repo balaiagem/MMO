@@ -1,6 +1,10 @@
 """Private browser UI fixture: same WASM/assets, no game login or character writes."""
 from pathlib import Path
-import json,uuid,shutil
+import json,uuid,shutil,argparse
+parser=argparse.ArgumentParser()
+parser.add_argument('--class-id',default='rogue',choices=['fighter','rogue','cleric','wizard','barbarian','bard','druid','monk','paladin','ranger','sorcerer','warlock'])
+parser.add_argument('--race-id',default='elf',choices=['human','elf','dwarf','halfling','dragonborn','gnome','half-elf','half-orc','tiefling'])
+args=parser.parse_args()
 ROOT=Path(__file__).resolve().parents[1]
 source=ROOT/'build/client-web/bin'
 target=source/'character-manager-qa';target.mkdir(exist_ok=True)
@@ -67,6 +71,8 @@ scheduleEvent(function()
  print('[MANAGERQA] list_ready')
 end,35000)
 '''
+fixture=fixture.replace("setCurrentOptionByData('rogue')",'setCurrentOptionByData('+json.dumps(args.class_id)+')')
+fixture=fixture.replace("setCurrentOptionByData('elf')",'setCurrentOptionByData('+json.dumps(args.race_id)+')')
 out=bytearray()
 for file in metadata['files']:
     content=data[file['start']:file['end']]

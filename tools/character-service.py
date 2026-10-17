@@ -92,6 +92,8 @@ def handle(action, data):
         stores.update({95020+i:profile['scores'][a] for i,a in enumerate(ABILITIES)})
         stores.update({95040+i:profile['scores'][a] for i,a in enumerate(ABILITIES)})
         stores[95046]=profile['ac']
+        if profile.get('ancestry'):
+            stores[95500]=catalog()['races']['dragonborn']['ancestries'].index(profile['ancestry'])+1
         values=','.join(f'(@pid,{k},{v})' for k,v in stores.items())
         sql(f'''START TRANSACTION;
 INSERT INTO players(name,account_id,sex,looktype,lookhead,lookbody,looklegs,lookfeet,town_id,posx,posy,posz,health,healthmax,vocation,level,experience)

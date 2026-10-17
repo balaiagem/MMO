@@ -18,6 +18,7 @@ MoveEvent=function()
  return e
 end
 MESSAGE_STATUS_SMALL=26;MESSAGE_STATUS_CONSOLE_BLUE=27;COMBAT_HEALING=1;COMBAT_PHYSICALDAMAGE=2;COMBAT_FIREDAMAGE=3;COMBAT_HOLYDAMAGE=4;COMBAT_ENERGYDAMAGE=5;ORIGIN_SPELL=1
+COMBAT_DEATHDAMAGE=6;COMBAT_ICEDAMAGE=7;COMBAT_EARTHDAMAGE=8
 CONST_ME_NONE=0;CONST_ME_DRAWBLOOD=1;CONST_ME_FIREAREA=2;CONST_ME_HOLYDAMAGE=3;CONST_ME_ENERGYHIT=4;CONST_ME_MAGIC_BLUE=5
 CONST_ANI_FIRE=1;CONST_ANI_HOLY=2;CONST_ANI_ENERGY=3
 local visualEvents={}
@@ -29,6 +30,7 @@ Position=function(x,y,z)
  return pos
 end
 local creatures={}
+Creature=function(id)return creatures[id]end
 local function creature(id,player,cls)
  local c={id=id,player=player,hp=100,pos=Position(111,111,7),storage={[95000]=1,[95001]=cls or 1,[95002]=1,[95010]=19,[95030]=2,[95033]=2,[95034]=0,[95035]=0,[95020]=16,[95021]=14,[95022]=14,[95023]=16,[95024]=16,[95025]=10}}
  function c:getId()return self.id end
@@ -40,6 +42,8 @@ local function creature(id,player,cls)
  function c:getHealth()return self.hp end
  function c:getMaxHealth()return self.maxhp or 100 end
  function c:setMaxHealth(n)self.maxhp=n end
+ function c:getOutfit()return self.outfit or {lookType=131,lookHead=78,lookBody=69,lookLegs=58,lookFeet=76}end
+ function c:setOutfit(outfit)self.outfit=outfit end
  function c:addHealth(n)self.hp=math.min(self:getMaxHealth(),self.hp+n)end
  function c:getGroup()return {getAccess=function()return true end}end
  function c:getMana()return self.mana or 0 end
@@ -81,7 +85,7 @@ doTargetCombat=function(a,b,kind,min,max)
 end
 local nativeDofile=dofile
 dofile=function(path)
- local mapped={['data/lib/dnd_rules.lua']='rules/core.lua',['data/lib/dnd_characters.lua']='rules/characters.lua',['data/lib/dnd_character_data.lua']='rules/character_data.lua'}
+ local mapped={['data/lib/dnd_rules.lua']='rules/core.lua',['data/lib/dnd_characters.lua']='rules/characters.lua',['data/lib/dnd_character_data.lua']='rules/character_data.lua',['data/lib/dnd_class_actions.lua']='rules/class_actions.lua'}
  return nativeDofile(mapped[path] or path)
 end
 nativeDofile('world/content/dnd_combat.lua')
@@ -261,6 +265,10 @@ events['talk:/gm'].callback(p,'/gm','level 4')
 assert(p.storage[95003]==4 and p.storage[95004]==2700 and p.storage[95005]==1,'GM level must set D&D level and pend the level-four choice')
 assert(p.storage[95060]==4 and p.storage[95061]==4 and p:getMaxHealth()>0,'GM level must initialize Hit Dice and derived HP')
 assert(p:getLevel()==1,'GM D&D level must not mutate the engine level')
+events['talk:/gm'].callback(p,'/gm','xp 3456')
+assert(p.storage[95003]==4 and p.storage[95004]==3456)
+local found=false;for _,message in ipairs(p.messages)do if message.text:find('PROGRESS level=4 xp=3456 next=6500',1,true)then found=true end end
+assert(found,'GM XP must publish the final total, not only the level threshold')
 print('GM: D&D level, level-four choice and derived resources passed without native addLevel')
 
 -- Every enemy turn must use a real damage die; a 1d1 rule aborts the global
@@ -484,7 +492,7 @@ print('Flee: successful exit restores free exploration, closes orphan encounters
 local function scenario(id,cls,lv,enemyClass)
  p=creature(id,true,cls);rat=creature(id+1,enemyClass~=nil,enemyClass);extra=nil
  p.storage[95003]=lv;p.storage[95021]=20;p.target=rat;rat.pos=Position(112,111,7)
- Game.getPlayers=function()return {p}end
+ Game.getPlayers=function()return enemyClass and {p,rat}or {p}end
  Game.getSpectators=function()return {p,rat}end
  fixed=10;tick();return p,rat
 end
@@ -573,3 +581,197 @@ scenario(1540,1,1);p.storage[95002]=8;p.hp=1;p.maxhp=1;rat.name='Orc'
 events['talk:/turn'].callback(p,'/turn','end');fixed=20;tick()
 assert(p.hp<0 and not p.storage[95140],'Relentless Endurance must not prevent instant death from massive damage')
 print('Half-Orc: Savage Attacks critical die, daily Relentless Endurance and massive-damage exclusion passed')
+
+-- Expanded classes are tested through actual world command callbacks before
+-- exposing them in creation; catalogue presence alone cannot pass these tests.
+scenario(1600,12,5);p.storage[95025]=16
+useAbility(p,'/ability','invocation agonizingblast')
+assert(p.storage[95430]==1,'Agonizing Blast choice was not persisted')
+fixed=10;cast(p,'/cast','eldritchblast')
+assert(rat.hp==74,'Eldritch Blast level 5 must resolve two d10+CHA beams independently')
+events['event:DndLogout'].callback(p);p.target=nil;Game.getSpectators=function()return {p}end
+p.storage[95032]=0;events['talk:/rest'].callback(p,'/rest','invalid')
+assert(p.storage[95032]==0,'Malformed rest restored Pact Magic')
+events['talk:/rest'].callback(p,'/rest','short 0');assert(p.storage[95032]==2,'Pact Magic did not recover both third-level slots on short rest')
+
+scenario(1610,12,2)
+useAbility(p,'/ability','invocation fiendishvigor');useAbility(p,'/ability','fiendishvigor')
+events['talk:/turn'].callback(p,'/turn','end');local hp=p.hp;tick()
+assert(p.hp==hp,'Temporary HP did not absorb enemy damage')
+print('Warlock: invocation persistence, two Agonizing Blast beams, temporary HP, short-rest Pact Magic and malformed-rest rejection passed')
+
+scenario(1620,11,3)
+useAbility(p,'/ability','metamagic quickened');fixed=10;local slots=p.storage[95030]
+cast(p,'/cast','magicmissile');assert(rat.hp==85 and p.storage[95420]==2,'Quickened Spell must use two Sorcery Points')
+cast(p,'/cast','magicmissile');assert(p.storage[95030]==slots-1,'Quickened spell bypassed the bonus/action spell restriction')
+useAbility(p,'/ability','metamagicoff');cast(p,'/cast','firebolt')
+assert(rat.hp==75,'An action cantrip must remain legal after a quickened leveled spell')
+
+scenario(1630,11,2);useAbility(p,'/ability','fontslot 1')
+assert(p.storage[95420]==2 and p.storage[95030]==4,'Font of Magic did not create an extra first-level slot for two points')
+tick();assert(p.storage[95030]==4,'Slot synchronization erased a created spell slot')
+useAbility(p,'/ability','fontpoints 1');assert(p.storage[95030]==4,'Font of Magic reused its bonus action')
+events['talk:/turn'].callback(p,'/turn','end');tick();useAbility(p,'/ability','fontpoints 1')
+assert(p.storage[95030]==3 and p.storage[95420]==1,'Slot conversion did not restore exactly one Sorcery Point')
+events['event:DndLogout'].callback(p);p.target=nil;Game.getSpectators=function()return {p}end
+events['talk:/rest'].callback(p,'/rest','long')
+assert(p.storage[95420]==0 and p.storage[95441]==0 and p.storage[95030]==3,'Long rest did not clear created slots and restore base Sorcerer resources')
+print('Sorcerer: Quickened Spell cost, legal action cantrip, Font bonus costs, created slots and long-rest reset passed')
+
+scenario(1640,6,5,1);p.storage[95025]=16
+local ally=creature(1642,true,1);ally.pos=Position(111,112,7);p.follow=ally
+useAbility(p,'/ability','inspiration');assert(p.storage[95410]==1,'Bardic Inspiration did not spend a daily use')
+useAbility(ally,'/ability','useinspiration')
+ally.target=rat;Game.getSpectators=function()return {p,rat,ally}end
+events['talk:/turn'].callback(p,'/turn','end');events['talk:/turn'].callback(rat,'/turn','end');tick()
+-- Roster join can defer the ally until the next round; its received die must
+-- remain until a real attack/check consumes it, never just target selection.
+assert(not hasMessage(ally,'Inspiracao Bardica: +'),'Selecting a target consumed Bardic Inspiration')
+events['event:DndLogout'].callback(p);p.target=nil;p.follow=nil;Game.getSpectators=function()return {p}end
+events['talk:/rest'].callback(p,'/rest','short 0');assert(p.storage[95410]==0,'Font of Inspiration at level 5 must restore uses on short rest')
+print('Bard: bonus-action Inspiration, non-self target, persistent die and Font of Inspiration recovery passed')
+
+scenario(1650,10,5);rat.hp=99;fixed=10
+attack(p,'/attack','');assert(rat.hp==80,'Colossus Slayer must add d8 against an already wounded target')
+attack(p,'/attack','');assert(rat.hp==69,'Colossus Slayer applied twice during the same turn')
+print('Ranger: Extra Attack and Colossus Slayer once-per-turn wounded-target requirement passed')
+
+scenario(1660,7,3);p.hp=50
+useAbility(p,'/ability','wildshape wolf')
+assert(p.hp==11 and p:getMaxHealth()==11 and p:getOutfit().lookType==27 and p.storage[95450]==1,'Wild Shape must replace HP, AC/physical stats and outfit while spending one use')
+local slots=p.storage[95030];cast(p,'/cast','curewounds');assert(p.storage[95030]==slots,'Wild Shape allowed spellcasting')
+attack(p,'/attack','');assert(rat.hp==100,'Wild Shape failed to spend its action')
+events['talk:/turn'].callback(p,'/turn','end');tick()
+attack(p,'/attack','');assert(rat.hp==90,'Wolf form must use its actual +4 bite for 2d4+2 damage')
+p.hp=2;rat.name='Orc'
+events['talk:/turn'].callback(p,'/turn','end');tick()
+assert(p.hp==39 and p:getMaxHealth()==100 and p:getOutfit().lookType==131,'Dropping Wild Shape must restore original HP and carry only excess damage into normal form')
+useAbility(p,'/ability','wildshape rat');assert(p.hp==1 and p.storage[95450]==2,'Second Wild Shape did not use its independent beast HP')
+events['event:DndLogout'].callback(p)
+assert(p.hp==39 and p:getMaxHealth()==100 and p.storage[95469]==0,'Logout must not persist a beast body or lose original HP')
+p.target=nil;Game.getSpectators=function()return {p}end
+events['talk:/rest'].callback(p,'/rest','short 0');assert(p.storage[95450]==0,'Wild Shape uses must recover on short rest')
+print('Druid: action cost, real beast HP/outfit/attack, no casting, overflow damage, logout restoration and short-rest uses passed')
+
+scenario(1670,12,5);p.storage[95025]=16;useAbility(p,'/ability','invocation agonizingblast')
+cast(p,'/cast','hex');local pact=p.storage[95032]
+cast(p,'/cast','eldritchblast')
+assert(rat.hp==62 and pact==1 and p.storage[95032]==1,'Hex must use the current Pact slot, add d6 necrotic to each hit and allow an action cantrip')
+
+scenario(1680,10,5);cast(p,'/cast','huntersmark');attack(p,'/attack','');attack(p,'/attack','')
+assert(rat.hp==58,'Hunter Mark weapon dice and once-per-turn Colossus Slayer did not combine correctly')
+
+scenario(1690,1,1);p.storage[95002]=5;p.storage[95500]=8
+useAbility(p,'/ability','breath');assert(rat.hp==88 and p.storage[95501]==1,'Dragonborn red cone must deal 2d6 fire on a failed Dexterity save')
+attack(p,'/attack','');assert(rat.hp==88,'Dragon breath failed to spend the action')
+useAbility(p,'/ability','breath');assert(rat.hp==88,'Dragon breath reused its short-rest charge')
+events['event:DndLogout'].callback(p);p.target=nil;Game.getSpectators=function()return {p}end
+events['talk:/rest'].callback(p,'/rest','short 0');assert(p.storage[95501]==0,'Short rest did not restore Dragonborn breath')
+
+scenario(1700,1,3);p.storage[95002]=9;p.storage[95010]=10;useAbility(p,'/ability','hellishrebuke')
+events['talk:/turn'].callback(p,'/turn','end');tick()
+assert(p.hp==99 and rat.hp==85 and p.storage[95521]==1,'Tiefling Hellish Rebuke must spend one reaction and its daily second-level casting, allowing the attacker save for half')
+
+scenario(1710,4,1,1);rat.storage[95002]=9;rat.storage[95010]=10
+cast(p,'/cast','firebolt');assert(rat.hp==95,'Tiefling fire resistance was not applied to live damage')
+
+for _,race in ipairs({1,6})do
+ scenario(1720+race*2,6,1,1);rat.storage[95002]=race
+ local count=0
+ math.random=function(low,high)if high==20 then count=count+1;return count==1 and 6 or 10 end;return high end
+ cast(p,'/cast','viciousmockery')
+ assert(count==(race==6 and 2 or 1)and rat.hp==(race==6 and 100 or 96),'Gnome Cunning must grant advantage on a magical Wisdom save, not a flat bonus')
+ math.random=function(low,high)return math.min(fixed,high)end
+end
+
+scenario(1760,4,1,1);rat.storage[95002]=7;rat.hp=5
+cast(p,'/cast','sleep 112 111 7');assert(not hasMessage(p,'ADORMECEU'),'Half-Elf must be immune to magical sleep without rolling a save')
+scenario(1770,4,1,1);rat.hp=5;rat.storage[95010]=10
+cast(p,'/cast','sleep 112 111 7');assert(hasMessage(p,'ADORMECEU'),'Sleep did not affect a non-Elf within its hit point pool')
+events['talk:/turn'].callback(p,'/turn','end');local hp=p.hp;tick()
+assert(p.hp==hp and p:getTurnMovement()>0,'Sleeping enemy did not skip its incapacitated turn')
+attack(p,'/attack','');assert(rat.hp==-10,'An adjacent successful attack against a sleeping creature must be a critical hit')
+print('Races and spells: Dragonborn breath/recovery, Tiefling fire resistance/reaction, Gnome magical-save advantage, Half-Elf Sleep immunity, Hex and Hunter Mark passed')
+
+scenario(1800,1,1,4);rat.storage[95010]=12;useAbility(rat,'/ability','shield')
+attack(p,'/attack','');assert(rat.hp==100 and rat.storage[95030]==1,'Shield must spend one reaction/slot and turn a normal hit into a miss')
+events['talk:/turn'].callback(p,'/turn','end');useAbility(rat,'/ability','shield');events['talk:/turn'].callback(rat,'/turn','end')
+attack(p,'/attack','');assert(rat.hp==89,'Shield must expire at the start of its caster next turn')
+scenario(1810,1,1,4);useAbility(rat,'/ability','shield');fixed=20;attack(p,'/attack','')
+assert(rat.hp==81 and rat.storage[95030]==2,'Shield must not negate a natural critical or automatically waste a slot on it')
+scenario(1820,4,1,4);useAbility(rat,'/ability','shield');cast(p,'/cast','magicmissile')
+assert(rat.hp==100 and rat.storage[95030]==1 and p.storage[95030]==1,'Shield must block Magic Missile while both spell slots remain spent')
+
+scenario(1830,4,5,12);rat.storage[95003]=5;tick();useAbility(rat,'/ability','counterspell')
+cast(p,'/cast','fireball 112 111 7')
+assert(rat.hp==100 and p.storage[95032]==1 and rat.storage[95032]==1,'Counterspell must negate a spell after its action/slot cost, spending a reaction and third-level slot')
+scenario(1840,4,5,12);rat.storage[95003]=5;tick();useAbility(p,'/ability','counterspell');useAbility(rat,'/ability','counterspell')
+cast(p,'/cast','fireball 112 111 7')
+assert(rat.hp==52 and p.storage[95032]==0 and rat.storage[95032]==1,'A legal Counterspell against Counterspell must let the original spell resolve')
+scenario(1850,11,5,12);rat.storage[95003]=5;rat.storage[95010]=10;tick()
+useAbility(p,'/ability','counterspell');useAbility(rat,'/ability','counterspell');useAbility(p,'/ability','metamagic quickened')
+cast(p,'/cast','firebolt');assert(rat.hp==100 and p.storage[95032]==2,'A bonus-action caster must not cast a reaction spell during that same turn')
+useAbility(p,'/ability','metamagicoff');cast(p,'/cast','firebolt');assert(rat.hp==80,'Countered quickened spell must still leave an action cantrip legal')
+print('Reactions: Shield hit/miss/critical/duration/Magic Missile and Counterspell costs, chains and bonus-spell restriction passed')
+
+scenario(1860,1,5);p.storage[95002]=9;cast(p,'/cast','darkness 112 111 7')
+assert(p.storage[95522]==1 and p.storage[95030]==0 and p.storage[95032]==0,'Tiefling Darkness must work once daily without requiring or creating class slots')
+scenario(1870,12,5);useAbility(p,'/ability','invocation devilssight');cast(p,'/cast','darkness 112 111 7')
+events['talk:/turn'].callback(p,'/turn','end');tick()
+do
+ local count=0
+ math.random=function(low,high)if high==20 then count=count+1 end;return math.min(10,high)end
+ cast(p,'/cast','eldritchblast')
+ assert(count==4,'Devils Sight must let its caster see through Darkness and attack an otherwise blinded enemy with advantage')
+ math.random=function(low,high)return math.min(fixed,high)end
+end
+print('Darkness: once-daily Tiefling casting, concentration, obscured attacks and Devils Sight passed')
+
+do
+ local queries=0
+ db.storeQuery=function()queries=queries+1;return 1 end
+ result={getString=function(_,key)return key=='trained'and'["Performance","Persuasion","Deception","Insight","Religion","Survival"]'or'[]'end,free=function()end}
+ scenario(1880,6,3)
+ useAbility(p,'/ability','loreproficiency perception,stealth,athletics')
+ useAbility(p,'/ability','expertise perception,performance')
+ assert(p.storage[95481]>0 and p.storage[95480]>0,'Lore skill and Expertise choices must persist in separate masks')
+ events['talk:/check'].callback(p,'/check','perception')
+ assert(hasMessage(p,'d20=10 +7 = 17'),'Chosen Bard Expertise did not double proficiency in a real skill check')
+ assert(queries==1,'Skill choices/checks must read the profile once per session, not issue a query per skill')
+ scenario(1890,1,1);p.storage[95002]=6
+ events['talk:/check'].callback(p,'/check','history magic-item')
+ assert(hasMessage(p,'d20=10 +7 = 17'),'Rock Gnome Artificer Lore must add double proficiency to a relevant History check even if untrained')
+end
+print('Progression: Lore bonus skills, chosen Expertise, Gnome Artificer Lore and cached profile reads passed')
+
+-- XP must refresh even when an award does not cross a level threshold.
+do
+ scenario(1900,1,1)
+ p.storage[95004]=12
+ events['event:DndKill'].callback(p,rat,true)
+ assert(p.storage[95004]>12,'Kill must award D&D XP')
+ assert(hasMessage(p,'PROGRESS level=1 xp='..p.storage[95004]..' next=300'),'Non-level-up XP must refresh the HUD')
+end
+print('XP: authoritative D&D progress refreshes after ordinary kill awards')
+
+do
+ scenario(1910,1,4)
+ p.storage[95004]=6499;p.storage[95005]=0
+ events['event:DndKill'].callback(p,rat,true)
+ assert(p.storage[95003]==5,'A completed level-four choice must permit level five at 6500 XP')
+ scenario(1920,1,4)
+ p.storage[95004]=6499;p.storage[95005]=1
+ events['event:DndKill'].callback(p,rat,true)
+ assert(p.storage[95003]==4,'Pending ASI must remain available before level five')
+ events['talk:/levelup'].callback(p,'/levelup','str+2')
+ assert(p.storage[95003]==5 and p.storage[95005]==0,'Completing ASI must immediately apply the earned fifth level')
+end
+print('XP: level-four choice gates correctly and releases earned level five immediately')
+
+do
+ scenario(1930,1,4)
+ p.storage[95004]=6500;p.storage[95005]=0
+ events['event:DndLogin'].callback(p)
+ assert(p.storage[95003]==5,'Reconnect must repair level five blocked by the old ASI condition')
+end
+print('XP: reconnect repairs previously earned level five without changing saved XP')

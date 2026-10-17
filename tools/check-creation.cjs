@@ -22,6 +22,22 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'C:/Users/lucas/.c
   await page.waitForFunction(()=>document.getElementById('stat-hp').textContent==='14' && document.getElementById('stat-ac').textContent==='14');
   await page.locator('#class').selectOption('monk');
   await page.waitForFunction(()=>document.getElementById('stat-hp').textContent==='10' && document.getElementById('stat-ac').textContent==='15');
+  await page.locator('#class').selectOption('paladin');
+  await page.locator('#race').selectOption('half-orc');
+  await page.waitForFunction(()=>document.getElementById('stat-ac').textContent==='18' && document.getElementById('sheet').textContent.includes('Intimidation'));
+  if((await page.locator('#sheet').textContent()).includes('slot(s)'))throw Error('Paladin incorrectly received spell slots at level 1');
+  await page.locator('#race').selectOption('half-elf');
+  for(const cls of ['fighter','rogue','cleric','wizard','barbarian','bard','druid','monk','paladin','ranger','sorcerer','warlock']){
+   await page.locator('#class').selectOption(cls);
+   const title=await page.locator('#class option:checked').textContent();
+   await page.waitForFunction(title=>document.getElementById('selection-title').textContent.endsWith('/ '+title)&&document.getElementById('stat-hp').textContent!=='-',title);
+  }
+  if(await page.locator('#racial-abilities select').count()!==2||await page.locator('#racial-skills select').count()!==2)throw Error('Half-Elf racial choices missing');
+  await page.locator('#race').selectOption('dragonborn');
+  await page.locator('#ancestry-choice select').selectOption('silver');
+  await page.waitForFunction(()=>document.getElementById('sheet').textContent.includes('Draconato'));
+  const preview=await page.evaluate(()=>api('preview',payload()));
+  if(preview.ancestry!=='silver'||preview.slots[0]!==1)throw Error('Dragonborn ancestry or Warlock level-one Pact Magic preview incorrect');
   await page.locator('#password').fill('admin');
   await page.locator('#list').click();
   await page.waitForFunction(()=>document.getElementById('characters').children.length>=2);

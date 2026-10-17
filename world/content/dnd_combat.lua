@@ -6,6 +6,7 @@ local worldConfigFile=io.open('data/lib/dnd_world.lua','r')
 if worldConfigFile then worldConfigFile:close();worldConfig=dofile('data/lib/dnd_world.lua') end
 local states, applying = {}, {}
 local encounters = {}
+local X={}
 -- 8.60 creature appearances paired with compact 5e stat blocks for the
 -- beginner island. Unknown, neutral monsters stay outside this turn adapter.
 local monsterRules = {
@@ -21,6 +22,8 @@ for name,profile in pairs(worldConfig.monsters or {}) do
     if not monsterRules[name] then monsterRules[name]=profile end
 end
 local normalizedMonsterRules={}
+local defaultTypes={rat='beast',snake='beast',spider='beast',wolf='beast',bug='beast',orc='humanoid',troll='giant',skeleton='undead',ghoul='undead',zombie='undead'}
+for name,profile in pairs(monsterRules)do profile.creatureType=profile.creatureType or defaultTypes[string.lower(name)]end
 for name,profile in pairs(monsterRules) do normalizedMonsterRules[string.lower(name)]=profile end
 local function rng(sides) return math.random(1, sides) end
 local function now() return math.floor(os.mtime()) end
@@ -46,6 +49,10 @@ local function state(c)
     local id=isPlayer(c) and ('player:'..c:getGuid()) or c:getId()
     if not states[id] then states[id]={economy=R.newTurnEconomy(now())} end
     return states[id]
+end
+local function updateConditions(c)
+    local sleep=state(c).sleeping
+    if sleep and((sleep.source.encounter and(sleep.source.economy.turn or 0)>=sleep.expires)or(not sleep.source.encounter and now()>=sleep.wall))then state(c).sleeping=nil end
 end
 local function class(p) return p:getStorageValue(95001) end
 local xpThresholds = { [1]=0, [2]=300, [3]=900, [4]=2700, [5]=6500 }
@@ -80,7 +87,7 @@ local function syncSlots(p)
     local maximum=progression[1]+progression[2]+progression[3]
     local remaining=0
     for spellLevel=1,3 do
-        local cap=progression[spellLevel]
+        local cap=progression[spellLevel]+(class(p)==11 and math.max(0,p:getStorageValue(95440+spellLevel)) or 0)
         local key=95029+spellLevel
         local capKey=95032+spellLevel
         local previousCap=p:getStorageValue(capKey)
@@ -109,7 +116,10 @@ local function score(p,index)
     local n=p:getStorageValue(95020+index)
     return n>=1 and n<=30 and n or 10
 end
-local function mod(p,index) return R.modifier(score(p,index)) end
+local function mod(p,index)
+    local modified=X.formModifier and X.formModifier(p,index)
+    return modified~=nil and modified or R.modifier(score(p,index))
+end
 local function proficiency(p) return R.proficiency(level(p)) end
 local maxHpAt
 -- Persistent daily uses and exhaustion are kept outside the legacy slot range.
@@ -148,7 +158,7 @@ end
 local levelFeatures
 local function updateLevel(p,newLevel)
     local oldLevel=level(p)
-    local oldMax=p:getMaxHealth()
+    local oldMax=state(p).form and p:getStorageValue(95461)or p:getMaxHealth()
     p:setStorageValue(95003,newLevel)
     local maxDice=p:getStorageValue(95060)
     local remainingDice=p:getStorageValue(95061)
@@ -158,7 +168,9 @@ local function updateLevel(p,newLevel)
     remainingDice=math.min(newLevel,remainingDice)
     p:setStorageValue(95060,newLevel);p:setStorageValue(95061,remainingDice)
     local newMax=maxHpAt(p,newLevel)
-    p:setMaxHealth(newMax);if newMax>oldMax then p:addHealth(newMax-oldMax) end
+    if state(p).form then
+        p:setStorageValue(95461,newMax);p:setStorageValue(95460,math.min(newMax,p:getStorageValue(95460)+math.max(0,newMax-oldMax)))
+    else p:setMaxHealth(newMax);if newMax>oldMax then p:addHealth(newMax-oldMax)end end
     syncSlots(p)
     p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,string.format('[5E] LEVEL level=%d',newLevel))
     sendSlots(p)
@@ -168,11 +180,14 @@ end
 local function applyAbility(p,index,delta)
     local value=score(p,index)+delta
     p:setStorageValue(95020+index,value)
-    local oldMax=p:getMaxHealth();local newMax=maxHpAt(p,level(p))
-    p:setMaxHealth(newMax);p:addHealth(newMax-oldMax)
+    local oldMax=state(p).form and p:getStorageValue(95461)or p:getMaxHealth();local newMax=maxHpAt(p,level(p))
+    if state(p).form then p:setStorageValue(95461,newMax);p:setStorageValue(95460,math.max(0,math.min(newMax,p:getStorageValue(95460)+newMax-oldMax)))
+    else p:setMaxHealth(newMax);p:addHealth(newMax-oldMax)end
     if index==1 then
-        if class(p)==2 then p:setStorageValue(95010,11+mod(p,1))
-        elseif class(p)==4 then p:setStorageValue(95010,10+mod(p,1)) end
+        if class(p)==2 or class(p)==6 or class(p)==12 then p:setStorageValue(95010,11+R.modifier(score(p,1)))
+        elseif class(p)==4 then p:setStorageValue(95010,10+mod(p,1))
+        elseif class(p)==7 or class(p)==11 then p:setStorageValue(95010,13+R.modifier(score(p,1)))
+        elseif class(p)==10 then p:setStorageValue(95010,14+math.min(2,mod(p,1)))end
     end
     if class(p)==5 and (index==1 or index==2) then p:setStorageValue(95010,10+mod(p,1)+mod(p,2)) end
     if class(p)==8 and (index==1 or index==4) then p:setStorageValue(95010,10+mod(p,1)+mod(p,4)) end
@@ -216,6 +231,26 @@ levelFeatures=function(p)
         if lv>=2 then features[#features+1]='Destruicao Divina; Conjuracao; Estilo de Luta: Defesa' end
         if lv>=3 then features[#features+1]='Devocao: Arma Sagrada; Saude Divina' end
         if lv>=5 then features[#features+1]='Ataque Extra; espacos de nivel 2' end
+    elseif cls==6 then
+        features={'Inspiracao Bardica d'..(lv>=5 and 8 or 6),'Conjuracao'}
+        if lv>=2 then features[#features+1]='Cancao do Descanso d6' end
+        if lv>=3 then features[#features+1]='Conhecimento: Palavras Cortantes' end
+        if lv>=5 then features[#features+1]='Fonte de Inspiracao: descanso curto' end
+    elseif cls==7 then
+        features={'Druidico','Conjuracao'}
+        if lv>=2 then features[#features+1]='Forma Selvagem: 2 usos/descanso; Recuperacao Natural' end
+    elseif cls==10 then
+        features={'Patrulheiro'}
+        if lv>=2 then features[#features+1]='Conjuracao; Marca do Cacador' end
+        if lv>=3 then features[#features+1]='Cacador: Matador de Colossos' end
+        if lv>=5 then features[#features+1]='Ataque Extra' end
+    elseif cls==11 then
+        features={'Linhagem Draconica: Resiliencia Draconica','Conjuracao'}
+        if lv>=2 then features[#features+1]='Fonte de Magia: '..lv..' pontos' end
+        if lv>=3 then features[#features+1]='Metamagia: duas escolhas' end
+    elseif cls==12 then
+        features={'Infernal: Bencao do Obscuro','Magia de Pacto: descanso curto','Rajada Mistica'}
+        if lv>=2 then features[#features+1]='Invocacoes: '..(lv>=5 and 3 or 2)..' escolhas' end
     end
     if lv>=4 then features[#features+1]='Aprimoramento de Atributo/Talento escolhido' end
     return table.concat(features,', ')
@@ -246,7 +281,9 @@ end
 local function ac(c)
     if isMonster(c) then local rule=monsterRule(c);return rule and rule.ac or 10 end
     local value=c:getStorageValue(95010)
-    return (value>0 and value or 10)+(buff(c,'shieldoffaith') and 2 or 0)+((class(c)==9 and level(c)>=2) and 1 or 0)
+    if X.baseAc then value=X.baseAc(c,value)end
+    value=(value>0 and value or 10)+(buff(c,'shieldoffaith') and 2 or 0)+((class(c)==9 and level(c)>=2) and 1 or 0)
+    return X.ac and X.ac(c,value) or value
 end
 local function range(a,b,tiles)
     local p,q=a:getPosition(),b:getPosition()
@@ -263,42 +300,70 @@ local function log(a,b,natural,bonus,defense,result,amount,label)
         if isPlayer(p) then p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,text) end
     end
 end
-local function damage(a,b,amount,kind,effect,attackHit,radiant)
-    radiant=radiant or 0
-    if amount+radiant<=0 then return end
+local function damage(a,b,amount,kind,effect,attackHit,radiant,flavor,critical,weaponHit)
+    local parts={{amount=amount,kind=kind,effect=effect or CONST_ME_NONE,flavor=flavor}}
+    if radiant and radiant>0 then parts[#parts+1]={amount=radiant,kind=COMBAT_HOLYDAMAGE,effect=CONST_ME_HOLYDAMAGE}end
+    if attackHit and isPlayer(a) and X.hitParts then
+        for _,part in ipairs(X.hitParts(a,b,critical,weaponHit))do parts[#parts+1]=part end
+    end
+    local function total()
+        local sum=0;for _,part in ipairs(parts)do sum=sum+part.amount end;return sum
+    end
+    local function absorb(count)
+        for _,part in ipairs(parts)do local n=math.min(part.amount,count);part.amount=part.amount-n;count=count-n end
+    end
+    local function clip(cap)
+        for _,part in ipairs(parts)do part.amount=math.min(cap,part.amount);cap=cap-part.amount end
+    end
+    if total()<=0 then return end
+    local tookDamage=total()
     if isPlayer(b) then
         local s=state(b)
+        for _,part in ipairs(parts)do
+            if (X.resistant and X.resistant(b,part.kind,part.flavor))or(s.rage and part.kind==COMBAT_PHYSICALDAMAGE)then part.amount=math.floor(part.amount/2)end
+        end
         if s.rage then
             s.rage.activity=true
-            if kind==COMBAT_PHYSICALDAMAGE then amount=math.floor(amount/2) end
         end
-        if attackHit and not s.stunned and class(b)==2 and level(b)>=5 and b:getStorageValue(95110)~=0 and a and range(b,a,9) and (not b.canSeeCreature or b:canSeeCreature(a)) and R.spend(s.economy,'reaction',now()) then
-            amount=math.floor(amount/2)
-            radiant=math.floor(radiant/2)
+        if attackHit and not s.stunned and not s.sleeping and class(b)==2 and level(b)>=5 and b:getStorageValue(95110)~=0 and a and range(b,a,9) and (not b.canSeeCreature or b:canSeeCreature(a)) and R.spend(s.economy,'reaction',now()) then
+            for _,part in ipairs(parts)do part.amount=math.floor(part.amount/2)end
             b:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,'[5E] Esquiva Sobrenatural: reacao gasta; dano do ataque reduzido a metade.')
         end
-        if b:getStorageValue(95002)==8 and b:getStorageValue(95140)~=1 and b:getHealth()>0 and amount+radiant>=b:getHealth() and amount+radiant<b:getHealth()+b:getMaxHealth() then
-            local remaining=b:getHealth()-1
-            amount=math.min(amount,remaining);radiant=remaining-amount
-            b:setStorageValue(95140,1)
-            b:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,'[5E] Resistencia Implacavel: voce fica com 1 PV. Recupere este uso no descanso longo.')
-        end
-        if amount+radiant>0 and s.concentration then
-            if amount+radiant>=b:getHealth() then endConcentration(b)
+        tookDamage=total()
+        local toHP=math.max(0,tookDamage-(s.tempHP or 0))
+        local endure=b:getStorageValue(95002)==8 and b:getStorageValue(95140)~=1 and b:getHealth()>0 and toHP>=b:getHealth() and toHP<b:getHealth()+b:getMaxHealth()
+        if tookDamage>0 and s.concentration then
+            if (X.wouldDrop and X.wouldDrop(b,toHP)or(not X.wouldDrop and toHP>=b:getHealth()))and not endure then endConcentration(b)
             else
-                local extra=buff(b,'bless') and R.roll(4,rng) or 0
-                local check=R.concentration(amount+radiant,savingBonus(b,2)+extra,actorRng(b),false,b:getStorageValue(95101)>=3)
+                local extra=(buff(b,'bless') and R.roll(4,rng) or 0)+(X.attackBonus and X.attackBonus(b)or 0)
+                local check=R.concentration(tookDamage,savingBonus(b,2)+extra,actorRng(b),false,b:getStorageValue(95101)>=3)
                 log(b,b,check.dice[1],savingBonus(b,2)+extra,check.dc,check.success and 'MANTEVE' or 'PERDEU',0,'Concentracao')
                 if not check.success then endConcentration(b) end
             end
         end
+        if X.absorb then
+            local before=total();absorb(before-X.absorb(b,before))
+        end
+        if not endure and X.formDamage then
+            local before=total();absorb(before-X.formDamage(b,before))
+        end
+        if endure then
+            clip(b:getHealth()-1)
+            b:setStorageValue(95140,1)
+            b:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,'[5E] Resistencia Implacavel: voce fica com 1 PV. Recupere este uso no descanso longo.')
+        end
     end
-    if amount+radiant<=0 then return end
+    if tookDamage>0 then state(b).sleeping=nil end
+    if total()<=0 then if X.afterDamage then X.afterDamage(a,b,tookDamage)end;return end
     local targetId,healthBefore=b:getId(),b:getHealth()
+    local remaining=healthBefore
     applying[targetId]=true
-    if amount>0 then doTargetCombat(a:getId(),b:getId(),kind,-amount,-amount,effect or CONST_ME_NONE,ORIGIN_SPELL,false,false,true) end
-    if radiant>0 and amount<healthBefore then doTargetCombat(a:getId(),targetId,COMBAT_HOLYDAMAGE,-radiant,-radiant,CONST_ME_HOLYDAMAGE,ORIGIN_SPELL,false,false,true) end
+    for _,part in ipairs(parts)do
+        if remaining>0 and part.amount>0 then doTargetCombat(a:getId(),targetId,part.kind,-part.amount,-part.amount,part.effect or CONST_ME_NONE,ORIGIN_SPELL,false,false,true);remaining=remaining-part.amount end
+    end
     applying[targetId]=nil
+    if X.onKill and isPlayer(a) and remaining<=0 then X.onKill(a) end
+    if X.afterDamage and remaining>0 then X.afterDamage(a,b,tookDamage)end
 end
 
 local function actorKey(c) return isPlayer(c) and ('player:'..c:getGuid()) or ('creature:'..c:getId()) end
@@ -308,18 +373,20 @@ local function alive(c)
     return ok and health>0
 end
 local function speed(c)
+    updateConditions(c)
     if isMonster(c) then local rule=monsterRule(c);return rule and rule.speed or 20 end
     local value=c:getStorageValue(95011)
     value=value>0 and value or 30
     if class(c)==5 and level(c)>=5 then value=value+10 end
     if class(c)==8 and level(c)>=2 then value=value+10 end
-    if state(c).stunned then return 0 end
+    if X.speed then value=X.speed(c,value)end
+    if state(c).stunned or state(c).sleeping then return 0 end
     local exhaustion=math.max(0,c:getStorageValue(95101))
     if exhaustion>=5 then return 0 end
     return exhaustion>=2 and math.floor(value/2) or value
 end
 local function actorDex(c)
-    if isPlayer(c) then return mod(c,1) end
+    if isPlayer(c) then return mod(c,1)+(class(c)==6 and level(c)>=2 and math.floor(proficiency(c)/2)or 0)end
     local rule=monsterRule(c)
     return rule and R.modifier(rule.dex) or 0
 end
@@ -327,14 +394,33 @@ local function dexSave(c)
     return isPlayer(c) and savingBonus(c,1) or actorDex(c)
 end
 local function dexSaveRoll(c,dc)
-    if state(c).stunned then return {success=false,dice={0}} end
-    return R.save(dc,dexSave(c)+(buff(c,'bless') and R.roll(4,rng) or 0),actorRng(c),(state(c).dodging and speed(c)>0) or (isPlayer(c) and class(c)==5 and level(c)>=2),isPlayer(c) and c:getStorageValue(95101)>=3)
+    if state(c).stunned or state(c).sleeping then return {success=false,dice={0}} end
+    return R.save(dc,dexSave(c)+(buff(c,'bless') and R.roll(4,rng) or 0)+(isPlayer(c)and X.attackBonus and X.attackBonus(c)or 0),actorRng(c),(state(c).dodging and speed(c)>0) or (isPlayer(c) and class(c)==5 and level(c)>=2),isPlayer(c) and c:getStorageValue(95101)>=3)
+end
+local function saveRoll(c,index,dc,context)
+    if index==1 then return dexSaveRoll(c,dc)end
+    if(state(c).stunned or state(c).sleeping)and index==0 then return {success=false,dice={0}}end
+    local rule=monsterRule(c)
+    local bonus=isPlayer(c)and savingBonus(c,index)or R.modifier(rule and rule[({'str','dex','con','int','wis','cha'})[index+1]]or 10)
+    if buff(c,'bless')then bonus=bonus+R.roll(4,rng)end
+    if isPlayer(c)and X.attackBonus then bonus=bonus+X.attackBonus(c)end
+    return R.save(dc,bonus,actorRng(c),X.saveAdvantage and X.saveAdvantage(c,index,context or{magic=true}),isPlayer(c)and c:getStorageValue(95101)>=3)
 end
 local function attackAdvantage(a,b,ranged)
-    return state(b).stunned~=nil or (state(b).prone and (not ranged or range(a,b,1))) or (not ranged and state(a).reckless) or state(b).reckless
+    updateConditions(a);updateConditions(b)
+    return(X.visionBlocked and X.visionBlocked(b,a))or state(b).sleeping~=nil or state(b).stunned~=nil or (state(b).prone and (not ranged or range(a,b,1))) or (not ranged and state(a).reckless) or state(b).reckless
 end
 local function attackDisadvantage(a,b,ranged)
-    return state(a).prone or (ranged and state(b).prone and not range(a,b,1)) or (state(b).dodging and not state(b).stunned and speed(b)>0) or (isPlayer(a) and a:getStorageValue(95101)>=3)
+    return(X.visionBlocked and X.visionBlocked(a,b))or state(a).mockery~=nil or state(a).prone or (ranged and state(b).prone and not range(a,b,1)) or (state(b).dodging and not state(b).stunned and speed(b)>0) or (isPlayer(a) and a:getStorageValue(95101)>=3)
+end
+local function attackRoll(a,b,bonus,random,advantage,disadvantage)
+    if isPlayer(a) and X.attackBonus then bonus=bonus+X.attackBonus(a) end
+    local roll=R.attack(ac(b),bonus,random,advantage,disadvantage)
+    if roll.hit and state(b).sleeping and range(a,b,1)then roll.critical=true end
+    state(a).mockery=nil
+    if X.cutAttack then X.cutAttack(a,b,roll) end
+    if X.shieldAttack then X.shieldAttack(a,b,roll)end
+    return roll
 end
 local function stopEngineCombat(monster)
     -- Native TFS target/following keeps running beside the turn adapter. That
@@ -380,6 +466,7 @@ local function announceTurn(enc,preserve)
     if not preserve then
         enc.serial=(enc.serial or 0)+1
         R.startTurn(e)
+        if X.onTurn and isPlayer(actor)then X.onTurn(actor)end
         if state(actor).sacredWeapon then
             state(actor).sacredWeapon.turns=state(actor).sacredWeapon.turns-1
             if state(actor).sacredWeapon.turns<=0 then state(actor).sacredWeapon=nil end
@@ -403,6 +490,7 @@ end
 local function advanceTurn(enc)
     if not enc or encounters[enc.id]~=enc then return end
     local previous=currentActor(enc)
+    if previous and state(previous).mockery and state(previous).economy.turn>=state(previous).mockery then state(previous).mockery=nil end
     if previous then
         for _,actor in ipairs(enc.order) do
             local stun=state(actor).stunned
@@ -531,6 +619,8 @@ local function isActorTurn(actor)
     return enc and currentActor(enc)==actor
 end
 local function requireTurn(p)
+    updateConditions(p)
+    if state(p).sleeping then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce esta inconsciente por Sono.');return false end
     if state(p).stunned then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce esta atordoado ate o fim do proximo turno do atacante.');return false end
     local enc=state(p).encounter
     if not enc then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Selecione um inimigo para iniciar o combate e rolar iniciativa.');return false end
@@ -554,13 +644,22 @@ local function stunOnHit(p,target)
 end
 local function unarmedStrike(p,target)
     local ability=math.max(mod(p,0),mod(p,1));local bonus=ability+proficiency(p)+(buff(p,'bless') and R.roll(4,rng) or 0)
-    local roll=R.attack(ac(target),bonus,actorRng(p),attackAdvantage(p,target),attackDisadvantage(p,target))
+    local roll=attackRoll(p,target,bonus,actorRng(p),attackAdvantage(p,target),attackDisadvantage(p,target))
     local amount=roll.hit and R.damage(1,level(p)>=5 and 6 or 4,ability,roll.critical,rng) or 0
     if roll.critical and p:getStorageValue(95002)==8 then amount=amount+R.roll(level(p)>=5 and 6 or 4,rng) end
     log(p,target,roll.natural,bonus,ac(target),roll.critical and 'CRITICO' or roll.hit and 'ACERTO' or 'ERRO',amount,'Golpe Desarmado')
-    damage(p,target,amount,COMBAT_PHYSICALDAMAGE,CONST_ME_DRAWBLOOD,true)
+    damage(p,target,amount,COMBAT_PHYSICALDAMAGE,CONST_ME_DRAWBLOOD,roll.hit,nil,nil,roll.critical,true)
     if roll.hit and alive(target) then stunOnHit(p,target) end
     return roll.hit and alive(target)
+end
+local function weaponStats(p)
+    local form=X.weaponProfile and X.weaponProfile(p)
+    if form then return form end
+    local cls=class(p)
+    local dex=cls==2 or cls==6 or cls==10 or((cls==8 or cls==11 or cls==12)and mod(p,1)>mod(p,0))
+    local ability=mod(p,dex and 1 or 0)
+    local sides=cls==5 and 12 or(cls==11 or cls==12)and 4 or(cls==3 or cls==4 or cls==7 or cls==8 or cls==10)and 6 or 8
+    return {dice=1,sides=sides,flat=ability+(state(p).rage and not dex and 2 or 0),attack=ability+proficiency(p)}
 end
 local function sneakDamage(p,target,critical)
     if class(p)~=2 then return 0 end
@@ -607,33 +706,35 @@ local function weapon(p,t)
     if not enc or not requireTurn(p) then return end
     if not range(p,t,1) then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce esta fora de alcance. Mova-se no seu turno ou use seguir para aproximar-se.');return end
     local e=state(p).economy
+    local form=X.weaponProfile and X.weaponProfile(p)
+    local stats=weaponStats(p)
     if e.attacks==0 then
-        if not R.beginAttack(e,(class(p)==1 or class(p)==5 or class(p)==8 or class(p)==9 or class(p)==10) and R.fighterAttacks(level(p)) or 1,now()) then actionCooldown(p,e);return end
+        if not R.beginAttack(e,form and 1 or((class(p)==1 or class(p)==5 or class(p)==8 or class(p)==9 or class(p)==10) and R.fighterAttacks(level(p)) or 1),now()) then actionCooldown(p,e);return end
         actionCooldown(p,e)
     end
     if not R.spendAttack(e,now()) then return end
-    local dex=class(p)==2 or (class(p)==8 and mod(p,1)>mod(p,0))
     local sacred=state(p).sacredWeapon
-    local bonus=mod(p,dex and 1 or 0)+proficiency(p)+(buff(p,'bless') and R.roll(4,rng) or 0)+(sacred and math.max(1,mod(p,5)) or 0)
+    local bonus=stats.attack+(buff(p,'bless') and R.roll(4,rng) or 0)+(sacred and math.max(1,mod(p,5)) or 0)
     state(p).weaponTurn=e.turn
     if state(p).rage then state(p).rage.activity=true end
-    local roll=R.attack(ac(t),bonus,actorRng(p),attackAdvantage(p,t),attackDisadvantage(p,t))
+    local roll=attackRoll(p,t,bonus,actorRng(p),attackAdvantage(p,t),attackDisadvantage(p,t))
     if class(p)==1 and level(p)>=3 and roll.natural==19 then roll.hit=true;roll.critical=true end
     local amount=0
     if roll.hit then
-        amount=R.damage(1,class(p)==5 and 12 or (class(p)==3 or class(p)==4 or class(p)==8) and 6 or 8,mod(p,dex and 1 or 0)+(state(p).rage and 2 or 0),roll.critical,rng)
-        if roll.critical and p:getStorageValue(95002)==8 then amount=amount+R.roll(class(p)==5 and 12 or (class(p)==3 or class(p)==4 or class(p)==8) and 6 or 8,rng) end
+        amount=stats.dice>0 and R.damage(stats.dice,stats.sides,stats.flat,roll.critical,rng)or stats.flat
+        if roll.critical and p:getStorageValue(95002)==8 and stats.sides>=2 then amount=amount+R.roll(stats.sides,rng) end
         amount=amount+sneakDamage(p,t,roll.critical)
+        if X.weaponBonus then amount=amount+X.weaponBonus(p,t,roll.critical)end
     end
     log(p,t,roll.natural,bonus,ac(t),roll.critical and 'CRITICO' or roll.hit and 'ACERTO' or 'ERRO',amount,'Ataque')
     local radiant=roll.hit and amount<t:getHealth() and divineSmite(p,t,roll.critical) or 0
-    damage(p,t,amount,COMBAT_PHYSICALDAMAGE,CONST_ME_DRAWBLOOD,true,radiant)
+    damage(p,t,amount,COMBAT_PHYSICALDAMAGE,CONST_ME_DRAWBLOOD,roll.hit,radiant,nil,roll.critical,true)
     if class(p)==8 and roll.hit and alive(t) then stunOnHit(p,t) end
 end
 local function bite(r,t)
     if not range(r,t,1) or not isActorTurn(r) or not R.spend(state(r).economy,'action',now()) then return end
     local rule=monsterRule(r) or monsterRules.Rat
-    local roll=R.attack(ac(t),rule.attack,rng,attackAdvantage(r,t),attackDisadvantage(r,t))
+    local roll=attackRoll(r,t,rule.attack,rng,attackAdvantage(r,t),attackDisadvantage(r,t))
     local amount=roll.hit and (rule.dice>0 and R.damage(rule.dice,rule.sides,rule.flat,roll.critical,rng) or rule.flat) or 0
     log(r,t,roll.natural,rule.attack,ac(t),roll.critical and 'CRITICO' or roll.hit and 'ACERTO' or 'ERRO',amount,'Mordida')
     damage(r,t,amount,COMBAT_PHYSICALDAMAGE,CONST_ME_DRAWBLOOD,true)
@@ -666,26 +767,25 @@ local function opportunity(mover,oldPosition)
             local position=attacker:getPosition()
             local wasInReach=position.z==oldPosition.z and math.max(math.abs(position.x-oldPosition.x),math.abs(position.y-oldPosition.y))<=1
             local inReach=position.z==destination.z and math.max(math.abs(position.x-destination.x),math.abs(position.y-destination.y))<=1
-            if not state(attacker).stunned and wasInReach and not inReach and position:isSightClear(oldPosition,true) and R.spend(state(attacker).economy,'reaction',now()) then
-                local profile=monsterRule(attacker)
-                local ability=isPlayer(attacker) and (class(attacker)==8 and math.max(mod(attacker,0),mod(attacker,1)) or mod(attacker,class(attacker)==2 and 1 or 0)) or 0
-                local bonus=profile and profile.attack or ability+proficiency(attacker)+(buff(attacker,'bless') and R.roll(4,rng) or 0)+(state(attacker).sacredWeapon and math.max(1,mod(attacker,5)) or 0)
-                local roll=R.attack(ac(mover),bonus,isPlayer(attacker) and actorRng(attacker) or rng,attackAdvantage(attacker,mover),attackDisadvantage(attacker,mover))
+            if not state(attacker).stunned and not state(attacker).sleeping and wasInReach and not inReach and position:isSightClear(oldPosition,true) and R.spend(state(attacker).economy,'reaction',now()) then
+                local profile=isPlayer(attacker)and weaponStats(attacker)or monsterRule(attacker)
+                local bonus=profile.attack+(buff(attacker,'bless') and R.roll(4,rng) or 0)+(state(attacker).sacredWeapon and math.max(1,mod(attacker,5)) or 0)
+                local roll=attackRoll(attacker,mover,bonus,isPlayer(attacker) and actorRng(attacker) or rng,attackAdvantage(attacker,mover),attackDisadvantage(attacker,mover))
                 if isPlayer(attacker) and class(attacker)==1 and level(attacker)>=3 and roll.natural==19 then roll.hit=true;roll.critical=true end
                 local amount=0
                 if roll.hit then
-                    if profile then amount=profile.dice>0 and R.damage(profile.dice,profile.sides,profile.flat,roll.critical,rng) or profile.flat
-                    else
+                    amount=profile.dice>0 and R.damage(profile.dice,profile.sides,profile.flat,roll.critical,rng) or profile.flat
+                    if isPlayer(attacker)then
                         local rage=state(attacker).rage
                         if rage then rage.activity=true end
-                        amount=R.damage(1,class(attacker)==5 and 12 or (class(attacker)==3 or class(attacker)==4 or class(attacker)==8) and 6 or 8,ability+(rage and 2 or 0),roll.critical,rng)
-                        if roll.critical and attacker:getStorageValue(95002)==8 then amount=amount+R.roll(class(attacker)==5 and 12 or (class(attacker)==3 or class(attacker)==4 or class(attacker)==8) and 6 or 8,rng) end
+                        if roll.critical and attacker:getStorageValue(95002)==8 and profile.sides>=2 then amount=amount+R.roll(profile.sides,rng) end
                         amount=amount+sneakDamage(attacker,mover,roll.critical)
+                        if X.weaponBonus then amount=amount+X.weaponBonus(attacker,mover,roll.critical)end
                     end
                 end
                 log(attacker,mover,roll.natural,bonus,ac(mover),roll.critical and 'CRITICO' or roll.hit and 'ACERTO' or 'ERRO',amount,'Ataque de oportunidade')
                 local radiant=isPlayer(attacker) and roll.hit and amount<mover:getHealth() and divineSmite(attacker,mover,roll.critical) or 0
-                damage(attacker,mover,amount,COMBAT_PHYSICALDAMAGE,CONST_ME_DRAWBLOOD,true,radiant)
+                damage(attacker,mover,amount,COMBAT_PHYSICALDAMAGE,CONST_ME_DRAWBLOOD,roll.hit,radiant,nil,roll.critical,true)
                 if isPlayer(attacker) and class(attacker)==8 and roll.hit and alive(mover) then stunOnHit(attacker,mover) end
             end
         end
@@ -701,6 +801,7 @@ opportunityMovement:register()
 local login=CreatureEvent('DndLogin')
 login:type('login')
 login:onLogin(function(p)
+    if X.endForm and p:getStorageValue(95469)==1 then X.endForm(p)end
     p:registerEvent('DndDamageGuard')
     p:registerEvent('DndLogout')
     state(p) -- epoch starts once per process session; logout does not reset it.
@@ -715,6 +816,13 @@ login:onLogin(function(p)
     if p:getStorageValue(95003)<1 then p:setStorageValue(95003,math.min(5,p:getLevel())) end
     if p:getStorageValue(95004)<0 then p:setStorageValue(95004,0) end
     if p:getStorageValue(95005)<0 then p:setStorageValue(95005,0) end
+    -- Repair previously earned levels on reconnect without skipping the ASI choice.
+    while level(p)<5 and p:getStorageValue(95004)>=(xpThresholds[level(p)+1] or 999999) do
+        if level(p)==4 and p:getStorageValue(95005)==1 then break end
+        local nextLevel=level(p)+1
+        if nextLevel==4 then p:setStorageValue(95005,1) end
+        updateLevel(p,nextLevel)
+    end
     local desired=maxHpAt(p,level(p))
     if p:getMaxHealth()~=desired then local diff=desired-p:getMaxHealth();p:setMaxHealth(desired);if diff>0 then p:addHealth(diff) end end
     p:registerEvent('DndKill')
@@ -734,6 +842,7 @@ login:register()
 local logout=CreatureEvent('DndLogout')
 logout:type('logout')
 logout:onLogout(function(p)
+    if X.endForm then X.endForm(p)end
     endConcentration(p)
     for _,entry in pairs(states) do
         if entry.concentration then
@@ -743,12 +852,17 @@ logout:onLogout(function(p)
         end
     end
     state(p).buffs=nil;state(p).sacredWeapon=nil
+    state(p).skillCache=nil
     endRage(p)
     removeParticipant(state(p).encounter,p)
     return true
 end)
 logout:register()
 
+local function sendProgress(p)
+    local lv=math.max(1,math.min(5,p:getStorageValue(95003)))
+    p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,string.format('[5E] PROGRESS level=%d xp=%d next=%d',lv,math.max(0,p:getStorageValue(95004)),({[1]=300,[2]=900,[3]=2700,[4]=6500})[lv] or 0))
+end
 local kill=CreatureEvent('DndKill')
 kill:type('kill')
 kill:onKill(function(p,target,lastHit)
@@ -761,11 +875,12 @@ kill:onKill(function(p,target,lastHit)
     p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,string.format('[5E] +%d XP (%d total).',award,xp))
     if isMonster(target) then removeParticipant(state(target).encounter,target) end
     while level(p)<5 and xp>=(xpThresholds[level(p)+1] or 999999) do
-        if level(p)==4 and p:getStorageValue(95005)~=1 then break end
+        if level(p)==4 and p:getStorageValue(95005)==1 then break end
         local nextLevel=level(p)+1
         if nextLevel==4 then p:setStorageValue(95005,1) end
         updateLevel(p,nextLevel)
     end
+    sendProgress(p)
     return true
 end)
 kill:register()
@@ -797,14 +912,23 @@ levelup:onSay(function(p,words,param)
         end
     end
     p:setStorageValue(95005,0)
+    if p:getStorageValue(95004)>=xpThresholds[5] then updateLevel(p,5) end
+    sendProgress(p)
     p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,'[5E] Escolha registrada. Seus bonus de classe/atributos foram atualizados.')
     return false
 end)
 levelup:register()
 
 local spells={firebolt={range=24,kind='attack',die=10,type=COMBAT_FIREDAMAGE,effect=CONST_ME_FIREAREA,projectile=CONST_ANI_FIRE},
+ eldritchblast={range=24,kind='multiattack',cantrip=true,rays=1,die=10,dice=1,type=COMBAT_ENERGYDAMAGE,effect=CONST_ME_ENERGYHIT,projectile=CONST_ANI_ENERGY,classes={[12]=1}},
+ produceflame={range=6,kind='attack',die=8,type=COMBAT_FIREDAMAGE,effect=CONST_ME_FIREAREA,projectile=CONST_ANI_FIRE,classes={[7]=1}},
+ viciousmockery={range=12,kind='save',save=4,die=4,type=COMBAT_DEATHDAMAGE,effect=CONST_ME_MAGIC_BLUE,classes={[6]=1}},
+ hex={range=18,kind='mark',slot=true,bonus=true,level=1,turns=600,effect=CONST_ME_MAGIC_BLUE,classes={[12]=1}},
+ huntersmark={range=18,kind='mark',slot=true,bonus=true,level=1,turns=600,effect=CONST_ME_MAGIC_BLUE,classes={[10]=2}},
+ darkness={range=12,kind='zone',slot=true,level=2,turns=100,areaRadius=3,effect=CONST_ME_MAGIC_BLUE,classes={[4]=3,[11]=3,[12]=3}},
+ sleep={range=18,kind='sleep',slot=true,level=1,areaRadius=4,effect=CONST_ME_MAGIC_BLUE,classes={[4]=1,[6]=1,[11]=1}},
  sacredflame={range=12,kind='save',die=8,type=COMBAT_HOLYDAMAGE,effect=CONST_ME_HOLYDAMAGE,projectile=CONST_ANI_HOLY},
- magicmissile={range=24,kind='automatic',slot=true,level=1,type=COMBAT_ENERGYDAMAGE,effect=CONST_ME_ENERGYHIT,projectile=CONST_ANI_ENERGY},
+ magicmissile={range=24,kind='automatic',slot=true,level=1,requiresSight=true,type=COMBAT_ENERGYDAMAGE,effect=CONST_ME_ENERGYHIT,projectile=CONST_ANI_ENERGY},
  curewounds={range=1,kind='heal',slot=true,level=1,die=8,effect=CONST_ME_MAGIC_BLUE},
  healingword={range=12,kind='heal',slot=true,bonus=true,level=1,die=4,effect=CONST_ME_MAGIC_BLUE},
  bless={range=6,kind='buff',slot=true,level=1,concentration=true,turns=10,effect=CONST_ME_MAGIC_BLUE},
@@ -816,40 +940,59 @@ local spells={firebolt={range=24,kind='attack',die=10,type=COMBAT_FIREDAMAGE,eff
 local cast=TalkAction('/cast')
 cast:separator(' ')
 cast:onSay(function(p,words,param)
+    updateConditions(p)
+    if state(p).sleeping or state(p).stunned then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce esta incapacitado.');return false end
+    if state(p).form then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce nao pode conjurar em Forma Selvagem.');return false end
     if state(p).rage then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce nao pode conjurar durante a Furia.');return false end
     local name,targetArgs=(param or ''):match('^%s*(%S+)%s*(.-)%s*$')
     name=string.lower(name or ''):gsub('%s','')
     local spell=spells[name]
     local cls=class(p)
+    local innate=name=='darkness'and p:getStorageValue(95002)==9 and level(p)>=5
+    if innate and p:getStorageValue(95522)==1 then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Escuridao racial esgotada; recupere no descanso longo.');return false end
+    if X.metamagic and spell then
+        local modified,reason=X.metamagic(p,spell,false)
+        if not modified then p:sendTextMessage(MESSAGE_STATUS_SMALL,reason);return false end
+        spell=modified
+    end
     local elf=p:getStorageValue(95002)==2
     local wizardSpell=cls==4 and (name=='firebolt' or name=='magicmissile' or name=='scorchingray' or name=='fireball')
     local clericSpell=cls==3 and (name=='sacredflame' or name=='curewounds' or name=='healingword' or name=='bless' or name=='shieldoffaith' or name=='spiritualweapon' or name=='masshealingword')
     local paladinSpell=cls==9 and level(p)>=2 and (name=='curewounds' or name=='bless' or name=='shieldoffaith')
+    local expandedSpell=(spell and spell.classes and spell.classes[cls] and level(p)>=spell.classes[cls]) or
+        (cls==11 and wizardSpell==false and (name=='firebolt'or name=='magicmissile'or name=='scorchingray'or name=='fireball'))or
+        ((cls==6 or cls==7)and(name=='curewounds'or name=='healingword'))or
+        (cls==10 and level(p)>=2 and name=='curewounds')
     local minimum=spell and spell.level or 0
     local magic=Characters.classes[cls].levels[level(p)].magic
-    local circleUnlocked=not spell or not spell.slot or (magic['spell_slots_level_'..minimum] or 0)>0
-    if not spell or not (wizardSpell or clericSpell or paladinSpell or (elf and name=='firebolt')) or not circleUnlocked then
+    local circleUnlocked=not spell or not spell.slot
+    if spell and spell.slot then for circle=minimum,3 do if(magic['spell_slots_level_'..circle]or 0)>0 then circleUnlocked=true end end end
+    if not spell or not (innate or wizardSpell or clericSpell or paladinSpell or expandedSpell or (elf and name=='firebolt')) or(not innate and not circleUnlocked)then
         p:sendTextMessage(MESSAGE_STATUS_SMALL,'Sua classe/raca nao conhece essa magia.');return false
     end
     local castLevel=spell.level or 1
-    if spell.slot then
+    if spell.slot and not innate then
         local availableSlots={}
         for circle=1,9 do availableSlots[circle]=math.max(0,p:getStorageValue(95029+circle)) end
-        castLevel=R.resolveSlotLevel(availableSlots,spell.level or 1,selectedSlot(p))
+        local preferred=selectedSlot(p)
+        if cls==12 then for circle=1,3 do if(magic['spell_slots_level_'..circle]or 0)>0 then preferred=circle end end end
+        castLevel=R.resolveSlotLevel(availableSlots,spell.level or 1,preferred)
         if not castLevel then
             p:sendTextMessage(MESSAGE_STATUS_SMALL,'Sem espacos de magia disponiveis neste nivel ou acima da magia.')
             return false
         end
     end
     local castPosition
-    if spell.kind=='aoe' and targetArgs and targetArgs~='' then
+    local areaSpell=spell.kind=='aoe'or spell.kind=='sleep'or spell.kind=='zone'
+    if areaSpell and targetArgs and targetArgs~='' then
         local x,y,z=targetArgs:match('^(%-?%d+)%s+(%-?%d+)%s+(%-?%d+)$')
         if not x then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Alvo invalido. Escolha o centro da area no mapa.');return false end
         castPosition=Position(tonumber(x),tonumber(y),tonumber(z))
     end
     local beneficial=spell.kind=='heal' or spell.kind=='healarea' or spell.kind=='buff'
     local target=beneficial and (p:getFollowCreature() or p) or p:getTarget()
-    if spell.kind=='aoe' then
+    if spell.requiresSight and target and X.visionBlocked and X.visionBlocked(p,target)then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce precisa enxergar o alvo desta magia.');return false end
+    if areaSpell then
         if not castPosition and target then castPosition=target:getPosition() end
         if not castPosition or not positionRange(p,castPosition,spell.range) then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Escolha um sqm visivel dentro do alcance para a Fireball.');return false end
     elseif not target or (beneficial and not isPlayer(target)) or (not beneficial and not hostileTarget(p,target)) or not range(p,target,spell.range) then
@@ -857,10 +1000,10 @@ cast:onSay(function(p,words,param)
     end
     local slotKey=95029+castLevel
     local slots=p:getStorageValue(slotKey)
-    if spell.slot and slots<=0 then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Sem espacos de magia disponiveis neste nivel ou acima da magia.');return false end
+    if spell.slot and not innate and slots<=0 then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Sem espacos de magia disponiveis neste nivel ou acima da magia.');return false end
     local e=state(p).economy
     local enemy=p:getTarget()
-    if spell.kind=='aoe' and not enemy then
+    if areaSpell and spell.kind~='zone'and not enemy then
         local radius=spell.areaRadius or 4
         for _,victim in ipairs(Game.getSpectators(castPosition,false,false,radius,radius,radius,radius)) do
             local victimPos=victim:getPosition();local dx,dy=victimPos.x-castPosition.x,victimPos.y-castPosition.y
@@ -882,24 +1025,58 @@ cast:onSay(function(p,words,param)
     end
     if not R.spend(e,spell.bonus and 'bonus' or 'action',now()) then p:sendTextMessage(MESSAGE_STATUS_SMALL,spell.bonus and 'Voce ja usou sua acao bonus neste turno.' or 'Voce ja usou sua acao neste turno.');return false end
     R.recordSpell(e,spell.bonus or false,spellCircle)
+    if X.metamagic then X.metamagic(p,spells[name],true)end
     if not state(p).encounter then state(p).lastExplorationCast=now() end
     actionCooldown(p,e)
-    if spell.slot then
+    if innate then p:setStorageValue(95522,1)
+    elseif spell.slot then
         p:setStorageValue(slotKey,slots-1)
         p:setStorageValue(95036,castLevel)
         syncSlots(p);sendSlots(p)
     end
-    local destination=spell.kind=='aoe' and castPosition or (target and target:getPosition())
+    if spell.concentration or spell.kind=='mark'or spell.kind=='zone'then endConcentration(p)end
+    if X.counterspell and X.counterspell(p,spellCircle)then return false end
+    local destination=areaSpell and castPosition or (target and target:getPosition())
     if spell.projectile and destination then
         local origin=p:getPosition()
-        local count=spell.kind=='multiattack' and (spell.rays+(castLevel-spell.level)) or spell.kind=='automatic' and (2+castLevel) or 1
+        local count=spell.kind=='multiattack' and (spell.cantrip and R.cantripDice(level(p))or(spell.rays+(castLevel-spell.level))) or spell.kind=='automatic' and (2+castLevel) or 1
         for projectile=1,count do origin:sendDistanceEffect(destination,spell.projectile) end
     end
     local spellAbility=Characters.classes[cls].spellAbility
     local indices={STR=0,DEX=1,CON=2,INT=3,WIS=4,CHA=5}
     local ability=mod(p,(elf and name=='firebolt') and 3 or indices[spellAbility] or 3)
     local amount,natural,bonus,defense,result=0,0,0,0,'ACERTO AUTOMATICO'
-    if spell.kind=='buff' then
+    if spell.kind=='zone'then
+        endConcentration(p);X.zone(p,castPosition,spell.turns);return false
+    elseif spell.kind=='sleep'then
+        local radius=spell.areaRadius;local victims={}
+        for _,victim in ipairs(Game.getSpectators(castPosition,false,false,radius,radius,radius,radius))do
+            local pos=victim:getPosition();local dx,dy=pos.x-castPosition.x,pos.y-castPosition.y
+            local race=isPlayer(victim)and victim:getStorageValue(95002)or 0
+            local rule=monsterRule(victim)
+            if alive(victim)and(isPlayer(victim)or isMonster(victim))and not state(victim).sleeping and race~=2 and race~=7 and
+                (not rule or(rule.creatureType~='undead'and rule.creatureType~='construct'))and pos.z==castPosition.z and dx*dx+dy*dy<=radius*radius and(victim:getId()==p:getId()or hostileTarget(p,victim))then victims[#victims+1]=victim end
+        end
+        table.sort(victims,function(a,b)if a:getHealth()==b:getHealth()then return a:getId()<b:getId()end;return a:getHealth()<b:getHealth()end)
+        local pool=R.damage(5+2*(castLevel-1),8,0,false,rng)
+        for _,victim in ipairs(victims)do
+            if victim:getHealth()<=pool then
+                pool=pool-victim:getHealth();endConcentration(victim)
+                state(victim).sleeping={source=state(p),expires=(state(p).economy.turn or 0)+10,wall=now()+60000}
+                victim:setTurnMovement(0);victim:getPosition():sendMagicEffect(spell.effect)
+                log(p,victim,0,0,0,'ADORMECEU',0,'Sleep')
+            end
+        end
+        return false
+    elseif spell.kind=='mark'then
+        endConcentration(p)
+        local turns=math.min(14400,(castLevel>=3 and 4800 or 600)*(spell.turns/(spells[name].turns or spell.turns)))
+        local entry={source=p,expires=now()+turns*6000,targetId=target:getId(),ability=({str=0,dex=1,con=2,int=3,wis=4,cha=5})[targetArgs]or 0}
+        state(p).buffs=state(p).buffs or{};state(p).buffs[name]=entry
+        state(p).concentration={name=name,targets={p},turns=turns}
+        target:getPosition():sendMagicEffect(spell.effect)
+        log(p,target,0,0,0,'CONCENTRACAO',0,name);return false
+    elseif spell.kind=='buff' then
         endConcentration(p)
         state(target).buffs=state(target).buffs or {}
         local entry={source=p,expires=now()+spell.turns*6000}
@@ -912,35 +1089,38 @@ cast:onSay(function(p,words,param)
         bonus=ability+proficiency(p)+(buff(p,'bless') and R.roll(4,rng) or 0);defense=ac(target)
         local threatened=false
         for _,enemy in ipairs(Game.getSpectators(p:getPosition(),false,false,1,1,1,1)) do
-            if hostileTarget(p,enemy) and alive(enemy) and range(p,enemy,1) then threatened=true;break end
+            if hostileTarget(p,enemy)and alive(enemy)and not state(enemy).stunned and not state(enemy).sleeping and range(p,enemy,1)and not(X.visionBlocked and X.visionBlocked(enemy,p))then threatened=true;break end
         end
-        local roll=R.attack(defense,bonus,actorRng(p),attackAdvantage(p,target,true),threatened or attackDisadvantage(p,target,true))
+        local roll=attackRoll(p,target,bonus,actorRng(p),attackAdvantage(p,target,true),threatened or attackDisadvantage(p,target,true))
         natural=roll.natural;result=roll.critical and 'CRITICO' or roll.hit and 'ACERTO' or 'ERRO'
         if roll.hit then amount=R.damage(R.cantripDice(level(p)),spell.die,0,roll.critical,rng) end
     elseif spell.kind=='save' then
         defense=8+proficiency(p)+ability
-        bonus=dexSave(target)
+        bonus=spell.save and(isPlayer(target)and savingBonus(target,spell.save)or 0)or dexSave(target)
         -- Dexterity save belongs to the selected creature, not the caster.
-        local save=dexSaveRoll(target,defense)
+        local save=saveRoll(target,spell.save or 1,defense,{magic=true})
         natural=save.dice[1];result=save.success and 'SALVOU' or 'FALHOU SALVAGUARDA'
         if not save.success then amount=R.damage(R.cantripDice(level(p)),spell.die,0,false,rng) end
+        if name=='viciousmockery'and not save.success then state(target).mockery=(state(target).economy.turn or 0)+1 end
     elseif spell.kind=='multiattack' then
         local total=0
-        local rays=spell.rays+(castLevel-spell.level)
+        local rays=spell.cantrip and R.cantripDice(level(p))or(spell.rays+(castLevel-spell.level))
         for ray=1,rays do
             if not alive(target) then break end
             local attackBonus=ability+proficiency(p)+(buff(p,'bless') and R.roll(4,rng) or 0)
-            local roll=R.attack(ac(target),attackBonus,actorRng(p),attackAdvantage(p,target,true),attackDisadvantage(p,target,true))
-            local rayDamage=roll.hit and R.damage(2,spell.die,0,roll.critical,rng) or 0
+            local threatened=false
+            for _,enemy in ipairs(Game.getSpectators(p:getPosition(),false,false,1,1,1,1))do if hostileTarget(p,enemy)and alive(enemy)and not state(enemy).stunned and not state(enemy).sleeping and range(p,enemy,1)and not(X.visionBlocked and X.visionBlocked(enemy,p))then threatened=true;break end end
+            local roll=attackRoll(p,target,attackBonus,actorRng(p),attackAdvantage(p,target,true),threatened or attackDisadvantage(p,target,true))
+            local rayDamage=roll.hit and R.damage(spell.dice or 2,spell.die,(name=='eldritchblast'and X.invocation and X.invocation(p,1))and mod(p,5)or 0,roll.critical,rng) or 0
             total=total+rayDamage
-            log(p,target,roll.natural,attackBonus,ac(target),roll.critical and 'CRITICO' or roll.hit and ('RAIO '..ray..' ACERTO') or ('RAIO '..ray..' ERRO'),rayDamage,'Scorching Ray')
+            log(p,target,roll.natural,attackBonus,ac(target),roll.critical and 'CRITICO' or roll.hit and ('RAIO '..ray..' ACERTO') or ('RAIO '..ray..' ERRO'),rayDamage,name)
             natural=roll.natural;bonus=attackBonus;defense=ac(target);result=roll.critical and 'CRITICO' or roll.hit and 'ACERTO' or 'ERRO'
-            damage(p,target,rayDamage,spell.type,spell.effect,true)
+            damage(p,target,rayDamage,spell.type,spell.effect,roll.hit,nil,nil,roll.critical,false)
         end
         amount=total
     elseif spell.kind=='spiritualweapon' then
         bonus=mod(p,4)+proficiency(p)+(buff(p,'bless') and R.roll(4,rng) or 0)
-        local roll=R.attack(ac(target),bonus,actorRng(p))
+        local roll=attackRoll(p,target,bonus,actorRng(p))
         natural=roll.natural;defense=ac(target);result=roll.critical and 'CRITICO' or roll.hit and 'ACERTO' or 'ERRO'
         if roll.hit then amount=R.damage(1+math.floor((castLevel-spell.level)/2),spell.die,mod(p,4),roll.critical,rng) end
     elseif spell.kind=='aoe' then
@@ -965,7 +1145,9 @@ cast:onSay(function(p,words,param)
         end
         log(p,p,0,0,0,'EXPLOSAO EM AREA',0,'Fireball')
         return false
-    elseif spell.kind=='automatic' then amount=(R.roll(4,rng)+1)*(2+castLevel)
+    elseif spell.kind=='automatic' then
+        if X.blockMagicMissile and X.blockMagicMissile(target)then log(p,target,0,0,0,'BLOQUEADO POR ESCUDO',0,name);return false end
+        amount=(R.roll(4,rng)+1)*(2+castLevel)
     elseif spell.kind=='healarea' then
         local heal=R.damage(castLevel-spell.level+1,4,mod(p,4)+2+castLevel,false,rng)
         applying[p:getId()]=true;doTargetCombat(p:getId(),p:getId(),COMBAT_HEALING,heal,heal,spell.effect,ORIGIN_SPELL,false,false,true);applying[p:getId()]=nil
@@ -982,7 +1164,7 @@ cast:onSay(function(p,words,param)
         result='CURA'
     end
     if spell.kind~='multiattack' then log(p,target,natural,bonus,defense,result,amount,name) end
-    if spell.kind~='heal' and spell.kind~='healarea' and spell.kind~='multiattack' then damage(p,target,amount,spell.type,spell.effect,spell.kind=='attack' or spell.kind=='spiritualweapon') end
+    if spell.kind~='heal' and spell.kind~='healarea' and spell.kind~='multiattack' then damage(p,target,amount,spell.type,spell.effect,(spell.kind=='attack' or spell.kind=='spiritualweapon')and result~='ERRO',nil,nil,result=='CRITICO',false) end
     return false
 end)
 cast:register()
@@ -1004,6 +1186,9 @@ slot:register()
 local ability=TalkAction('/ability')
 ability:separator(' ')
 ability:onSay(function(p,words,param)
+    updateConditions(p)
+    if state(p).sleeping or state(p).stunned then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce esta incapacitado.');return false end
+    if X.ability and X.ability(p,param)then return false end
     local name=string.lower((param or ''):gsub('%s+',''))
     local healingPoints=name:match('^layonhands(%d+)$')
     if healingPoints then name='layonhands' end
@@ -1108,12 +1293,12 @@ ability:onSay(function(p,words,param)
         if not hostileTarget(p,target) or not range(p,target,1) then return reject('Selecione um inimigo adjacente.') end
         if not R.spend(e,'bonus',now()) then return reject('Sua acao bonus ja foi usada.') end
         local bonus=mod(p,0)+proficiency(p)+(buff(p,'bless') and R.roll(4,rng) or 0)
-        local roll=R.attack(ac(target),bonus,actorRng(p),state(p).reckless or (isPlayer(target) and state(target).reckless),p:getStorageValue(95101)>=3)
+        local roll=attackRoll(p,target,bonus,actorRng(p),state(p).reckless or (isPlayer(target) and state(target).reckless),p:getStorageValue(95101)>=3)
         local amount=roll.hit and R.damage(1,12,mod(p,0)+2,roll.critical,rng) or 0
         if roll.critical and p:getStorageValue(95002)==8 then amount=amount+R.roll(12,rng) end
         rage.activity=true;state(p).weaponTurn=e.turn
         log(p,target,roll.natural,bonus,ac(target),roll.critical and 'CRITICO' or roll.hit and 'ACERTO' or 'ERRO',amount,'Frenesi')
-        damage(p,target,amount,COMBAT_PHYSICALDAMAGE,CONST_ME_DRAWBLOOD,true);actionCooldown(p,e)
+        damage(p,target,amount,COMBAT_PHYSICALDAMAGE,CONST_ME_DRAWBLOOD,roll.hit,nil,nil,roll.critical,true);actionCooldown(p,e)
     elseif name=='uncannydodge' then
         if cls~=2 or lv<5 then return reject('Esquiva Sobrenatural exige Ladino nivel 5.') end
         local enabled=p:getStorageValue(95110)==0
@@ -1185,6 +1370,7 @@ local function sendProgressSheet(p)
     local maxRage=class(p)==5 and (level(p)>=3 and 3 or 2) or 0
     local maxKi=class(p)==8 and level(p)>=2 and level(p) or 0
     abilities[#abilities+1]=string.format('rage=%d maxrage=%d ki=%d maxki=%d exhaustion=%d',math.max(0,maxRage-math.max(0,p:getStorageValue(95100))),maxRage,math.max(0,maxKi-math.max(0,p:getStorageValue(95120))),maxKi,math.max(0,p:getStorageValue(95101)))
+    if X.sheet then for key,value in pairs(X.sheet(p))do abilities[#abilities+1]=key..'='..value end end
     if class(p)==9 then
         abilities[#abilities+1]=string.format('layhands=%d maxlayhands=%d channel=%d maxchannel=%d sense=%d maxsense=%d',math.max(0,5*level(p)-math.max(0,p:getStorageValue(95131))),5*level(p),level(p)>=3 and math.max(0,1-math.max(0,p:getStorageValue(95133))) or 0,level(p)>=3 and 1 or 0,math.max(0,1+mod(p,5)-math.max(0,p:getStorageValue(95132))),math.max(0,1+mod(p,5)))
     end
@@ -1219,7 +1405,9 @@ rest:onSay(function(p,words,param)
     local kind,count=string.lower(param or ''):match('^(%a+)%s*(%d*)$')
     local remaining=math.max(0,p:getStorageValue(95061))
     if not kind then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Escolha short ou long.');return false end
+    if kind~='short'and kind~='long'then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Escolha short ou long.');return false end
     local target=p:getTarget()
+    if state(p).form then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Encerre a Forma Selvagem antes de descansar.');return false end
     if state(p).encounter or hostileTarget(p,target) then p:sendTextMessage(MESSAGE_STATUS_SMALL,'Voce nao pode descansar em combate.');return false end
     local nearby=Game.getSpectators(p:getPosition(),false,false,3,3,3,3)
     for _,creature in ipairs((kind=='long' and cityFloor(p)) and {} or nearby) do
@@ -1232,6 +1420,7 @@ rest:onSay(function(p,words,param)
         end
         local die=hitDie(p);local rolled,total=0,0
         for i=1,dice do local n=rng(die);rolled=rolled+n;total=total+math.max(0,n+mod(p,2)) end
+        if X.songOfRest then total=total+X.songOfRest(p,dice)end
         total=math.max(0,total);local healed=math.min(total,math.max(0,p:getMaxHealth()-p:getHealth()))
         p:addHealth(healed);remaining=remaining-dice;p:setStorageValue(95061,remaining)
         p:setStorageValue(95070,0);p:setStorageValue(95071,0);p:setStorageValue(95073,0)
@@ -1266,6 +1455,7 @@ rest:onSay(function(p,words,param)
     state(p).economy=R.newTurnEconomy(now())
     state(p).lastExplorationCast=nil
     state(p).lastExplorationAbility=nil
+    if X.onRest then X.onRest(p,kind);syncSlots(p)end
     sendProgressSheet(p)
     sendSlots(p)
     return false
@@ -1307,13 +1497,13 @@ turn:onSay(function(p,words,param)
             return profile.athletics or R.modifier(profile.str or strengths[string.lower(actor:getName())] or 10)
         end
         local natural=R.d20(actorRng(p),class(p)==5 and state(p).rage~=nil,p:getStorageValue(95101)>=1)
-        local bonus=athletics(p)
+        local bonus=athletics(p)+(X.attackBonus and X.attackBonus(p)or 0)
         local total=natural+bonus
         local escaped=true
         local wasCurrent=currentActor(enc)==p
         for _,enemy in ipairs(enc.order) do
             local opposed=isPlayer(enemy)~=isPlayer(p) or (enc.pvp and isPlayer(enemy) and isPlayer(p))
-            if enemy~=p and opposed and alive(enemy) then
+            if enemy~=p and opposed and alive(enemy) and not state(enemy).sleeping and not state(enemy).stunned then
                 local enemyRoll=R.d20(isPlayer(enemy) and actorRng(enemy) or rng,isPlayer(enemy) and class(enemy)==5 and state(enemy).rage~=nil,isPlayer(enemy) and enemy:getStorageValue(95101)>=1)
                 local enemyBonus=athletics(enemy)
                 local won=total>enemyRoll+enemyBonus
@@ -1375,11 +1565,32 @@ tactical:onSay(function(p,words,param)
 end)
 tactical:register()
 
+local function skillInfo(p,label)
+    if not db or not db.storeQuery then return false,false end
+    local s=state(p)
+    if not s.skillCache then
+        local query=db.storeQuery("SELECT JSON_EXTRACT(profile, '$.skill_proficiencies') AS trained, JSON_EXTRACT(profile, '$.expertise') AS expert FROM dnd_characters WHERE player_id="..p:getGuid())
+        s.skillCache={trained='',expert=''}
+        if query then s.skillCache.trained=result.getString(query,'trained')or'';s.skillCache.expert=result.getString(query,'expert')or'';result.free(query)end
+    end
+    return s.skillCache.trained:find('"'..label..'"',1,true)~=nil,s.skillCache.expert:find('"'..label..'"',1,true)~=nil
+end
+X=dofile('data/lib/dnd_class_actions.lua').new({R=R,state=state,class=class,level=level,mod=mod,now=now,rng=rng,isPlayer=isPlayer,isMonster=isMonster,range=range,requireTurn=requireTurn,actionCooldown=actionCooldown,ac=ac,syncSlots=syncSlots,sendSlots=sendSlots,proficiency=proficiency,alive=alive,hostileTarget=hostileTarget,encounterFor=encounterFor,monsterRule=monsterRule,savingBonus=savingBonus,actorRng=actorRng,damage=damage,log=log,dexSave=dexSave,dexSaveRoll=dexSaveRoll,buff=buff,skillInfo=skillInfo})
+local checks=TalkAction('/check')
+checks:separator(' ')
+checks:onSay(function(p,words,param)
+    local key,context=(param or ''):lower():match('^%s*(%S+)%s*(.-)%s*$')
+    X.check(p,key,context);return false
+end)
+checks:register()
+
 local tick=GlobalEvent('DndCombatTick')
 tick:interval(250)
 tick:onThink(function()
     local enemies={}
     for _,p in ipairs(Game.getPlayers()) do
+        updateConditions(p)
+        if X.tick then X.tick(p)end
         local restPosition=p:getPosition()
         local restKey=restPosition.x..':'..restPosition.y..':'..restPosition.z
         if state(p).restPosition~=restKey then
@@ -1447,11 +1658,12 @@ tick:onThink(function()
         -- Keep every rostered monster out of TFS's autonomous attack/follow
         -- loop, including enemies whose initiative has not come up yet.
         for _,actor in ipairs(enc.order) do
+            updateConditions(actor)
             if isMonster(actor) and alive(actor) then stopEngineCombat(actor) end
         end
         sendInitiativeOrder(enc)
         local enemy=currentActor(enc)
-        if not alive(enemy) or (isMonster(enemy) and state(enemy).stunned) then
+        if not alive(enemy)or state(enemy).sleeping or(isMonster(enemy) and state(enemy).stunned) then
             advanceTurn(enc)
         elseif isMonster(enemy) then
             local target=enemy:getTarget()

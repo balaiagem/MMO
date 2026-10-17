@@ -49,17 +49,15 @@ deploying them.
 
 ## Outstanding integration
 
-Creation now exposes Fighter, Rogue, Cleric, Wizard, Barbarian, Monk and Paladin.
-Creation races are Human, High Elf, Hill Dwarf, Lightfoot Halfling and Half-Orc;
-the remaining four reference races are not yet exposed.
+Creation now exposes all 12 stable SRD class IDs and all nine race IDs.
+This is not a claim of complete class or spell coverage: the runtime slices
+and their concrete remaining gaps are recorded below.
 Barbarian has Rage/Reckless/Frenzy/Extra Attack mechanics through five; Monk has
 Martial Arts, Ki, Flurry, Patient Defense, Step of the Wind and Stunning Strike.
 Open Hand options, Deflect Missiles and Slow Fall still need integration.
-Bard, Druid, Ranger, Sorcerer and Warlock are not yet playable.
-None of the seven exposed classes is a claim of complete SRD coverage. Subclass selection, level 6–20
-progression, equipment-dependent proficiency/weapon handling, complete Sneak Attack
-equipment-dependent Sneak Attack eligibility, optional reaction prompts, Shield,
-Counterspell, complete duration/condition processing, complete summons,
+None of the exposed classes is a claim of complete SRD coverage. Subclass selection, level 6–20
+progression, equipment-dependent proficiency/weapon handling and Sneak Attack
+eligibility, optional reaction prompts, complete duration/condition processing, complete summons,
 spell preparation/learning and the remaining spell handlers require integration.
 Existing Spiritual Weapon lacks persistent summoned-weapon behavior. Area spells
 need full friendly-fire/party targeting rules. Preserve Life's selectable healing
@@ -139,4 +137,86 @@ Persistent storage: 95130 automatic Smite preference; 95131 Lay on Hands points
 spent; 95132 Divine Sense uses spent; 95133 Channel Divinity uses spent;
 95140 Relentless Endurance spent. Temporary buffs never refill spell slots.
 Adapter regression tests cover these mechanics on Lua 5.1 and 5.5; native
-Assign Spell filters cover all seven creation classes and five exposed races.
+Assign Spell filters now cover all 540 class/race/level combinations.
+
+## Remaining five classes: executable integration
+
+The engine-facing module `rules/class_actions.lua` is loaded by the combat adapter
+and copied to runtime by the normal launcher. No catalogue-only placeholders are
+used as successful active actions. Its direct callback tests cover:
+
+| Class | Integrated mechanics | Still incomplete through level 5 |
+| --- | --- | --- |
+| Bard / Lore | Inspiration d6/d8, explicit recipient/next-roll use, bonus cost, short-rest Font at 5, Jack of All Trades in checks/initiative, Song of Rest d6, three chosen Lore proficiencies, two chosen Expertise skills, automatic opt-in Cutting Words against attacks | Cutting Words checks/damage and deaf/charm-immunity conditions; full spells known/selection and full Bard spell list |
+| Druid / Land | Wild Shape action/bonus reversion, two uses per short rest, real Wolf/Rat HP/outfits/physical scores/AC/attacks/speed, original HP retained, excess damage and logout/crash recovery, casting prohibition, Natural Recovery, real healing and Produce Flame | Other observed beast forms including swim forms at 4, beast riders such as Wolf Pack Tactics/prone, Land choice/spells, extra cantrip choice, full prepared spell selection/list and languages |
+| Ranger / Hunter | Extra Attack, Colossus Slayer once per initiative turn including reactions, Hunter's Mark with concentration and d6 per weapon hit, retargeting a defeated mark without another slot, chosen favored creature types or two humanoid groups, favored terrain and applicable skill-check bonuses | Fighting Style/equipment choices and ranged weapons, other Hunter's Prey options, Primeval Awareness, world travel/terrain automation, full spell choices/list |
+| Sorcerer / Draconic | Draconic HP/AC, persistent Font points, bonus-action slot/point conversion, created slots retained until long rest, two chosen Metamagics from Quickened/Distant/Extended, spell-cost/bonus-spell restrictions | Other Metamagic choices, Draconic ancestry language/social features, spells-known choices/full spell list |
+| Warlock / Fiend | Pact slots restore on short rest, separate Eldritch Blast beams and Agonizing damage per beam, Fiend temporary HP without stacking, 2/3 chosen invocations from Agonizing Blast/Fiendish Vigor/Armor of Shadows/Devil's Sight, Hex damage per attack and critical, defeated-mark retargeting | Pact Boon Blade/Tome/Chain including familiar control, remaining invocations, expanded Fiend spell choices/full known-spell selection/list |
+
+Class choices are available from the native progression dialog. Skill profiles
+are read once and cached per login; opening the sheet does not issue one query
+per skill. `/check <skill-id> [context]` executes server rolls, including chosen
+Expertise, Jack of All Trades, applicable favored-enemy/terrain checks, Dwarven
+Stonecunning and Rock Gnome Artificer's Lore. In combat an active check costs an
+action; outside combat it respects the exploration interval.
+
+## Remaining four races: executable integration
+
+- Dragonborn: chosen one of ten ancestries persists as stable storage 95500;
+  matching elemental resistance, directional 15-foot cone/30-foot line, 2d6,
+  CON-based DC, correct DEX/CON target save, half damage and short-rest charge.
+  Acid and poison remain distinct rule flavors even though their native visual
+  engine damage enum is shared.
+- Rock Gnome: INT/CON bonuses, advantage on magical INT/WIS/CHA saves, double
+  proficiency on relevant History checks. Tinker crafting/devices and native
+  darkvision rendering remain pending.
+- Half-Elf: two chosen non-CHA +1 abilities, two chosen skills, duplicate
+  proficiency replacements, CHA+2, magical Sleep immunity. Charm-save advantage
+  is supported by the generic trait hook; complete charm conditions/spells and
+  language selection are not integrated.
+- Tiefling: INT/CHA bonuses, real fire resistance, opt-in racial Hellish Rebuke
+  at level 3 as a second-level spell once per long rest, racial Darkness at level
+  5 without class slots. Thaumaturgy utility interactions and native darkvision
+  rendering remain pending.
+
+## Spell and reaction additions
+
+The direct `/cast` handlers cover 18 spells, not the entire imported catalogue:
+Fire Bolt, Sacred Flame, Magic Missile, Cure Wounds, Healing Word, Bless,
+Shield of Faith, Scorching Ray, Spiritual Weapon (partial summon behavior),
+Fireball, Mass Healing Word (party selection incomplete), Eldritch Blast,
+Hex, Hunter's Mark, Produce Flame (attack use), Vicious Mockery, Sleep, Darkness.
+The class/race availability of these spells is tested across all 540 sheets.
+
+Shield and Counterspell additionally resolve as opt-in automatic reaction
+preferences, not free information messages. Shield spends a reaction/slot,
+raises AC until the next caster turn and blocks Magic Missile. Counterspell
+spends a third-level slot/reaction, preserves the cancelled spell's costs,
+allows legal counter-counterspell chains and respects the 2014 bonus-action
+spell restriction. Interactive reaction prompts and complete known/prepared
+spell validation remain pending; this is not full BG3 reaction UI coverage.
+
+Sleep resolves an ascending HP pool, Elf/Half-Elf immunity, incapacitation,
+turn skips, wake on damage and adjacent critical hits. Darkness has map center,
+exclusive concentration, obscured attack rules and Devil's Sight. Persistent
+darkness-zone world rendering is not yet implemented; targeting previews work.
+Mixed weapon/radiant/necrotic damage is mitigated per type and uses one reaction
+and one concentration check per hit; temporary HP do not bypass concentration.
+
+New storage: 95410 Inspiration spent; 95411 Cutting Words preference;
+95420 Sorcery Points spent; 95421 Metamagic choices; 95430 invocation choices;
+95441-43 created slot capacity; 95450 Wild Shape uses; 95451 Natural Recovery;
+95460-69 original body recovery; 95480-81 Lore/Expertise masks;
+95490-92 Ranger choices; 95493-94 Shield/Counterspell preferences;
+95500 ancestry, 95501 breath spent, 95520 Hellish Rebuke preference,
+95521 racial Rebuke spent, 95522 racial Darkness spent.
+
+## Authoritative experience and level
+
+For D&D characters (storage 95000=1), native protocol stats now serialize
+storage 95003/95004, with thresholds 0/300/900/2700/6500. Native Tibia XP gains
+and death XP deductions are skipped; DndKill is the sole combat XP award path.
+Storage changes refresh native stats immediately. Kill and GM progress messages
+also refresh the cached sheet, including awards below the next level threshold.
+The Skills XP value, level bar and advancement tooltip use the D&D curve only.
+The current level cap is five; XP continues accumulating without a sixth level.

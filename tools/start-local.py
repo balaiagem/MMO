@@ -10,6 +10,7 @@ def sync_combat_rules():
     data=RUNTIME/'server'/'data'
     for source,target in [
         (ROOT/'rules'/'core.lua',data/'lib'/'dnd_rules.lua'),
+        (ROOT/'rules'/'class_actions.lua',data/'lib'/'dnd_class_actions.lua'),
         (ROOT/'rules'/'characters.lua',data/'lib'/'dnd_characters.lua'),
         (ROOT/'rules'/'character_data.lua',data/'lib'/'dnd_character_data.lua'),
         (ROOT/'world'/'content'/'dnd_combat.lua',data/'scripts'/'dnd_combat.lua'),

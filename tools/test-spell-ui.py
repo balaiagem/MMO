@@ -12,13 +12,23 @@ lua.execute((root/'client/modules/game_dnd/dnd.lua').read_text(encoding='utf-8')
 catalog=(root/'client/modules/gamelib/spells.lua').read_text(encoding='utf-8').split('-- Local authoritative 5E spell catalogue')[1]
 lua.execute('SpellInfo = {}\n'+catalog[catalog.index('SpellInfo.Default'):])
 g=lua.globals()
-for cls in (1,2,3,4,5,8,9):
-    for race in (1,2,3,4,8):
-        g.classId,g.raceId=cls,race
+base={3:{'Sacred Flame','Cure Wounds','Healing Word','Bless','Shield of Faith'},4:{'Fire Bolt','Magic Missile','Sleep'},6:{'Cure Wounds','Healing Word','Vicious Mockery','Sleep'},7:{'Cure Wounds','Healing Word','Produce Flame'},11:{'Fire Bolt','Magic Missile','Sleep'},12:{'Eldritch Blast','Hex'}}
+for cls in range(1,13):
+    for race in range(1,10):
+      for level in range(1,6):
+        g.classId,g.raceId,g.characterLevel=cls,race,level
         available={name for name,spell in g.SpellInfo.Default.items() if g.canLearn(spell) and spell.words.startswith('/cast ')}
-        expected={'Fire Bolt','Magic Missile'} if cls==4 else {'Sacred Flame','Cure Wounds','Healing Word','Bless','Shield of Faith'} if cls==3 else set()
+        expected=set(base.get(cls,()))
+        if cls==9 and level>=2:expected.update({'Cure Wounds','Bless','Shield of Faith'})
+        if cls==10 and level>=2:expected.update({'Cure Wounds',"Hunter's Mark"})
+        if cls==3 and level>=3:expected.add('Spiritual Weapon')
+        if cls==3 and level>=5:expected.add('Mass Healing Word')
+        if cls in (4,11) and level>=3:expected.update({'Scorching Ray','Darkness'})
+        if cls in (4,11) and level>=5:expected.add('Fireball')
+        if cls==12 and level>=3:expected.add('Darkness')
         if race==2:expected.add('Fire Bolt')
-        assert available==expected,(cls,race,available,expected)
+        if race==9 and level>=5:expected.add('Darkness')
+        assert available==expected,(cls,race,level,available,expected)
 assert g.SpellInfo.Default['Fire Bolt'].mana==0
 assert g.SpellInfo.Default['Magic Missile'].mana==1
 for level in range(1,6):
@@ -89,4 +99,4 @@ assert(beginSpellTargeting('/cast fireball'),'third Fireball did not enter targe
 UIGameMap.onMouseRelease(map,{x=105,y=106},MouseRightButton)
 assert(not isAreaSpellTargeting() and cursorPop==3,'map right-click failed to cancel and restore the cursor')
 ''')
-print('Changed Lua syntax, 35 creation class/race filters and Paladin levels 1-5 passed.')
+print('Changed Lua syntax and 540 class/race/level live hotkey permissions passed.')

@@ -9,22 +9,30 @@ local function maxDndHp(player, lv)
  local maximum=Characters.derive(cls,player:getStorageValue(95002)>0 and player:getStorageValue(95002) or 1,lv,abilities,{feat=player:getStorageValue(95008)==1 and 'tough' or nil,subclass=Characters.classes[cls].subclass}).hp
  return player:getStorageValue(95101)>=4 and math.max(1,math.floor(maximum/2)) or maximum
 end
+local function sendProgress(p)
+    local lv=math.max(1,math.min(5,p:getStorageValue(95003)))
+    p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,string.format('[5E] PROGRESS level=%d xp=%d next=%d',lv,math.max(0,p:getStorageValue(95004)),({[1]=300,[2]=900,[3]=2700,[4]=6500})[lv] or 0))
+end
 local function setDndLevel(player, lv)
 	lv=math.max(1,math.min(5,lv))
-	local old=player:getMaxHealth()
+	local formed=player:getStorageValue(95469)==1
+	local old=formed and player:getStorageValue(95461)or player:getMaxHealth()
 	player:setStorageValue(95003,lv)
 	local maxDice=player:getStorageValue(95060);local remainingDice=player:getStorageValue(95061)
 	if maxDice<0 then maxDice=lv end;if remainingDice<0 then remainingDice=maxDice end
 	if lv>maxDice then remainingDice=remainingDice+(lv-maxDice) end;remainingDice=math.min(lv,remainingDice)
 	player:setStorageValue(95060,lv);player:setStorageValue(95061,remainingDice)
 	local hp=maxDndHp(player,lv)
-	player:setMaxHealth(hp);if hp>old then player:addHealth(hp-old) end
+	if formed then
+        player:setStorageValue(95461,hp);player:setStorageValue(95460,math.min(hp,player:getStorageValue(95460)+math.max(0,hp-old)))
+    else player:setMaxHealth(hp);if hp>old then player:addHealth(hp-old)end end
 	player:setStorageValue(95004,thresholds[lv]);player:setStorageValue(95005,lv==4 and 1 or 0)
 	for slot=1,3 do
   local magic=Characters.classes[player:getStorageValue(95001)].levels[lv].magic
   local count=magic['spell_slots_level_'..slot] or 0
 		player:setStorageValue(95029+slot,count);player:setStorageValue(95032+slot,count)
 	end
+	sendProgress(player)
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,string.format('[5E] LEVEL level=%d',lv))
 	player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,string.format('[5E] SLOTS slots1=%d slots2=%d slots3=%d max1=%d max2=%d max3=%d selected=%d',
 		math.max(0,player:getStorageValue(95030)),math.max(0,player:getStorageValue(95031)),math.max(0,player:getStorageValue(95032)),
@@ -51,7 +59,7 @@ action:onSay(function(player,words,param)
 		local xp=tonumber(args[2]);if not xp or xp<0 or xp>100000 or xp~=math.floor(xp) then player:sendTextMessage(MESSAGE_STATUS_SMALL,'Uso: /gm xp TOTAL (0-100000)') else
 			player:setStorageValue(95004,xp)
 			local lv=1;for n=2,5 do if xp>=thresholds[n] then lv=n end end
-			setDndLevel(player,lv);player:setStorageValue(95004,xp)
+			setDndLevel(player,lv);player:setStorageValue(95004,xp);sendProgress(player)
 		end
 	elseif command=='spawn' then
 		local names={rat='Rat',snake='Snake',spider='Spider',wolf='Wolf',bug='Bug',orc='Orc',troll='Troll'}
@@ -68,6 +76,7 @@ action:onSay(function(player,words,param)
 		for slot=1,3 do local key=95029+slot;player:setStorageValue(key,player:getStorageValue(95032+slot)) end
 		player:setMana(player:getMaxMana());player:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,'[GM] Espacos de magia recuperados.')
 	elseif command=='reset' then
+		for _,key in ipairs({95410,95420,95421,95430,95441,95442,95443,95450,95451,95480,95481,95490,95491,95492})do player:setStorageValue(key,0)end
 		player:setStorageValue(95003,1);player:setStorageValue(95004,0);player:setStorageValue(95005,0);player:setStorageValue(95008,0);player:setStorageValue(95009,-1)
 		for i=0,5 do local base=player:getStorageValue(95040+i);if base>0 then player:setStorageValue(95020+i,base) end end
 		local baseAc=player:getStorageValue(95046);if baseAc>0 then player:setStorageValue(95010,baseAc) end

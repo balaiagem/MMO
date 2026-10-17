@@ -10,8 +10,8 @@ class CreationTests(unittest.TestCase):
             for race in RACES:
                 p=build(request(cls,race))
                 self.assertEqual(p['level'],1)
-                self.assertEqual(p['hp'],CLASSES[cls]['hit_die']+p['modifiers']['CON']+(race=='dwarf'))
-                self.assertEqual(p['slots'],[2] if cls in ('wizard','cleric') else [])
+                self.assertEqual(p['hp'],CLASSES[cls]['hit_die']+p['modifiers']['CON']+(race=='dwarf')+(cls=='sorcerer'))
+                self.assertEqual(p['slots'],[1] if cls=='warlock' else [2] if cls in ('wizard','cleric','bard','druid','sorcerer') else [])
     def test_reference_profiles(self):
         p=build(request())
         self.assertEqual(p['hp'],12);self.assertEqual(p['ac'],19)
@@ -28,6 +28,25 @@ class CreationTests(unittest.TestCase):
         self.assertEqual(p['ac'],18)
         self.assertEqual(p['slots'],[])
         self.assertIn('Intimidation',p['skill_proficiencies'])
+        self.assertEqual(len(catalog()['classes']),12)
+        self.assertEqual(len(catalog()['races']),9)
+
+    def test_racial_choices_are_real_and_validated(self):
+        data=dict(request('wizard','half-elf'),racial_abilities=['STR','WIS'],racial_skills=['nature','survival'],skill_choices=['arcana','investigation'])
+        p=build(data)
+        self.assertEqual(p['scores']['STR'],9)
+        self.assertEqual(p['scores']['WIS'],13)
+        self.assertEqual(p['scores']['CHA'],12)
+        self.assertIn('Nature',p['skill_proficiencies'])
+        self.assertIn('Survival',p['skill_proficiencies'])
+        for choices in [['CHA','DEX'],['STR','STR'],[{},'DEX'],['STR'],True]:
+            with self.assertRaises(ValueError):build(dict(data,racial_abilities=choices))
+        for skills in [['nature','nature'],['forged','survival'],[],[True,'survival']]:
+            with self.assertRaises(ValueError):build(dict(data,racial_skills=skills))
+        for race in ('human','gnome','tiefling'):
+            with self.assertRaises(ValueError):build(dict(request(race=race),racial_abilities=['STR','DEX']))
+        self.assertEqual(build(dict(request(race='dragonborn'),ancestry='silver'))['ancestry'],'silver')
+        with self.assertRaises(ValueError):build(dict(request(race='dragonborn'),ancestry='forged'))
     def test_invalid_arrays_and_injection(self):
         for change in [dict(scores=[15]*6),dict(scores=[True,14,13,12,10,8]),dict(name="Hero'); DROP TABLE players;--"),dict(race='dragon'),dict(sex=3),dict(method='client-roll')]:
             with self.assertRaises(ValueError):build(dict(request(),**change))
