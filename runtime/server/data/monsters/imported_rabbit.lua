@@ -1,0 +1,2 @@
+local m=Game.createMonsterType("Rabbit")
+m:register({["corpse"]=6017,["name"]="Rabbit",["description"]="a rabbit",["experience"]=0,["outfit"]={["lookType"]=74},["health"]=15,["maxHealth"]=15,["race"]="blood",["speed"]=180,["flags"]={["attackable"]=true,["hostile"]=false,["pushable"]=true,["targetDistance"]=0,["runHealth"]=15},["attacks"]={{["name"]="melee",["interval"]=2000,["chance"]=100,["minDamage"]=0,["maxDamage"]=0}},["loot"]={{["id"]=3595,["chance"]=10000,["maxCount"]=2},{["id"]=3577,["chance"]=85620,["maxCount"]=2}}})

@@ -1,0 +1,2 @@
+local m=Game.createMonsterType("Deer")
+m:register({["corpse"]=5970,["name"]="Deer",["description"]="a deer",["experience"]=0,["outfit"]={["lookType"]=31},["health"]=25,["maxHealth"]=25,["race"]="blood",["speed"]=150,["flags"]={["attackable"]=true,["hostile"]=false,["pushable"]=true,["targetDistance"]=0,["runHealth"]=25},["attacks"]={{["name"]="melee",["interval"]=2000,["chance"]=100,["minDamage"]=0,["maxDamage"]=0}},["loot"]={{["id"]=3577,["chance"]=80000,["maxCount"]=4},{["id"]=3582,["chance"]=50000,["maxCount"]=2},{["id"]=10297,["chance"]=870,["maxCount"]=1}}})
