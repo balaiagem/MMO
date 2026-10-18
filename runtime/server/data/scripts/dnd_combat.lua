@@ -39,6 +39,14 @@ local function isMonster(c)
     return ok and result or false
 end
 local function monsterRule(c) return c and isMonster(c) and normalizedMonsterRules[string.lower(c:getName())] or nil end
+-- Resumo publico para o look (events/scripts/player.lua).
+DndPublic=DndPublic or {}
+DndPublic.monsterSummary=function(c)
+    local rule=monsterRule(c)
+    if not rule then return nil end
+    local kind=rule.creatureType and (' '..rule.creatureType) or ''
+    return string.format('D&D:%s, AC %d, %d/%d HP, speed %d ft.',kind,rule.ac or 10,c:getHealth(),c:getMaxHealth(),rule.speed or 30)
+end
 local function hostileTarget(p,target)
     if not target or target==p then return false end
     if isMonster(target) then return true end
@@ -1475,6 +1483,48 @@ local function cityFloor(p)
     local pos=p:getPosition()
     return pos.z==7 and pos.x>=101 and pos.x<=131 and pos.y>=102 and pos.y<=127
 end
+-- Dados extras da ficha para a janela de habilidades (Alt+S) do cliente.
+local sheetSkills={
+    {'Acrobatics',1},{'Animal Handling',4},{'Arcana',3},{'Athletics',0},{'Deception',5},{'History',3},
+    {'Insight',4},{'Intimidation',5},{'Investigation',3},{'Medicine',4},{'Nature',3},{'Perception',4},
+    {'Performance',5},{'Persuasion',5},{'Religion',3},{'Sleight of Hand',1},{'Stealth',1},{'Survival',4},
+}
+local spellAbilityIndex={STR=0,DEX=1,CON=2,INT=3,WIS=4,CHA=5}
+local function sheetSkillInfo(p,label)
+    if not db or not db.storeQuery then return false,false end
+    local s=state(p)
+    if not s.skillCache then
+        local query=db.storeQuery("SELECT JSON_EXTRACT(profile, '$.skill_proficiencies') AS trained, JSON_EXTRACT(profile, '$.expertise') AS expert FROM dnd_characters WHERE player_id="..p:getGuid())
+        s.skillCache={trained='',expert=''}
+        if query then s.skillCache.trained=result.getString(query,'trained')or'';s.skillCache.expert=result.getString(query,'expert')or'';result.free(query)end
+    end
+    return s.skillCache.trained:find('"'..label..'"',1,true)~=nil,s.skillCache.expert:find('"'..label..'"',1,true)~=nil
+end
+local function sheetExtras(p)
+    local parts={}
+    for i=0,5 do
+        local bonus=savingBonus(p,i)
+        parts[#parts+1]=string.format('sv%d=%d svp%d=%d',i,bonus,i,bonus~=mod(p,i) and 1 or 0)
+    end
+    for index,entry in ipairs(sheetSkills) do
+        local trained,expert=sheetSkillInfo(p,entry[1])
+        local ok,bonus=pcall(Characters.skillBonus,class(p),level(p),mod(p,entry[2]),trained,trained and expert)
+        parts[#parts+1]=string.format('sk%d=%d skp%d=%d',index,ok and bonus or mod(p,entry[2]),index,expert and 2 or (trained and 1 or 0))
+    end
+    local race=Characters.races and Characters.races[p:getStorageValue(95002)]
+    local initiative=mod(p,1)+((class(p)==6 and level(p)>=2) and math.floor(proficiency(p)/2) or 0)
+    parts[#parts+1]=string.format('speed=%d init=%d',race and race.speed or 30,initiative)
+    local okWeapon,weapon=pcall(weaponStats,p,nil)
+    if okWeapon and weapon then
+        parts[#parts+1]=string.format('atk=%d dmgd=%d dmgs=%d dmgf=%d',weapon.attack or 0,weapon.dice or 0,weapon.sides or 0,weapon.flat or 0)
+    end
+    local classInfo=Characters.classes[class(p)]
+    local ability=classInfo and spellAbilityIndex[classInfo.spellAbility or '']
+    if ability then
+        parts[#parts+1]=string.format('spelldc=%d spellatk=%d',8+proficiency(p)+mod(p,ability),proficiency(p)+mod(p,ability))
+    end
+    return table.concat(parts,' '),(okWeapon and weapon and weapon.name) or 'Golpe Desarmado'
+end
 local function sendProgressSheet(p)
     if p:getStorageValue(95060)<0 then p:setStorageValue(95060,level(p)) end
     if p:getStorageValue(95061)<0 then p:setStorageValue(95061,p:getStorageValue(95060)) end
@@ -1484,6 +1534,8 @@ local function sendProgressSheet(p)
     local maxKi=class(p)==8 and level(p)>=2 and level(p) or 0
     abilities[#abilities+1]=string.format('rage=%d maxrage=%d ki=%d maxki=%d exhaustion=%d',math.max(0,maxRage-math.max(0,p:getStorageValue(95100))),maxRage,math.max(0,maxKi-math.max(0,p:getStorageValue(95120))),maxKi,math.max(0,p:getStorageValue(95101)))
     if X.sheet then for key,value in pairs(X.sheet(p))do abilities[#abilities+1]=key..'='..value end end
+    local extras,weaponName=sheetExtras(p)
+    abilities[#abilities+1]=extras
     if class(p)==9 then
         abilities[#abilities+1]=string.format('layhands=%d maxlayhands=%d channel=%d maxchannel=%d sense=%d maxsense=%d',math.max(0,5*level(p)-math.max(0,p:getStorageValue(95131))),5*level(p),level(p)>=3 and math.max(0,1-math.max(0,p:getStorageValue(95133))) or 0,level(p)>=3 and 1 or 0,math.max(0,1+mod(p,5)-math.max(0,p:getStorageValue(95132))),math.max(0,1+mod(p,5)))
     end
@@ -1493,11 +1545,12 @@ local function sendProgressSheet(p)
         math.max(0,p:getStorageValue(95030)),math.max(0,p:getStorageValue(95031)),math.max(0,p:getStorageValue(95032)),
         math.max(0,p:getStorageValue(95033)),math.max(0,p:getStorageValue(95034)),math.max(0,p:getStorageValue(95035)),
         selectedSlot(p),math.max(0,p:getStorageValue(95061)),math.max(1,p:getStorageValue(95060)),table.concat(abilities,' ')))
+    p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,'[5E] WEAPON '..weaponName)
     p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,'[5E] RESTZONE long='..(cityFloor(p) and '1' or '0'))
 end
 local sheet=TalkAction('/ficha')
 sheet:onSay(function(p)
-    p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,string.format('[5E] %s %s Nv%d | XP %d/%d | CA %d | PV %d/%d | Prof +%d | Espaços M1 %d M2 %d M3 %d',classNames[class(p)] or ('Classe '..class(p)),raceNames[p:getStorageValue(95002)] or '',level(p),p:getStorageValue(95004),xpThresholds[level(p)+1] or 6500,ac(p),p:getHealth(),p:getMaxHealth(),proficiency(p),p:getStorageValue(95030),p:getStorageValue(95031),p:getStorageValue(95032)))
+    p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,string.format('[5E] %s %s Nv%d | XP %d/%d | CA %d | PV %d/%d | Prof +%d | Espa\231os M1 %d M2 %d M3 %d',classNames[class(p)] or ('Classe '..class(p)),raceNames[p:getStorageValue(95002)] or '',level(p),p:getStorageValue(95004),xpThresholds[level(p)+1] or 6500,ac(p),p:getHealth(),p:getMaxHealth(),proficiency(p),p:getStorageValue(95030),p:getStorageValue(95031),p:getStorageValue(95032)))
     p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,'[5E] Recursos: '..levelFeatures(p))
     local names={'STR','DEX','CON','INT','WIS','CHA'};local saves={}
     for i=0,5 do

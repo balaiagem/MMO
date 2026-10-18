@@ -18,6 +18,7 @@ def sync_combat_rules():
         (ROOT/'world'/'content'/'dnd_combat.lua',data/'scripts'/'dnd_combat.lua'),
         (ROOT/'world'/'content'/'gm_tools.lua',data/'scripts'/'gm_tools.lua'),
         (ROOT/'world'/'content'/'rookgaard_access.lua',data/'scripts'/'rookgaard_access.lua'),
+        (ROOT/'world'/'content'/'rookgaard_quests.lua',data/'scripts'/'rookgaard_quests.lua'),
     ]:
         target.parent.mkdir(parents=True,exist_ok=True)
         if not target.exists() or source.read_bytes()!=target.read_bytes():
@@ -66,9 +67,8 @@ def main():
         start(name,[node,ROOT/'tools/gateway.mjs'],lambda p=port:http(p,'/healthz'),env=env)
     start('pagina',[sys.executable,ROOT/'client/tools/emscripten-web-serve.py','--root',
           ROOT/'build/client-web/bin','--bind','127.0.0.1','--port','8080'],lambda:http(8080,'/otclient.html'))
-    print('\nAbra http://localhost:8080/otclient.html\nClique em Start. Conta: admin | Senha: admin',flush=True)
-    print('Os servicos continuam ativos depois de fechar esta janela.')
-    print('Criacao de personagem: http://localhost:8080/characters.html', flush=True)
+    print('\nAbra http://localhost:8080/otclient.html\nO jogo carrega sozinho e abre no login. Conta: admin | Senha: admin',flush=True)
+    print('Os servicos continuam ativos depois de fechar esta janela.',flush=True)
     if '--no-browser' not in sys.argv: webbrowser.open('http://localhost:8080/otclient.html')
 
 if __name__=='__main__':
