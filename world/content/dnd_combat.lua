@@ -311,10 +311,45 @@ local function actorRng(p)
         return n
     end
 end
+-- Escuridao: area negra feita trocando temporariamente o piso dos tiles afetados
+-- (black marble floor). O piso original volta ao fim da concentracao/duracao.
+local DARKNESS_GROUND=410
+local darkAreas={}
+local function darknessRestore(guid)
+    local area=darkAreas[guid]
+    if not area then return end
+    darkAreas[guid]=nil
+    for _,entry in ipairs(area.tiles) do
+        local tile=Tile(entry.pos)
+        local ground=tile and tile:getGround()
+        if ground and ground:getId()==DARKNESS_GROUND then ground:remove() end
+        if entry.old then Game.createItem(entry.old,1,entry.pos) end
+    end
+end
+local function darknessApply(guid,center,radius,duration)
+    darknessRestore(guid)
+    local area={tiles={},expires=now()+duration}
+    for dx=-radius,radius do
+        for dy=-radius,radius do
+            if dx*dx+dy*dy<=radius*radius then
+                local pos=Position(center.x+dx,center.y+dy,center.z)
+                local tile=Tile(pos)
+                local ground=tile and tile:getGround()
+                if ground and ground:getId()~=DARKNESS_GROUND then
+                    area.tiles[#area.tiles+1]={pos=pos,old=ground:getId()}
+                    ground:remove()
+                    Game.createItem(DARKNESS_GROUND,1,pos)
+                end
+            end
+        end
+    end
+    darkAreas[guid]=area
+end
 local function endConcentration(p)
     local active=state(p).concentration
     if not active then return end
     state(p).concentration=nil
+    if active.name=='darkness' then darknessRestore(p:getGuid()) end
     for _,recipient in ipairs(active.targets or {}) do
         local buffs=state(recipient).buffs or {}
         if buffs[active.name] and buffs[active.name].source==p then buffs[active.name]=nil end
@@ -1121,7 +1156,9 @@ cast:onSay(function(p,words,param)
     local ability=mod(p,(elf and name=='firebolt') and 3 or indices[spellAbility] or 3)
     local amount,natural,bonus,defense,result=0,0,0,0,'ACERTO AUTOMATICO'
     if spell.kind=='zone'then
-        endConcentration(p);X.zone(p,castPosition,spell.turns);return false
+        endConcentration(p);X.zone(p,castPosition,spell.turns)
+        darknessApply(p:getGuid(),castPosition,spell.areaRadius or 3,spell.turns*6000)
+        return false
     elseif spell.kind=='sleep'then
         local radius=spell.areaRadius;local victims={}
         for _,victim in ipairs(Game.getSpectators(castPosition,false,false,radius,radius,radius,radius))do
@@ -1664,6 +1701,17 @@ local tick=GlobalEvent('DndCombatTick')
 tick:interval(250)
 tick:onThink(function()
     local enemies={}
+    for guid,area in pairs(darkAreas) do
+        local owner=nil
+        for _,online in ipairs(Game.getPlayers()) do
+            if online:getGuid()==guid then owner=online;break end
+        end
+        local concentrating=owner and state(owner).concentration and state(owner).concentration.name=='darkness'
+        if not concentrating or now()>=area.expires then
+            if owner and concentrating then endConcentration(owner) end
+            darknessRestore(guid)
+        end
+    end
     -- Criaturas sob Sono: ficam paradas, sem alvo, e mostram um zZz laranja.
     for id,c in pairs(sleepers) do
         if not alive(c) then

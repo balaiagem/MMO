@@ -66,6 +66,11 @@ def build():
                         if int(value) in owner: attr.set('value', str(owner[int(value)]))
                         else: node.remove(attr)
             selected[owner[sid]] = node
+    # Moedas precisam de 'worth' ou o servidor nao reconhece dinheiro (addMoney/getMoney).
+    for coin, worth in ((3031, 1), (3035, 100), (3043, 10000)):
+        node = selected.get(coin)
+        if node is not None and not any(a.get('key', '').lower() == 'worth' for a in node):
+            ET.SubElement(node, 'attribute', key='worth', value=str(worth))
     items = ET.Element('items')
     for ident in sorted(selected): items.append(selected[ident])
     return otb_out, items, len(nodes)
