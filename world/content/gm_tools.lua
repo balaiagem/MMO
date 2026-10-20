@@ -18,6 +18,7 @@ local function setDndLevel(player, lv)
 	local formed=player:getStorageValue(95469)==1
 	local old=formed and player:getStorageValue(95461)or player:getMaxHealth()
 	player:setStorageValue(95003,lv)
+	if DndSyncTibiaLevel then DndSyncTibiaLevel(player,lv) end
 	local maxDice=player:getStorageValue(95060);local remainingDice=player:getStorageValue(95061)
 	if maxDice<0 then maxDice=lv end;if remainingDice<0 then remainingDice=maxDice end
 	if lv>maxDice then remainingDice=remainingDice+(lv-maxDice) end;remainingDice=math.min(lv,remainingDice)

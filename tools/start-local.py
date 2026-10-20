@@ -11,6 +11,8 @@ def sync_combat_rules():
     for source,target in [
         (ROOT/'rules'/'core.lua',data/'lib'/'dnd_rules.lua'),
         (ROOT/'rules'/'class_actions.lua',data/'lib'/'dnd_class_actions.lua'),
+        (ROOT/'rules'/'spells_catalog.lua',data/'lib'/'dnd_spells_catalog.lua'),
+        (ROOT/'rules'/'spell_effects.lua',data/'lib'/'dnd_spell_effects.lua'),
         (ROOT/'rules'/'characters.lua',data/'lib'/'dnd_characters.lua'),
         (ROOT/'rules'/'character_data.lua',data/'lib'/'dnd_character_data.lua'),
         (ROOT/'rules'/'equipment.lua',data/'lib'/'dnd_equipment.lua'),
@@ -19,6 +21,8 @@ def sync_combat_rules():
         (ROOT/'world'/'content'/'gm_tools.lua',data/'scripts'/'gm_tools.lua'),
         (ROOT/'world'/'content'/'rookgaard_access.lua',data/'scripts'/'rookgaard_access.lua'),
         (ROOT/'world'/'content'/'rookgaard_quests.lua',data/'scripts'/'rookgaard_quests.lua'),
+        (ROOT/'world'/'content'/'quick_loot.lua',data/'scripts'/'quick_loot.lua'),
+        (ROOT/'world'/'content'/'rookgaard_food.lua',data/'scripts'/'rookgaard_food.lua'),
     ]:
         target.parent.mkdir(parents=True,exist_ok=True)
         if not target.exists() or source.read_bytes()!=target.read_bytes():

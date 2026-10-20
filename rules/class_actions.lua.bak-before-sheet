@@ -1,0 +1,537 @@
+-- Engine-facing class actions. All inputs are resolved by the server adapter.
+local M={}
+function M.new(c)
+ local X={};local R=c.R
+ local zones={}
+ local K={inspiration=95410,sorcery=95420,metamagic=95421,invocations=95430}
+ local forms={
+  wolf={name='Lobo',hp=11,ac=13,speed=40,str=12,dex=15,con=12,attack=4,dice=2,sides=4,flat=2,look=27},
+  rat={name='Rato',hp=1,ac=10,speed=20,str=2,dex=11,con=9,attack=0,dice=0,sides=0,flat=1,look=2}
+ }
+ local ancestryOrder={'black','blue','brass','bronze','copper','gold','green','red','silver','white'}
+ local ancestry={black={'acid','line','DEX'},blue={'lightning','line','DEX'},brass={'fire','line','DEX'},bronze={'lightning','line','DEX'},copper={'acid','line','DEX'},gold={'fire','cone','DEX'},green={'poison','cone','CON'},red={'fire','cone','DEX'},silver={'cold','cone','CON'},white={'cold','cone','CON'}}
+ local skillOrder={'acrobatics','animal-handling','arcana','athletics','deception','history','insight','intimidation','investigation','medicine','nature','perception','performance','persuasion','religion','sleight-of-hand','stealth','survival'}
+ local skillLabels={'Acrobatics','Animal Handling','Arcana','Athletics','Deception','History','Insight','Intimidation','Investigation','Medicine','Nature','Perception','Performance','Persuasion','Religion','Sleight of Hand','Stealth','Survival'}
+ local skillAbilities={1,4,3,0,5,3,4,5,3,4,3,4,5,5,3,1,1,4}
+ local skillRows={};for index,key in ipairs(skillOrder)do skillRows[key]={bit=2^(index-1),label=skillLabels[index],ability=skillAbilities[index]}end
+ local favoredTypes={'beast','undead','fiend','giant','dragon','construct','elemental','fey','aberration','celestial','monstrosity','ooze','plant'}
+ local humanoids={'orcs','goblinoids','gnolls','humans','elves','dwarves','halflings','gnomes','dragonborn','half-elves','half-orcs','tieflings','kobolds','lizardfolk'}
+ local terrains={'arctic','coast','desert','forest','grassland','mountain','swamp','underdark'}
+ local function element(name)
+  return ({fire=COMBAT_FIREDAMAGE,cold=COMBAT_ICEDAMAGE,lightning=COMBAT_ENERGYDAMAGE,acid=COMBAT_EARTHDAMAGE,poison=COMBAT_EARTHDAMAGE})[name]
+ end
+ local function used(p,key)return math.max(0,p:getStorageValue(key))end
+ local function tell(p,text)p:sendTextMessage(MESSAGE_STATUS_CONSOLE_BLUE,'[5E] '..text)end
+ local function reject(p,text)p:sendTextMessage(MESSAGE_STATUS_SMALL,text);return true end
+ local function ready(p)
+  if c.state(p).stunned or c.state(p).sleeping then reject(p,'Voce esta incapacitado.');return false end
+  if c.state(p).encounter then return c.requireTurn(p) end
+  local s=c.state(p)
+  if s.lastClassAction and c.now()-s.lastClassAction<6000 then reject(p,'Aguarde uma rodada fora de combate.');return false end
+  R.startTurn(s.economy);return true
+ end
+ local function spend(p,budget)
+  if not R.spend(c.state(p).economy,budget,c.now())then reject(p,'Esse recurso ja foi gasto neste turno.');return false end
+  if not c.state(p).encounter then c.state(p).lastClassAction=c.now()end
+  c.actionCooldown(p,c.state(p).economy);return true
+ end
+ local function spellAction(p)
+  if not ready(p)then return false end
+  local economy=c.state(p).economy
+  if not R.canCastSpell(economy,false,1)then reject(p,'Uma magia bonus limita as outras magias deste turno a truques de uma acao.');return false end
+  if not spend(p,'action')then return false end
+  R.recordSpell(economy,false,1);return true
+ end
+ local function has(mask,bit)return math.floor(mask/bit)%2==1 end
+ local function ownTurn(p)
+  local enc=c.state(p).encounter;return enc and enc.order[enc.index]==p
+ end
+ local function reactionSpell(p)
+  local s=c.state(p)
+  return not s.stunned and not s.sleeping and not s.rage and(not ownTurn(p)or not s.economy.bonusSpell)
+ end
+ local function consumeSlot(p,minimum)
+  for circle=minimum,3 do
+   local value=math.max(0,p:getStorageValue(95029+circle))
+   if value>0 then p:setStorageValue(95029+circle,value-1);c.syncSlots(p);c.sendSlots(p);return circle end
+  end
+ end
+ function X.counterspell(caster,circle)
+  local enc=c.state(caster).encounter
+  if not enc then return false end
+  for _,defender in ipairs(enc.order)do
+   if c.isPlayer(defender)and defender:getId()~=caster:getId()and c.alive(defender)and(c.isMonster(caster)or enc.pvp)and
+    c.level(defender)>=5 and(c.class(defender)==4 or c.class(defender)==11 or c.class(defender)==12)and defender:getStorageValue(95494)==1 and reactionSpell(defender)and
+    c.range(defender,caster,12)and not X.visionBlocked(defender,caster)and defender:getStorageValue(95032)>0 and c.state(defender).economy.reaction then
+    R.spend(c.state(defender).economy,'reaction',c.now());local slot=consumeSlot(defender,3)
+    if ownTurn(defender)then R.recordSpell(c.state(defender).economy,false,3)end
+    tell(defender,'Contramagica: reacao e slot '..slot..' gastos.')
+    local cancelled=X.counterspell(defender,3)
+    if not cancelled then
+     if circle<=slot then tell(caster,'Sua magia foi anulada por Contramagica. A acao e o slot continuam gastos.');return true end
+     local bonus=c.mod(defender,({[4]=3,[11]=5,[12]=5})[c.class(defender)])
+     local save=R.save(10+circle,bonus,c.actorRng(defender),false,false)
+     if save.success then tell(caster,'Sua magia foi anulada por Contramagica.');return true end
+    end
+   end
+  end
+  return false
+ end
+ local function shield(p)
+  if c.state(p).shield then return true end
+  local cls=c.class(p)
+  if(cls~=4 and cls~=11)or p:getStorageValue(95493)~=1 or not reactionSpell(p)or not c.state(p).economy.reaction then return false end
+  local available=false;for circle=1,3 do if p:getStorageValue(95029+circle)>0 then available=true end end
+  if not available then return false end
+  R.spend(c.state(p).economy,'reaction',c.now());consumeSlot(p,1)
+  if ownTurn(p)then R.recordSpell(c.state(p).economy,false,1)end
+  tell(p,'Escudo: reacao e slot gastos.')
+  if X.counterspell(p,1)then return false end
+  c.state(p).shield={turn=(c.state(p).economy.turn or 0)+1,expires=c.now()+6000}
+  return true
+ end
+ function X.shieldAttack(a,b,roll)
+  if not c.isPlayer(b)or not roll.hit or roll.critical or roll.total>=c.ac(b)+5 then return end
+  if c.state(b).shield then return end
+  if shield(b)then roll.hit=roll.total>=c.ac(b)end
+ end
+ function X.blockMagicMissile(target)
+  return c.isPlayer(target)and(c.state(target).shield~=nil or shield(target))
+ end
+ function X.invocation(p,bit)return c.class(p)==12 and c.level(p)>=2 and has(used(p,K.invocations),bit)end
+ function X.resistant(p,kind,flavor)
+  local race=p:getStorageValue(95002)
+  flavor=flavor or(kind==COMBAT_FIREDAMAGE and'fire'or kind==COMBAT_ICEDAMAGE and'cold'or kind==COMBAT_ENERGYDAMAGE and'lightning'or kind==COMBAT_EARTHDAMAGE and'poison'or'')
+  if race==9 then return flavor=='fire'end
+  if race==3 then return flavor=='poison'end
+  if race==5 then local row=ancestry[ancestryOrder[p:getStorageValue(95500)]or'red'];return flavor==row[1]end
+  return false
+ end
+ function X.saveAdvantage(p,ability,context)
+  if not c.isPlayer(p)then return false end
+  local race=p:getStorageValue(95002);context=context or{}
+  return(race==6 and context.magic and(ability==3 or ability==4 or ability==5))or
+   ((race==2 or race==7)and context.charm)or(race==4 and context.fear)or(race==3 and context.poison)or false
+ end
+ function X.zone(p,center,turns)
+  local s=c.state(p)
+  s.buffs=s.buffs or{};s.buffs.darkness={source=p,expires=c.now()+turns*6000}
+  s.concentration={name='darkness',targets={p},turns=turns}
+  zones[p:getGuid()]={owner=s,center={x=center.x,y=center.y,z=center.z}}
+  tell(p,'Escuridao magica: raio 4,5 m; concentracao por '..turns..' turnos.')
+ end
+ function X.visionBlocked(viewer,target)
+  if c.isPlayer(viewer)and X.invocation(viewer,8)then return false end
+  local a,b=viewer:getPosition(),target:getPosition()
+  if a.z~=b.z then return true end
+  for id,zone in pairs(zones)do
+   local owner=zone.owner;local active=owner.concentration and owner.concentration.name=='darkness'and owner.buffs and owner.buffs.darkness
+   if not active then zones[id]=nil
+   elseif zone.center.z==a.z then
+    local dx,dy=b.x-a.x,b.y-a.y;local length=dx*dx+dy*dy
+    local t=length==0 and 0 or math.max(0,math.min(1,((zone.center.x-a.x)*dx+(zone.center.y-a.y)*dy)/length))
+    local x,y=a.x+t*dx-zone.center.x,a.y+t*dy-zone.center.y
+    if x*x+y*y<=9 then return true end
+   end
+  end
+  return false
+ end
+ function X.afterDamage(attacker,target,amount)
+  if amount<=0 or not c.isPlayer(target)or target:getHealth()<=0 or not c.alive(attacker)then return end
+  if target:getStorageValue(95002)~=9 or c.level(target)<3 or target:getStorageValue(95520)~=1 or used(target,95521)>0 or c.state(target).stunned or c.state(target).sleeping or c.state(target).rage or not c.range(target,attacker,12)then return end
+  if c.state(target).encounter and c.state(target).encounter.order[c.state(target).encounter.index]==target and c.state(target).economy.bonusSpell then return end
+  if not R.spend(c.state(target).economy,'reaction',c.now())then return end
+  local enc=c.state(target).encounter
+  if enc and enc.order[enc.index]==target then R.recordSpell(c.state(target).economy,false,2)end
+  target:setStorageValue(95521,1)
+  local dc=8+c.proficiency(target)+c.mod(target,5)
+  local save=c.dexSaveRoll(attacker,dc)
+  local amount=R.damage(3,10,0,false,c.rng)
+  if save.success then amount=math.floor(amount/2)end
+  c.log(target,attacker,save.dice[1],c.dexSave(attacker),dc,save.success and'SALVOU'or'FALHOU',amount,'Repreensao Infernal racial (circulo 2)')
+  c.damage(target,attacker,amount,COMBAT_FIREDAMAGE,CONST_ME_FIREAREA,false)
+ end
+ function X.tempHP(p,amount,label)
+  local s=c.state(p)
+  if amount>(s.tempHP or 0)then s.tempHP=amount;tell(p,label..': '..amount..' PV temporarios (nao acumulam).')end
+ end
+ function X.absorb(p,amount)
+  local s=c.state(p);local absorbed=math.min(s.tempHP or 0,amount)
+  s.tempHP=math.max(0,(s.tempHP or 0)-absorbed)
+  return amount-absorbed
+ end
+ function X.onKill(p)
+  if c.class(p)==12 then X.tempHP(p,math.max(1,c.level(p)+c.mod(p,5)), 'Bencao do Obscuro')end
+ end
+ function X.endForm(p)
+  local s=c.state(p)
+  if not s.form and p:getStorageValue(95469)~=1 then return false end
+  s.form=nil
+  local maximum=math.max(1,p:getStorageValue(95461));local health=math.max(0,p:getStorageValue(95460))
+  p:setMaxHealth(maximum);p:addHealth(math.min(maximum,health)-p:getHealth())
+  local keys={'lookType','lookHead','lookBody','lookLegs','lookFeet','lookAddons','lookMount'};local outfit={}
+  for index,key in ipairs(keys)do outfit[key]=math.max(0,p:getStorageValue(95461+index))end
+  p:setOutfit(outfit);p:setStorageValue(95469,0)
+  tell(p,'Forma Selvagem encerrada; PV originais restaurados.');return true
+ end
+ function X.wouldDrop(p,amount)
+  return amount>=p:getHealth()+(c.state(p).form and math.max(0,p:getStorageValue(95460))or 0)
+ end
+ function X.formDamage(p,amount)
+  if not c.state(p).form or amount<p:getHealth()then return amount end
+  local overflow=amount-p:getHealth();X.endForm(p)
+  return overflow
+ end
+ function X.formModifier(p,index)
+  local form=c.state(p).form
+  if not form or index>2 then return nil end
+  return R.modifier(form.profile[({'str','dex','con'})[index+1]])
+ end
+ function X.weaponProfile(p)return c.state(p).form and c.state(p).form.profile end
+ function X.baseAc(p,value)
+  local s=c.state(p);value=s.form and s.form.profile.ac or value
+  if s.mageArmor and s.mageArmor>c.now()then value=math.max(value,13+c.mod(p,1))end
+  return value
+ end
+ function X.speed(p,value)return c.state(p).form and c.state(p).form.profile.speed or value end
+ function X.onTurn(p)
+  if c.state(p).shield and c.state(p).economy.turn>=c.state(p).shield.turn then c.state(p).shield=nil end
+  local form=c.state(p).form
+  if form then form.rounds=form.rounds-1;if form.rounds<=0 then X.endForm(p)end end
+ end
+ function X.tick(p)
+  if c.state(p).shield and not c.state(p).encounter and c.now()>=c.state(p).shield.expires then c.state(p).shield=nil end
+  local form=c.state(p).form
+  if form and not c.state(p).encounter and c.now()>=form.expires then X.endForm(p)end
+ end
+ function X.onRest(p,kind)
+  assert(kind=='short'or kind=='long','invalid rest')
+  if kind=='long' or (c.class(p)==6 and c.level(p)>=5)then p:setStorageValue(K.inspiration,0)end
+  if kind=='long'then
+   p:setStorageValue(K.sorcery,0);c.state(p).tempHP=nil
+   for circle=1,3 do p:setStorageValue(95440+circle,0)end
+  end
+  if c.class(p)==12 then
+   for circle=1,3 do p:setStorageValue(95029+circle,math.max(0,p:getStorageValue(95032+circle)))end
+  end
+  if c.class(p)==7 then p:setStorageValue(95450,0)end
+  p:setStorageValue(95501,0)
+  if kind=='long'then p:setStorageValue(95521,0);p:setStorageValue(95522,0)end
+  c.state(p).lastClassAction=nil
+  c.state(p).shortRestReady=kind=='short'
+  if kind=='long'then p:setStorageValue(95451,0)end
+ end
+ function X.songOfRest(p,dice)
+  if dice<=0 then return 0 end
+  for _,bard in ipairs(Game.getPlayers())do
+   if c.class(bard)==6 and c.level(bard)>=2 and c.state(bard).songOfRest and not c.state(bard).encounter and c.range(p,bard,12)then
+    local amount=R.roll(6,c.rng);tell(p,'Cancao do Descanso: + '..amount..' PV.');return amount
+   end
+  end
+  return 0
+ end
+ function X.attackBonus(p)
+  local s=c.state(p);local inspiration=s.inspiration
+  if not inspiration or not s.useInspiration then return 0 end
+  s.useInspiration=nil;s.inspiration=nil
+  if(c.state(p).encounter and c.state(p).economy.turn>=inspiration.expiresTurn)or(not c.state(p).encounter and inspiration.expires<=c.now())then tell(p,'Inspiracao Bardica expirou.');return 0 end
+  local rolled=R.roll(inspiration.die,c.rng);tell(p,'Inspiracao Bardica: + '..rolled..' neste teste.')
+  return rolled
+ end
+ function X.skillInfo(p,key)
+  local row=skillRows[key];if not row then return nil end
+  local trained,expert=c.skillInfo(p,row.label)
+  if c.class(p)==6 and c.level(p)>=3 then
+   trained=trained or has(used(p,95481),row.bit)
+   expert=expert or has(used(p,95480),row.bit)
+  end
+  return row,trained,expert
+ end
+ function X.check(p,key,context)
+  local row,trained,expert=X.skillInfo(p,key)
+  if not row then return reject(p,'Pericia desconhecida. Use o identificador da ficha, por exemplo perception, stealth ou athletics.')end
+  if not ready(p)then return true end
+  if c.state(p).encounter and not spend(p,'action')then return true end
+  if not c.state(p).encounter then c.state(p).lastClassAction=c.now()end
+  local prof=c.proficiency(p);local bonus=c.mod(p,row.ability)+(trained and(expert and 2*prof or prof)or(c.class(p)==6 and c.level(p)>=2 and math.floor(prof/2)or 0))
+  local race=p:getStorageValue(95002)
+  if key=='history'and((race==6 and(context=='magic-item'or context=='alchemy'or context=='technology'))or(race==3 and context=='stone'))then bonus=c.mod(p,3)+2*prof end
+  local advantage=false
+  if c.class(p)==10 then
+   local terrain=terrains[used(p,95491)]
+   if terrain==context and trained and(row.ability==3 or row.ability==4)then bonus=c.mod(p,row.ability)+2*prof end
+   local target=p:getTarget();local rule=target and c.monsterRule(target)
+   local favored=rule and rule.creatureType==favoredTypes[used(p,95490)]
+   if target and used(p,95490)>100 then
+    local group=c.isPlayer(target)and({'humans','elves','dwarves','halflings','dragonborn','gnomes','half-elves','half-orcs','tieflings'})[target:getStorageValue(95002)]or(rule and rule.humanoidGroup)
+    if not group and rule and rule.creatureType=='humanoid'then
+     local name=target:getName():lower();group=name:find('orc',1,true)and'orcs'or name:find('goblin',1,true)and'goblinoids'or nil
+    end
+    favored=group and(group==humanoids[used(p,95490)-100]or group==humanoids[used(p,95492)-100])
+   end
+   if favored and(context=='tracking'or context=='recall')then advantage=key=='survival'or row.ability==3 end
+  end
+  local disadvantage=p:getStorageValue(95101)>=1 or(key=='stealth'and c.stealthDisadvantage~=nil and c.stealthDisadvantage(p))
+  for _,caster in ipairs(Game.getPlayers())do
+   local hex=c.buff(caster,'hex')
+   if hex and hex.targetId==p:getId()and hex.ability==row.ability then disadvantage=true end
+  end
+  bonus=bonus+X.attackBonus(p)
+  local natural=R.d20(c.actorRng(p),advantage,disadvantage)
+  tell(p,string.format('Teste %s: d20=%d %+d = %d%s',key,natural,bonus,natural+bonus,advantage and' | vantagem'or''))
+  return true
+ end
+ function X.cutAttack(attacker,target,roll)
+  if not roll.hit or roll.critical then return end
+  -- Automatic reactions are explicit player preferences, never silently enabled.
+  local candidates={target}
+  if c.state(target).encounter then candidates=c.state(target).encounter.order end
+  for _,bard in ipairs(candidates)do
+   if c.isPlayer(bard) and c.class(bard)==6 and c.level(bard)>=3 and bard:getStorageValue(95411)==1 and not c.state(bard).stunned and not c.state(bard).sleeping and c.range(bard,attacker,12) and
+    ((c.isMonster(attacker) and c.isPlayer(target)) or (bard:getId()==target:getId()))then
+    local cap=math.max(1,c.mod(bard,5));local spent=used(bard,K.inspiration)
+    if spent<cap and R.spend(c.state(bard).economy,'reaction',c.now())then
+     bard:setStorageValue(K.inspiration,spent+1)
+     local penalty=R.roll(c.level(bard)>=5 and 8 or 6,c.rng)
+     roll.total=roll.total-penalty;roll.hit=roll.total>=c.ac(target)
+     tell(bard,'Palavras Cortantes: -'..penalty..' no ataque; reacao e Inspiracao gastas.')
+     return
+    end
+   end
+  end
+ end
+ function X.weaponBonus(p,target,critical)
+  if c.class(p)~=10 or c.level(p)<3 or target:getHealth()>=target:getMaxHealth()then return 0 end
+  local s=c.state(p);local enc=s.encounter
+  if not enc or (s.colossusEncounter==enc and s.colossusTurn==enc.serial)then return 0 end
+  s.colossusEncounter=enc;s.colossusTurn=enc.serial
+  return R.damage(1,8,0,critical,c.rng)
+ end
+ function X.hitParts(p,target,critical,weaponHit)
+  local result={}
+  for _,name in ipairs({'hex','huntersmark'})do
+   local mark=c.buff(p,name)
+   if mark and mark.targetId==target:getId()and(name=='hex'or weaponHit)then
+    local amount=R.damage(1,6,0,critical,c.rng)
+    result[#result+1]={amount=amount,kind=name=='hex'and COMBAT_DEATHDAMAGE or COMBAT_PHYSICALDAMAGE,effect=CONST_ME_NONE}
+    c.log(p,target,0,0,0,critical and'CRITICO'or'ACERTO',amount,name)
+   end
+  end
+  return result
+ end
+ function X.ability(p,param)
+  local name,arg=(param or ''):lower():match('^%s*(%S+)%s*(.-)%s*$')
+  local cls,lv=c.class(p),c.level(p)
+  if name=='shield'or name=='counterspell'then
+   if name=='shield'and(cls~=4 and cls~=11)then return reject(p,'Escudo exige Mago ou Feiticeiro.')end
+   if name=='counterspell'and(lv<5 or(cls~=4 and cls~=11 and cls~=12))then return reject(p,'Contramagica exige Mago, Feiticeiro ou Bruxo nivel 5.')end
+   local key=name=='shield'and 95493 or 95494;p:setStorageValue(key,p:getStorageValue(key)==1 and 0 or 1)
+   tell(p,name..' automatico: '..(p:getStorageValue(key)==1 and'ativado.'or'desativado.'));return true
+  elseif name=='expertise'and cls==6 then
+   if lv<3 then return reject(p,'Especializacao do Bardo exige nivel 3.')end
+   if used(p,95480)>0 then return reject(p,'Suas duas Especializacoes ja foram escolhidas.')end
+   local first,second=arg:match('^([%a%-]+),([%a%-]+)$')
+   local a,ta=X.skillInfo(p,first);local b,tb=X.skillInfo(p,second)
+   if not a or not b or first==second or not ta or not tb then return reject(p,'Escolha duas pericias diferentes em que voce seja proficiente: /ability expertise perception,stealth.')end
+   p:setStorageValue(95480,a.bit+b.bit);tell(p,'Especializacoes registradas: '..first..', '..second..'.');return true
+  elseif name=='loreproficiency'then
+   if cls~=6 or lv<3 then return reject(p,'Proficiencias adicionais exige Bardo do Conhecimento nivel 3.')end
+   if used(p,95481)>0 then return reject(p,'Suas tres proficiencias adicionais ja foram escolhidas.')end
+   local choices={};local mask=0
+   for key in arg:gmatch('[^,]+')do
+    local row,trained=X.skillInfo(p,key)
+    if not row or trained or choices[key]then return reject(p,'Escolha tres pericias diferentes que ainda nao conhece.')end
+    choices[key]=true;mask=mask+row.bit
+   end
+   local count=0;for _ in pairs(choices)do count=count+1 end
+   if count~=3 then return reject(p,'Informe tres pericias, separadas por virgula.')end
+   p:setStorageValue(95481,mask);tell(p,'Tres proficiencias adicionais registradas.');return true
+  elseif name=='favoredenemy'or name=='favoredterrain'then
+   if cls~=10 then return reject(p,'Esta escolha exige Patrulheiro.')end
+   local key=name=='favoredenemy'and 95490 or 95491
+   if used(p,key)>0 then return reject(p,'Esta escolha ja foi registrada.')end
+   local options=name=='favoredenemy'and favoredTypes or terrains;local selected
+   if name=='favoredenemy'then
+    local first,second=arg:match('^([%a%-]+),([%a%-]+)$')
+    if first and first~=second then
+     local a,b;for index,value in ipairs(humanoids)do if value==first then a=index end;if value==second then b=index end end
+     if a and b then p:setStorageValue(95490,100+a);p:setStorageValue(95492,100+b);tell(p,'Inimigos Favoritos humanoides registrados: '..first..', '..second..'.');return true end
+    end
+   end
+   for index,value in ipairs(options)do if value==arg then selected=index end end
+   if not selected then return reject(p,table.concat(options,', '))end
+   p:setStorageValue(key,selected);tell(p,'Escolha registrada: '..arg..'.');return true
+  elseif name=='naturalrecovery'then
+   if cls~=7 or lv<2 then return reject(p,'Recuperacao Natural exige Druida da Terra nivel 2.')end
+   if c.state(p).encounter or not c.state(p).shortRestReady or used(p,95451)>0 then return reject(p,'Use depois de um descanso curto; uma vez por descanso longo.')end
+   local budget=math.ceil(lv/2);local recovered=0
+   for circle=3,1,-1 do
+    local cap=math.max(0,p:getStorageValue(95032+circle));local slots=math.max(0,p:getStorageValue(95029+circle))
+    while slots<cap and recovered+circle<=budget do slots=slots+1;recovered=recovered+circle end
+    p:setStorageValue(95029+circle,slots)
+   end
+   if recovered==0 then return reject(p,'Nao ha espacos elegiveis para recuperar.')end
+   p:setStorageValue(95451,1);c.syncSlots(p);c.sendSlots(p);tell(p,'Recuperacao Natural: recuperou '..recovered..' niveis de slots.');return true
+  elseif name=='songofrest'then
+   if cls~=6 or lv<2 or c.state(p).encounter then return reject(p,'Cancao do Descanso exige Bardo nivel 2 fora de combate.')end
+   c.state(p).songOfRest=not c.state(p).songOfRest;tell(p,'Cancao do Descanso: '..(c.state(p).songOfRest and'ativa.'or'encerrada.'));return true
+  elseif name=='transfermark'then
+   local mark=c.buff(p,'hex')or c.buff(p,'huntersmark')
+   if not mark then return reject(p,'Voce nao esta concentrando em uma marca.')end
+   if c.alive(Creature(mark.targetId))then return reject(p,'A marca so pode ser transferida depois de o alvo cair a 0 PV.')end
+   local target=p:getTarget()
+   if not target or not c.hostileTarget(p,target)or not c.range(p,target,18)then return reject(p,'Selecione outro inimigo visivel a ate 27 m.')end
+   c.encounterFor(p,target)
+   if not ready(p)or not spend(p,'bonus')then return true end
+   mark.targetId=target:getId();tell(p,'Marca transferida sem gastar outro espaco de magia.');return true
+  elseif name=='breath'then
+   if p:getStorageValue(95002)~=5 then return reject(p,'Arma de Sopro exige Draconato.')end
+   if used(p,95501)>0 then return reject(p,'Sopro esgotado; recupere no descanso curto ou longo.')end
+   local target=p:getTarget()
+   if not target or not c.hostileTarget(p,target)then return reject(p,'Selecione o inimigo na direcao em que deseja soprar.')end
+   c.encounterFor(p,target)
+   if not ready(p)or not spend(p,'action')then return true end
+   p:setStorageValue(95501,1)
+   local origin,dest=p:getPosition(),target:getPosition();local dx,dy=dest.x-origin.x,dest.y-origin.y
+   local length=math.sqrt(dx*dx+dy*dy);if length==0 then dx,dy,length=0,1,1 end
+   dx,dy=dx/length,dy/length
+   local row=ancestry[ancestryOrder[p:getStorageValue(95500)]or'red']
+   local reach=row[2]=='line'and 6 or 3;local dc=8+c.proficiency(p)+c.mod(p,2)
+   local rolled=R.damage(2,6,0,false,c.rng)
+   for _,victim in ipairs(Game.getSpectators(origin,false,false,reach,reach,reach,reach))do
+    if victim:getId()~=p:getId()and c.alive(victim)and c.hostileTarget(p,victim)then
+     local pos=victim:getPosition();local vx,vy=pos.x-origin.x,pos.y-origin.y
+     local forward=vx*dx+vy*dy;local sideways=math.abs(vx*dy-vy*dx)
+     if pos.z==origin.z and forward>0 and forward<=reach and sideways<=(row[2]=='line'and 0.5 or forward/2)and c.range(p,victim,reach)then
+      c.encounterFor(p,victim)
+      local index=row[3]=='DEX'and 1 or 2;local rule=c.monsterRule(victim)
+      local bonus=c.isPlayer(victim)and c.savingBonus(victim,index)or R.modifier(rule and rule[index==1 and'dex'or'con']or 10)
+      local save=R.save(dc,bonus,c.actorRng(victim),X.saveAdvantage(victim,index,{poison=row[1]=='poison'}),false)
+      local amount=save.success and math.floor(rolled/2)or rolled
+      c.log(p,victim,save.dice[1],bonus,dc,save.success and'SALVOU'or'FALHOU',amount,'Sopro '..row[1])
+      c.damage(p,victim,amount,element(row[1]),CONST_ME_MAGIC_BLUE,false,nil,row[1])
+     end
+    end
+   end
+   return true
+  elseif name=='hellishrebuke'then
+   if p:getStorageValue(95002)~=9 or lv<3 then return reject(p,'Repreensao Infernal racial exige Tiefling nivel 3.')end
+   p:setStorageValue(95520,p:getStorageValue(95520)==1 and 0 or 1)
+   tell(p,'Repreensao Infernal racial automatica: '..(p:getStorageValue(95520)==1 and'ativada.'or'desativada.'));return true
+  elseif name=='wildshape'then
+   if cls~=7 or lv<2 then return reject(p,'Forma Selvagem exige Druida nivel 2.')end
+   local profile=forms[arg or '']
+   if not profile then return reject(p,'Formas observadas disponiveis: wolf, rat.')end
+   if c.state(p).form then return reject(p,'Encerre sua forma atual antes de assumir outra.')end
+   if used(p,95450)>=2 then return reject(p,'Formas Selvagens esgotadas. Faca um descanso curto ou longo.')end
+   if not ready(p)or not spend(p,'action')then return true end
+   p:setStorageValue(95450,used(p,95450)+1)
+   p:setStorageValue(95460,p:getHealth());p:setStorageValue(95461,p:getMaxHealth())
+   local outfit=p:getOutfit();local keys={'lookType','lookHead','lookBody','lookLegs','lookFeet','lookAddons','lookMount'}
+   for index,key in ipairs(keys)do p:setStorageValue(95461+index,outfit[key]or 0)end
+   p:setStorageValue(95469,1)
+   local hours=math.max(1,math.floor(lv/2))
+   c.state(p).form={profile=profile,expires=c.now()+hours*3600000,rounds=hours*600}
+   p:setMaxHealth(profile.hp);p:addHealth(profile.hp-p:getHealth());p:setOutfit({lookType=profile.look})
+   tell(p,'Forma Selvagem: '..profile.name..'; PV '..profile.hp..'; CA '..profile.ac..'; duracao '..hours..' h.');return true
+  elseif name=='endwildshape'then
+   if not c.state(p).form then return reject(p,'Voce nao esta em Forma Selvagem.')end
+   if not ready(p)or not spend(p,'bonus')then return true end
+   X.endForm(p);return true
+  elseif name=='inspiration' then
+   if cls~=6 then return reject(p,'Inspiracao Bardica exige Bardo.')end
+   local target=p:getFollowCreature()
+   if not target or not c.isPlayer(target)or target:getId()==p:getId()or not c.range(p,target,12)then return reject(p,'Siga outro jogador visivel a ate 18 m para inspira-lo.')end
+   if c.state(target).inspiration and c.state(target).inspiration.expires>c.now()then return reject(p,'O alvo ja tem um dado de Inspiracao Bardica.')end
+   local spent=used(p,K.inspiration)
+   if spent>=math.max(1,c.mod(p,5))then return reject(p,'Inspiracoes esgotadas.')end
+   if not ready(p)or not spend(p,'bonus')then return true end
+   p:setStorageValue(K.inspiration,spent+1)
+   c.state(target).inspiration={die=lv>=5 and 8 or 6,expires=c.now()+600000,expiresTurn=(c.state(target).economy.turn or 0)+100}
+   tell(target,'Voce recebeu Inspiracao Bardica d'..(lv>=5 and 8 or 6)..'. Use a hotkey antes do teste que deseja beneficiar.')
+   return true
+  elseif name=='useinspiration'then
+   if not c.state(p).inspiration then return reject(p,'Voce nao tem Inspiracao Bardica.')end
+   c.state(p).useInspiration=true;tell(p,'Inspiracao armada para seu proximo ataque ou teste.');return true
+  elseif name=='cuttingwords'then
+   if cls~=6 or lv<3 then return reject(p,'Palavras Cortantes exige Bardo do Conhecimento nivel 3.')end
+   p:setStorageValue(95411,p:getStorageValue(95411)==1 and 0 or 1)
+   tell(p,'Palavras Cortantes automatica: '..(p:getStorageValue(95411)==1 and 'ativada.' or 'desativada.'));return true
+  elseif name=='invocation'then
+   if cls~=12 or lv<2 then return reject(p,'Invocacoes exige Bruxo nivel 2.')end
+   local bits={agonizingblast=1,fiendishvigor=2,armorofshadows=4,devilssight=8}
+   local bit=bits[arg];if not bit then return reject(p,'Invocacao: agonizingblast, fiendishvigor, armorofshadows ou devilssight.')end
+   local mask=used(p,K.invocations)
+   if has(mask,bit)then return reject(p,'Voce ja conhece esta invocacao.')end
+   local count=0;for _,v in pairs(bits)do if has(mask,v)then count=count+1 end end
+   if count>=(lv>=5 and 3 or 2)then return reject(p,'Limite de invocacoes conhecidas atingido.')end
+   p:setStorageValue(K.invocations,mask+bit);tell(p,'Invocacao aprendida: '..arg..'.');return true
+  elseif name=='fiendishvigor'then
+   if not X.invocation(p,2)then return reject(p,'Aprenda a invocacao Vigor Abissal primeiro.')end
+   if not spellAction(p)then return true end
+   X.tempHP(p,R.roll(4,c.rng)+4,'Vigor Abissal');return true
+  elseif name=='armorofshadows'then
+   if not X.invocation(p,4)then return reject(p,'Aprenda Armadura das Sombras primeiro.')end
+   if not spellAction(p)then return true end
+   c.state(p).mageArmor=c.now()+28800000;tell(p,'Armadura Arcana ativa por 8 horas.');return true
+  elseif name=='metamagic'then
+   if cls~=11 or lv<3 then return reject(p,'Metamagia exige Feiticeiro nivel 3.')end
+   local bits={quickened=1,distant=2,extended=4};local bit=bits[arg]
+   if not bit then return reject(p,'Metamagia: quickened, distant ou extended.')end
+   local mask=used(p,K.metamagic)
+   if has(mask,bit)then c.state(p).metamagic=arg;tell(p,'Metamagia selecionada: '..arg..'.');return true end
+   local count=0;for _,v in pairs(bits)do if has(mask,v)then count=count+1 end end
+   if count>=2 then return reject(p,'Voce ja escolheu suas duas Metamagias.')end
+   p:setStorageValue(K.metamagic,mask+bit);c.state(p).metamagic=arg;tell(p,'Metamagia aprendida e selecionada: '..arg..'.');return true
+  elseif name=='metamagicoff'then c.state(p).metamagic=nil;tell(p,'Metamagia desativada.');return true
+  elseif name=='fontslot'or name=='fontpoints'then
+   if cls~=11 or lv<2 then return reject(p,'Fonte de Magia exige Feiticeiro nivel 2.')end
+   local circle=tonumber(arg);if not circle or circle%1~=0 or circle<1 or circle>3 then return reject(p,'Escolha um circulo de 1 a 3.')end
+   local spent=used(p,K.sorcery);local key=95029+circle;local slots=math.max(0,p:getStorageValue(key))
+   local costs={2,3,5};local cost=costs[circle]
+   if name=='fontslot'and lv-spent<cost then return reject(p,'Pontos de Feiticaria insuficientes.')end
+   if name=='fontpoints'and(slots==0 or spent<circle)then return reject(p,'Sem slot ou a conversao excederia seu maximo de Pontos de Feiticaria.')end
+   if not ready(p)or not spend(p,'bonus')then return true end
+   if name=='fontslot'then
+    p:setStorageValue(K.sorcery,spent+cost)
+    p:setStorageValue(95440+circle,used(p,95440+circle)+1)
+    p:setStorageValue(95032+circle,math.max(0,p:getStorageValue(95032+circle))+1)
+    p:setStorageValue(key,slots+1)
+   else p:setStorageValue(key,slots-1);p:setStorageValue(K.sorcery,spent-circle)end
+   c.syncSlots(p);c.sendSlots(p);tell(p,'Fonte de Magia: '..(lv-used(p,K.sorcery))..'/'..lv..' Pontos de Feiticaria.');return true
+  end
+  return false
+ end
+ function X.metamagic(p,spell,commit)
+  local mode=c.state(p).metamagic
+  if c.class(p)~=11 or not mode then return spell,0 end
+  local cost=mode=='quickened'and 2 or 1
+  if c.level(p)-used(p,K.sorcery)<cost then return nil,'Pontos de Feiticaria insuficientes para a Metamagia selecionada.'end
+  if mode=='quickened'and spell.bonus then return nil,'A magia ja usa uma acao bonus.'end
+  if mode=='extended'and not spell.turns then return nil,'Magia sem duracao elegivel para Metamagia Estendida.'end
+  local copy={};for k,v in pairs(spell)do copy[k]=v end
+  if mode=='quickened'then copy.bonus=true
+  elseif mode=='distant'then copy.range=spell.range==1 and 6 or spell.range*2
+  elseif mode=='extended'then copy.turns=math.min(14400,spell.turns*2)end
+  if commit then p:setStorageValue(K.sorcery,used(p,K.sorcery)+cost)end
+  return copy,cost
+ end
+ function X.ac(p,value)
+  return value+(c.state(p).shield and 5 or 0)
+ end
+ function X.sheet(p)
+  local cls,lv=c.class(p),c.level(p);local race=p:getStorageValue(95002)
+  local trainedMask,expertMask=0,0
+  for _,key in ipairs(skillOrder)do local row,trained,expert=X.skillInfo(p,key);if trained then trainedMask=trainedMask+row.bit end;if expert then expertMask=expertMask+row.bit end end
+  return {inspiration=cls==6 and math.max(0,math.max(1,c.mod(p,5))-used(p,K.inspiration))or 0,maxinspiration=cls==6 and math.max(1,c.mod(p,5))or 0,
+   skilltrained=trainedMask,skillexpert=expertMask,lorechosen=used(p,95481),expertchosen=used(p,95480),invocations=used(p,K.invocations),metamagic=used(p,K.metamagic),favoredenemy=used(p,95490),favoredterrain=used(p,95491),
+   sorcery=cls==11 and lv>=2 and math.max(0,lv-used(p,K.sorcery))or 0,maxsorcery=cls==11 and lv>=2 and lv or 0,
+   wildshape=cls==7 and lv>=2 and math.max(0,2-used(p,95450))or 0,maxwildshape=cls==7 and lv>=2 and 2 or 0,
+   form=c.state(p).form and 1 or 0,tempHP=c.state(p).tempHP or 0,
+   breath=race==5 and math.max(0,1-used(p,95501))or 0,maxbreath=race==5 and 1 or 0,
+   hellish=race==9 and lv>=3 and math.max(0,1-used(p,95521))or 0,maxhellish=race==9 and lv>=3 and 1 or 0,
+   darkness=race==9 and lv>=5 and math.max(0,1-used(p,95522))or 0,maxdarkness=race==9 and lv>=5 and 1 or 0}
+ end
+ return X
+end
+return M

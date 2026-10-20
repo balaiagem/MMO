@@ -3,6 +3,11 @@
 
 local KILL_QUESTS = {
 	["cave rat"] = { title = "Al Dee's Stolen Tools", status = 96101, counter = 96102, need = 10, plural = "cave rats", npc = "Al Dee" },
+	["wolf"] = { title = "Wolves at the Farm", status = 96131, counter = 96132, need = 6, plural = "wolves", npc = "Willie" },
+	["bear"] = { title = "The Tanner's Bear Hunt", status = 96141, counter = 96142, need = 3, plural = "bears", npc = "Tom" },
+	["troll"] = { title = "Troll Trouble", status = 96151, counter = 96152, need = 5, plural = "trolls", npc = "Obi" },
+	["poison spider"] = { title = "Poison in the Forest", status = 96161, counter = 96162, need = 5, plural = "poison spiders", npc = "Hyacinth" },
+	["minotaur"] = { title = "Horns in the Dark", status = 96171, counter = 96172, need = 3, plural = "minotaurs", npc = "Loui" },
 }
 
 local questKill = CreatureEvent("RookQuestKill")

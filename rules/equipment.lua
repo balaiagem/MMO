@@ -57,6 +57,8 @@ function M.new(data)
   elseif ctx.class==11 then value=13+ctx.dex             -- Draconic Resilience
   else value=10+ctx.dex end
   if shield then value=value+shield.bonus end
+  local ring=E.item(worn.ring)                           -- Ring of Protection etc.
+  if ring and ring.kind=='ring' then value=value+(ring.ac or 0) end
   return value,set,shield
  end
  -- Name of armour/shield worn without proficiency (disadvantage, no spells).

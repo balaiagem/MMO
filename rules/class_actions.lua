@@ -13,7 +13,7 @@ function M.new(c)
  local skillOrder={'acrobatics','animal-handling','arcana','athletics','deception','history','insight','intimidation','investigation','medicine','nature','perception','performance','persuasion','religion','sleight-of-hand','stealth','survival'}
  local skillLabels={'Acrobatics','Animal Handling','Arcana','Athletics','Deception','History','Insight','Intimidation','Investigation','Medicine','Nature','Perception','Performance','Persuasion','Religion','Sleight of Hand','Stealth','Survival'}
  local skillAbilities={1,4,3,0,5,3,4,5,3,4,3,4,5,5,3,1,1,4}
- local skillRows={};for index,key in ipairs(skillOrder)do skillRows[key]={bit=2^(index-1),label=skillLabels[index],ability=skillAbilities[index]}end
+ local skillRows={};for index,key in ipairs(skillOrder)do local bit=1;for _=2,index do bit=bit*2 end;skillRows[key]={bit=bit,label=skillLabels[index],ability=skillAbilities[index]}end
  local favoredTypes={'beast','undead','fiend','giant','dragon','construct','elemental','fey','aberration','celestial','monstrosity','ooze','plant'}
  local humanoids={'orcs','goblinoids','gnolls','humans','elves','dwarves','halflings','gnomes','dragonborn','half-elves','half-orcs','tieflings','kobolds','lizardfolk'}
  local terrains={'arctic','coast','desert','forest','grassland','mountain','swamp','underdark'}
@@ -50,6 +50,16 @@ function M.new(c)
   local s=c.state(p)
   return not s.stunned and not s.sleeping and not s.rage and(not ownTurn(p)or not s.economy.bonusSpell)
  end
+ local function knowsSpell(p,key)
+  if c.hasSpell then return c.hasSpell(p,key) end
+  return true
+ end
+ -- Pergunta ao jogador (janela Sim/Nao). nil = nao da para perguntar (usa a preferencia automatica antiga).
+ local function ask(p,kind,text,autoKey)
+  local answer=c.askReaction and c.askReaction(p,kind,text)
+  if answer==nil then return p:getStorageValue(autoKey)==1 end
+  return answer
+ end
  local function consumeSlot(p,minimum)
   for circle=minimum,3 do
    local value=math.max(0,p:getStorageValue(95029+circle))
@@ -61,8 +71,10 @@ function M.new(c)
   if not enc then return false end
   for _,defender in ipairs(enc.order)do
    if c.isPlayer(defender)and defender:getId()~=caster:getId()and c.alive(defender)and(c.isMonster(caster)or enc.pvp)and
-    c.level(defender)>=5 and(c.class(defender)==4 or c.class(defender)==11 or c.class(defender)==12)and defender:getStorageValue(95494)==1 and reactionSpell(defender)and
-    c.range(defender,caster,12)and not X.visionBlocked(defender,caster)and defender:getStorageValue(95032)>0 and c.state(defender).economy.reaction then
+    c.level(defender)>=5 and(c.class(defender)==4 or c.class(defender)==11 or c.class(defender)==12)and knowsSpell(defender,'counterspell')and reactionSpell(defender)and
+    c.range(defender,caster,12)and not X.visionBlocked(defender,caster)and defender:getStorageValue(95032)>0 and c.state(defender).economy.reaction and
+    ask(defender,'counterspell',string.format('%s esta conjurando uma magia de %s. Usar Contramagica (reacao + espaco de 3o circulo)?',caster:getName(),circle>0 and(circle..'o circulo')or'truque'),95494)and
+    c.alive(defender)and c.state(defender).economy.reaction and defender:getStorageValue(95032)>0 then
     R.spend(c.state(defender).economy,'reaction',c.now());local slot=consumeSlot(defender,3)
     if ownTurn(defender)then R.recordSpell(c.state(defender).economy,false,3)end
     tell(defender,'Contramagica: reacao e slot '..slot..' gastos.')
@@ -77,11 +89,16 @@ function M.new(c)
   end
   return false
  end
- local function shield(p)
+ local function shield(p,attackText)
   if c.state(p).shield then return true end
   local cls=c.class(p)
-  if(cls~=4 and cls~=11)or p:getStorageValue(95493)~=1 or not reactionSpell(p)or not c.state(p).economy.reaction then return false end
+  if(cls~=4 and cls~=11)or not knowsSpell(p,'shield')or not reactionSpell(p)or not c.state(p).economy.reaction then return false end
   local available=false;for circle=1,3 do if p:getStorageValue(95029+circle)>0 then available=true end end
+  if not available then return false end
+  if not ask(p,'shield',attackText or 'Voce vai ser atingido. Usar Escudo Arcano (+5 CA ate seu proximo turno; reacao + espaco de magia)?',95493)then return false end
+  -- a resposta pode ter demorado: confere de novo
+  if not c.alive(p)or not c.state(p).economy.reaction then return false end
+  available=false;for circle=1,3 do if p:getStorageValue(95029+circle)>0 then available=true end end
   if not available then return false end
   R.spend(c.state(p).economy,'reaction',c.now());consumeSlot(p,1)
   if ownTurn(p)then R.recordSpell(c.state(p).economy,false,1)end
@@ -93,10 +110,11 @@ function M.new(c)
  function X.shieldAttack(a,b,roll)
   if not c.isPlayer(b)or not roll.hit or roll.critical or roll.total>=c.ac(b)+5 then return end
   if c.state(b).shield then return end
-  if shield(b)then roll.hit=roll.total>=c.ac(b)end
+  local text=string.format('%s vai te acertar (%d contra sua CA %d). Usar Escudo Arcano? (+5 CA: o ataque erraria)',a:getName(),roll.total,c.ac(b))
+  if shield(b,text)then roll.hit=roll.total>=c.ac(b)end
  end
  function X.blockMagicMissile(target)
-  return c.isPlayer(target)and(c.state(target).shield~=nil or shield(target))
+  return c.isPlayer(target)and(c.state(target).shield~=nil or shield(target,'Misseis Magicos vem em sua direcao. Usar Escudo Arcano para bloquea-los?'))
  end
  function X.invocation(p,bit)return c.class(p)==12 and c.level(p)>=2 and has(used(p,K.invocations),bit)end
  function X.resistant(p,kind,flavor)
@@ -163,15 +181,28 @@ function M.new(c)
  function X.onKill(p)
   if c.class(p)==12 then X.tempHP(p,math.max(1,c.level(p)+c.mod(p,5)), 'Bencao do Obscuro')end
  end
+ local formLooks={};for _,f in pairs(forms)do formLooks[f.look]=true end
+ local function savedOutfit(p)
+  local keys={'lookType','lookHead','lookBody','lookLegs','lookFeet','lookAddons','lookMount'};local outfit={}
+  for index,key in ipairs(keys)do outfit[key]=math.max(0,p:getStorageValue(95461+index))end
+  -- Nunca devolve a aparencia de uma forma animal (ou vazia): usa o cidadao padrao.
+  if outfit.lookType==0 or formLooks[outfit.lookType]then outfit.lookType=(p.getSex and p:getSex()==0)and 136 or 128 end
+  return outfit
+ end
+ -- Jogador fora de Forma Selvagem mas ainda com sprite de animal (morte, queda do servidor): corrige.
+ function X.restoreLook(p)
+  if c.state(p).form or p:getStorageValue(95469)==1 then return false end
+  local current=p:getOutfit()
+  if current and formLooks[current.lookType]then p:setOutfit(savedOutfit(p));return true end
+  return false
+ end
  function X.endForm(p)
   local s=c.state(p)
   if not s.form and p:getStorageValue(95469)~=1 then return false end
   s.form=nil
   local maximum=math.max(1,p:getStorageValue(95461));local health=math.max(0,p:getStorageValue(95460))
   p:setMaxHealth(maximum);p:addHealth(math.min(maximum,health)-p:getHealth())
-  local keys={'lookType','lookHead','lookBody','lookLegs','lookFeet','lookAddons','lookMount'};local outfit={}
-  for index,key in ipairs(keys)do outfit[key]=math.max(0,p:getStorageValue(95461+index))end
-  p:setOutfit(outfit);p:setStorageValue(95469,0)
+  p:setOutfit(savedOutfit(p));p:setStorageValue(95469,0)
   tell(p,'Forma Selvagem encerrada; PV originais restaurados.');return true
  end
  function X.wouldDrop(p,amount)
@@ -277,6 +308,10 @@ function M.new(c)
    if hex and hex.targetId==p:getId()and hex.ability==row.ability then disadvantage=true end
   end
   bonus=bonus+X.attackBonus(p)
+  if c.checkMods then
+   local extra,adv,dis=c.checkMods(p,row.ability)
+   bonus=bonus+(extra or 0);advantage=advantage or adv;disadvantage=disadvantage or dis
+  end
   local natural=R.d20(c.actorRng(p),advantage,disadvantage)
   tell(p,string.format('Teste %s: d20=%d %+d = %d%s',key,natural,bonus,natural+bonus,advantage and' | vantagem'or''))
   return true
@@ -479,7 +514,10 @@ function M.new(c)
    local bits={quickened=1,distant=2,extended=4};local bit=bits[arg]
    if not bit then return reject(p,'Metamagia: quickened, distant ou extended.')end
    local mask=used(p,K.metamagic)
-   if has(mask,bit)then c.state(p).metamagic=arg;tell(p,'Metamagia selecionada: '..arg..'.');return true end
+   if has(mask,bit)then
+    if c.state(p).metamagic==arg then c.state(p).metamagic=nil;tell(p,'Metamagia desarmada.');return true end
+    c.state(p).metamagic=arg;tell(p,'Metamagia armada para a proxima magia: '..arg..' (custo '..(arg=='quickened'and 2 or 1)..').');return true
+   end
    local count=0;for _,v in pairs(bits)do if has(mask,v)then count=count+1 end end
    if count>=2 then return reject(p,'Voce ja escolheu suas duas Metamagias.')end
    p:setStorageValue(K.metamagic,mask+bit);c.state(p).metamagic=arg;tell(p,'Metamagia aprendida e selecionada: '..arg..'.');return true
@@ -506,14 +544,25 @@ function M.new(c)
   local mode=c.state(p).metamagic
   if c.class(p)~=11 or not mode then return spell,0 end
   local cost=mode=='quickened'and 2 or 1
-  if c.level(p)-used(p,K.sorcery)<cost then return nil,'Pontos de Feiticaria insuficientes para a Metamagia selecionada.'end
-  if mode=='quickened'and spell.bonus then return nil,'A magia ja usa uma acao bonus.'end
-  if mode=='extended'and not spell.turns then return nil,'Magia sem duracao elegivel para Metamagia Estendida.'end
+  -- Sem pontos ou magia inelegivel: conjura normalmente, sem a Metamagia (nao bloqueia a magia).
+  local skip
+  if c.level(p)-used(p,K.sorcery)<cost then skip='Pontos de Feiticaria insuficientes: magia conjurada sem Metamagia.'
+  elseif mode=='quickened'and spell.bonus then skip='A magia ja usa uma acao bonus: Metamagia Acelerada nao aplicada.'
+  elseif mode=='extended'and not spell.turns then skip='Magia sem duracao: Metamagia Estendida nao aplicada.' end
+  if skip then
+   if not commit then reject(p,skip) end
+   return spell,0
+  end
   local copy={};for k,v in pairs(spell)do copy[k]=v end
   if mode=='quickened'then copy.bonus=true
   elseif mode=='distant'then copy.range=spell.range==1 and 6 or spell.range*2
   elseif mode=='extended'then copy.turns=math.min(14400,spell.turns*2)end
-  if commit then p:setStorageValue(K.sorcery,used(p,K.sorcery)+cost)end
+  if commit then
+   p:setStorageValue(K.sorcery,used(p,K.sorcery)+cost)
+   -- Como no D&D, a Metamagia vale para uma conjuracao: depois de usada, desarma.
+   c.state(p).metamagic=nil
+   tell(p,string.format('Metamagia %s aplicada (-%d). Pontos de Feiticaria: %d/%d.',mode,cost,c.level(p)-used(p,K.sorcery),c.level(p)))
+  end
   return copy,cost
  end
  function X.ac(p,value)
@@ -524,7 +573,7 @@ function M.new(c)
   local trainedMask,expertMask=0,0
   for _,key in ipairs(skillOrder)do local row,trained,expert=X.skillInfo(p,key);if trained then trainedMask=trainedMask+row.bit end;if expert then expertMask=expertMask+row.bit end end
   return {inspiration=cls==6 and math.max(0,math.max(1,c.mod(p,5))-used(p,K.inspiration))or 0,maxinspiration=cls==6 and math.max(1,c.mod(p,5))or 0,
-   skilltrained=trainedMask,skillexpert=expertMask,lorechosen=used(p,95481),expertchosen=used(p,95480),invocations=used(p,K.invocations),metamagic=used(p,K.metamagic),favoredenemy=used(p,95490),favoredterrain=used(p,95491),
+   skilltrained=trainedMask,skillexpert=expertMask,lorechosen=used(p,95481),expertchosen=used(p,95480),invocations=used(p,K.invocations),metamagic=used(p,K.metamagic),favoredenemy=used(p,95490),favoredenemy2=used(p,95492),favoredterrain=used(p,95491),
    sorcery=cls==11 and lv>=2 and math.max(0,lv-used(p,K.sorcery))or 0,maxsorcery=cls==11 and lv>=2 and lv or 0,
    wildshape=cls==7 and lv>=2 and math.max(0,2-used(p,95450))or 0,maxwildshape=cls==7 and lv>=2 and 2 or 0,
    form=c.state(p).form and 1 or 0,tempHP=c.state(p).tempHP or 0,
